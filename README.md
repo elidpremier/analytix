@@ -81,7 +81,34 @@ tab1 <- freq_table(iris, Species)
 export_to_word(path = "frequences_iris.docx")
 ```
 
+### `quick_code()`
+
+Recodage rapide et intuitif d’une variable catégorielle dans un data.frame.
+
+Syntaxe courte : "ancien" = "nouveau"
+
+Non-destructif : les valeurs non recodées sont conservées
+
+Compatible tidyverse
+
+Retourne un tibble
+
+```r
+patients <- data.frame(
+  sexe = c("H", "F", "H"),
+  statut = c(1, 2, 1)
+)
+
+quick_code(
+  patients,
+  statut,
+  "1" = "Ambulatoire",
+  "2" = "Hospitalisé"
+)
+```
+
 ---
+
 
 ## 🚀 Installation
 
@@ -120,4 +147,3 @@ Conçu pour les **contextes d’expertise analytique francophones** :
 * Libellés métier clairs
 * Tableaux immédiatement exploitables pour les rapports officiels
 
-```
