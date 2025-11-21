@@ -12,4 +12,7 @@ install.packages("devtools")
 devtools::install_github("elidpremier/analytix")
 # Exemple d'usage
 library(analytix)
+#charger certaines dependances
+library(tidyverse)
+library(flextable)
 freq_table(iris, Species)
