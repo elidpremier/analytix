@@ -1,5 +1,5 @@
-````markdown
-# analytix
+
+### analytix
 
 Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**.
 
@@ -21,7 +21,6 @@ Analyse fréquentielle pour variables catégorielles (y compris numériques disc
 freq_table(iris, Species, var_name = "Espèce", digits = 1)
 ````
 
----
 
 ### `descr_numeric()`
 
