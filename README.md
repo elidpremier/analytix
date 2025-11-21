@@ -1,5 +1,4 @@
-
-## analytix
+# analytix
 
 Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**.
 
