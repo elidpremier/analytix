@@ -2,8 +2,12 @@
 
 export("%>%")
 export(analyse_descriptive_multiple)
+export(collapse_categories)
+export(descr_by_group)
 export(descr_numeric)
 export(export_to_word)
+export(freq_cross)
 export(freq_table)
+export(missing_report)
 export(quick_code)
 importFrom(magrittr,"%>%")
