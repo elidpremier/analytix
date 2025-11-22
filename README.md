@@ -2,6 +2,25 @@
 
 Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**.
 
+
+---
+
+## 🚀 Installation
+
+```r
+# Installer devtools si nécessaire
+install.packages("devtools")
+
+# Installer analytix depuis GitHub
+devtools::install_github("elidpremier/analytix")
+
+# Charger le package
+library(analytix)
+```
+
+> 💡 **Note** : les dépendances (`dplyr`, `flextable`, etc.) sont installées automatiquement.
+> Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
+
 ---
 
 ## 📦 Fonctions principales
@@ -81,25 +100,36 @@ tab1 <- freq_table(iris, Species)
 export_to_word(path = "frequences_iris.docx")
 ```
 
----
+### `quick_code()`
 
-## 🚀 Installation
+Recodage rapide et intuitif d’une variable catégorielle dans un data.frame avec gestion des valeurs manquantes.
+
+Syntaxe courte : "ancien" = "nouveau"
+
+Non-destructif : les valeurs non recodées sont conservées
+
+Compatible tidyverse
+
+Retourne un tibble
 
 ```r
-# Installer devtools si nécessaire
-install.packages("devtools")
+patients <- data.frame(
+  sexe = c("H", "F", "H"),
+  statut = c(1, 2, 1)
+)
 
-# Installer analytix depuis GitHub
-devtools::install_github("elidpremier/analytix")
-
-# Charger le package
-library(analytix)
+quick_code(
+  patients,
+  statut,
+  "1" = "Ambulatoire",
+  "2" = "Hospitalisé"
+)
 ```
 
-> 💡 **Note** : les dépendances (`dplyr`, `flextable`, etc.) sont installées automatiquement.
-> Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
-
 ---
+
+
+
 
 ## 📚 Dépendances
 
@@ -120,4 +150,3 @@ Conçu pour les **contextes d’expertise analytique francophones** :
 * Libellés métier clairs
 * Tableaux immédiatement exploitables pour les rapports officiels
 
-```
