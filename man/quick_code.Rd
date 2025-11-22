@@ -4,26 +4,35 @@
 \alias{quick_code}
 \title{Recodage rapide d'une variable catégorielle}
 \usage{
-quick_code(data, var, ...)
+quick_code(data, var, ..., .na = NULL, to = c("character", "factor", "keep"))
 }
 \arguments{
-\item{data}{Un data frame ou tibble.}
+\item{data}{Un data.frame ou tibble.}
 
-\item{var}{La variable à recoder (sans guillemets).}
+\item{var}{Variable à recoder (unquoted).}
 
 \item{...}{Paires "ancien" = "nouveau" indiquant les recodages.}
+
+\item{.na}{Valeur de remplacement pour les NA (par défaut NULL : les NA sont conservés).}
+
+\item{to}{Type final de la variable : "character" (par défaut), "factor", ou "keep".}
 }
 \value{
-Un nouveau data.frame avec la variable recodée.
+Un tibble avec la variable recodée.
 }
 \description{
-Fonction simple et intuitive pour recoder rapidement une variable
-catégorielle dans un data.frame.
-Permet une syntaxe courte du type :
-\code{quick_code(df, sexe, "H" = "Homme", "F" = "Femme")}
+Recoder rapidement une variable dans un data.frame avec une syntaxe courte :
+\code{quick_code(df, sexe, "H" = "Homme", "F" = "Femme")}.
+\itemize{
+\item Par défaut, les valeurs \code{NA} ne sont pas modifiées.
+\item Pour recoder les \code{NA}, utiliser l'argument \code{.na = "Inconnu"} (ou autre).
+}
 }
 \examples{
-df <- data.frame(sexe = c("H", "F", "H"))
+df <- data.frame(sexe = c("H", "F", NA))
+# NA non modifié (par défaut)
 quick_code(df, sexe, "H" = "Homme", "F" = "Femme")
 
+# NA recodé
+quick_code(df, sexe, "H" = "Homme", "F" = "Femme", .na = "Inconnu")
 }

@@ -2,6 +2,25 @@
 
 Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**.
 
+
+---
+
+## 🚀 Installation
+
+```r
+# Installer devtools si nécessaire
+install.packages("devtools")
+
+# Installer analytix depuis GitHub
+devtools::install_github("elidpremier/analytix")
+
+# Charger le package
+library(analytix)
+```
+
+> 💡 **Note** : les dépendances (`dplyr`, `flextable`, etc.) sont installées automatiquement.
+> Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
+
 ---
 
 ## 📦 Fonctions principales
@@ -83,7 +102,7 @@ export_to_word(path = "frequences_iris.docx")
 
 ### `quick_code()`
 
-Recodage rapide et intuitif d’une variable catégorielle dans un data.frame.
+Recodage rapide et intuitif d’une variable catégorielle dans un data.frame avec gestion des valeurs manquantes.
 
 Syntaxe courte : "ancien" = "nouveau"
 
@@ -110,23 +129,7 @@ quick_code(
 ---
 
 
-## 🚀 Installation
 
-```r
-# Installer devtools si nécessaire
-install.packages("devtools")
-
-# Installer analytix depuis GitHub
-devtools::install_github("elidpremier/analytix")
-
-# Charger le package
-library(analytix)
-```
-
-> 💡 **Note** : les dépendances (`dplyr`, `flextable`, etc.) sont installées automatiquement.
-> Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
-
----
 
 ## 📚 Dépendances
 
