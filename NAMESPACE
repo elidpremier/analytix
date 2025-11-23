@@ -2,6 +2,7 @@
 
 export("%>%")
 export(analyse_descriptive_multiple)
+export(categorize_numeric)
 export(collapse_categories)
 export(descr_by_group)
 export(descr_numeric)

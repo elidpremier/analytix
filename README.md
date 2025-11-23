@@ -1,4 +1,3 @@
-````markdown
 # analytix
 
 Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**, optimisés pour les rapports francophones.
@@ -16,7 +15,7 @@ devtools::install_github("elidpremier/analytix")
 
 # Charger le package
 library(analytix)
-````
+```
 
 > 💡 **Note** : les dépendances (`dplyr`, `flextable`, `officer`, etc.) sont installées automatiquement.
 > Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
