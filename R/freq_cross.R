@@ -87,7 +87,10 @@ freq_cross <- function(data, var1, var2, var1_name = NULL, var2_name = NULL,
     flextable::color(color = "black", part = "header") %>%
     flextable::bold(part = "header") %>%
     flextable::fontsize(size = 10, part = "all") %>%
-    flextable::autofit()
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::align(j = 2:ncol(cross_wide), align = "center", part = "all") %>%
+    flextable::fontsize(size = 11, part = "all") %>%
+    flextable::width(width = 16)
 
   structure(list(flextable = ft, data = tab, p.value = p_val), class = "freq_cross")
 }

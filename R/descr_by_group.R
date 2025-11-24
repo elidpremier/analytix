@@ -78,9 +78,10 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
     flextable::color(color = "black", part = "header") %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = "Statistique", align = "left") %>%
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::align(j = 2:ncol(final_df), align = "center", part = "all") %>%
     flextable::fontsize(size = 11, part = "all") %>%
-    flextable::autofit()
+    flextable::width(width = 16)
 
   structure(list(flextable = ft, data = final_df), class = "descr_by_group")
 }

@@ -114,11 +114,10 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
     flextable::color(color = "black", part = "header") %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = "Statistique", align = "left") %>%
-    flextable::align(j = "Valeur", align = "right") %>%
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::align(j = 2:ncol(stats), align = "center", part = "all") %>%
     flextable::fontsize(size = 11, part = "all") %>%
-    flextable::autofit()
-
+    flextable::width(width = 16)
   # Retour
   structure(
     list(

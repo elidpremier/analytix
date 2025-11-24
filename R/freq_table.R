@@ -124,11 +124,9 @@ freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
       dplyr::select(
         !!rlang::sym(col_label) := variable,
         Effectif = n,
-        Pourcentage = pourcentage_formate
-      ) %>%
-      dplyr::mutate(
-        Pourcentage = base::paste0(Pourcentage, "%")
+        `Pourcentage (%)` = pourcentage_formate  # ← pas de % dans les cellules, mais dans le nom de colonne
       )
+    # → aucune mutation avec paste0("%") ici
   }
 
   if (is.null(caption)) caption <- base::paste("Distribution de :", col_label)
@@ -142,8 +140,10 @@ freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
     flextable::set_table_properties(align = "left") %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = col_label, align = "left") %>%
-    flextable::fontsize(size = 12, part = "all")
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::align(j = 2:ncol(ft_data), align = "center", part = "all") %>%
+    flextable::fontsize(size = 11, part = "all") %>%
+    flextable::width(width = 16)
 
   # Mise en forme du Total
   if (total) {

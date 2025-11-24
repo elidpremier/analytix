@@ -30,9 +30,10 @@ missing_report <- function(data, vars = base::names(data), digits = 1, color = "
     flextable::color(color = "black", part = "header") %>%
     flextable::bold(part = "header") %>%
     flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = "Variable", align = "left") %>%
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::align(j = 2:ncol(miss_data), align = "center", part = "all") %>%
     flextable::fontsize(size = 11, part = "all") %>%
-    flextable::autofit()
+    flextable::width(width = 16)
 
   structure(list(flextable = ft, data = miss_data), class = "missing_report")
 }
