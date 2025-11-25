@@ -197,22 +197,19 @@ plot_distribution <- function(data, var = NULL, type = "auto",
   }
 
   if (!is.null(var)) {
-    # Gérer à la fois les expressions (Species) et les chaînes ("Species")
-    if (is.character(var)) {
-      var_name <- var
-    } else {
-      var_name <- rlang::as_label(rlang::enquo(var))
-      # Supprimer les guillemets ou backticks si présents
-      var_name <- gsub("^`|`$", "", var_name)
-    }
+
+    sym <- rlang::ensym(var)          # capture du symbole
+    var_name <- rlang::as_string(sym) # conversion propre en string
 
     if (!var_name %in% names(data)) {
       stop("Variable '", var_name, "' non trouvée dans le dataframe.", call. = FALSE)
     }
 
-    x <- data[[var_name]]
+    x <- data[[var_name]]             # extraction robuste
     return(.plot_from_vector(x, var_name, type, color, fill, alpha, add_stats, theme))
   }
 
+
   stop("Fournir soit un objet d'analyse, soit un dataframe et une variable.", call. = FALSE)
 }
+#

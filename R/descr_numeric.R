@@ -108,16 +108,7 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   # Flextable
   ft <- flextable::flextable(stats) %>%
     flextable::set_caption(caption) %>%
-    flextable::set_table_properties(align = "left") %>%
-    flextable::theme_booktabs() %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::bold(part = "header") %>%
-    flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::align(j = 2:ncol(stats), align = "center", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::width(width = 16)
+    theme_analytique(color = color)
   # Retour
   structure(
     list(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/analyse_descriptive_multiple.R
 \name{analyse_descriptive_multiple}
 \alias{analyse_descriptive_multiple}
-\title{Analyse descriptive de plusieurs variables (catégorielles et numériques)}
+\title{Analyse descriptive robuste pour variables numériques et catégorielles}
 \usage{
 analyse_descriptive_multiple(
   data,
@@ -10,38 +10,48 @@ analyse_descriptive_multiple(
   var_labels = NULL,
   var_types = NULL,
   exclude_vars = NULL,
+  integer_as_category = TRUE,
+  max_char_levels = 30,
   ...
 )
 }
 \arguments{
 \item{data}{data.frame}
 
-\item{vars}{vecteur de noms de variables (chaînes de caractères).
-Si NULL, analyse toutes les variables du dataframe.}
+\item{vars}{vecteur de noms de variables à analyser.
+Si NULL → toutes les variables.}
 
-\item{var_labels}{(optionnel) libellés : c("VAR" = "Libellé")}
+\item{var_labels}{nommage personnalisé : c("VAR" = "Libellé")}
 
-\item{var_types}{(optionnel) c("VAR" = "categorical", "AUTRE" = "numeric")}
+\item{var_types}{typage manuel : c("VAR" = "numeric", "VAR2" = "categorical")}
 
-\item{exclude_vars}{variables à exclure de l'analyse}
+\item{exclude_vars}{variables à exclure}
 
-\item{...}{arguments passés aux fonctions d'analyse}
+\item{integer_as_category}{logique : TRUE = treat integers with few levels as categorical}
+
+\item{max_char_levels}{seuil max pour analyser une variable texte}
+
+\item{...}{arguments passés aux fonctions d’analyse}
 }
 \value{
-Une liste nommée d'objets \code{freq_table} ou \code{descr_numeric}
+Une liste contenant des objets freq_table ou descr_numeric
 }
 \description{
-Applique automatiquement \code{freq_table} ou \code{descr_numeric}
-selon le type de chaque variable.
+Analyse automatiquement une sélection de variables, avec
+une détection de type améliorée et des warnings intelligents.
 }
 \examples{
-# Analyser seulement certaines variables
-analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
 
-# Analyser TOUTES les variables
-analyse_descriptive_multiple(iris)
+Analyser seulement certaines variables
+ analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
 
-# Analyser toutes sauf certaines
-analyse_descriptive_multiple(iris, exclude_vars = "Species")
+
+ Analyser TOUTES les variables
+ analyse_descriptive_multiple(iris)
+
+
+ Analyser toutes sauf certaines
+ analyse_descriptive_multiple(iris, exclude_vars = "Species")
+
 
 }

@@ -73,15 +73,7 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
 
   ft <- flextable::flextable(final_df) %>%
     flextable::set_caption(caption) %>%
-    flextable::theme_booktabs() %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::bold(part = "header") %>%
-    flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::align(j = 2:ncol(final_df), align = "center", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::width(width = 16)
+    theme_analytique(color = color)
 
   structure(list(flextable = ft, data = final_df), class = "descr_by_group")
 }

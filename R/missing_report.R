@@ -25,15 +25,7 @@ missing_report <- function(data, vars = base::names(data), digits = 1, color = "
 
   ft <- flextable::flextable(miss_data) %>%
     flextable::set_caption("Taux de valeurs manquantes par variable") %>%
-    flextable::theme_booktabs() %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::bold(part = "header") %>%
-    flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::align(j = 2:ncol(miss_data), align = "center", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::width(width = 16)
+    theme_analytique(color = color)
 
   structure(list(flextable = ft, data = miss_data), class = "missing_report")
 }

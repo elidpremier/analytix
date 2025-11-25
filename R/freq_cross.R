@@ -82,15 +82,7 @@ freq_cross <- function(data, var1, var2, var1_name = NULL, var2_name = NULL,
 
   ft <- flextable::flextable(cross_wide) %>%
     flextable::set_caption(caption) %>%
-    flextable::theme_booktabs() %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::bold(part = "header") %>%
-    flextable::fontsize(size = 10, part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::align(j = 2:ncol(cross_wide), align = "center", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::width(width = 16)
+    theme_analytique(color = color)
 
   structure(list(flextable = ft, data = tab, p.value = p_val), class = "freq_cross")
 }

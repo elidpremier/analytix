@@ -4,8 +4,30 @@
 \alias{theme_analytique}
 \title{Applique un thème analytique à une flextable}
 \usage{
-theme_analytique(ft, color = "#D3D3D3")
+theme_analytique(ft, page_width = 16, color = "#D3D3D3")
+}
+\arguments{
+\item{ft}{Un objet flextable}
+
+\item{page_width}{Largeur de la zone utile de la page en cm.
+Par défaut : 16.5 cm (largeur Word standard A4 avec marges)}
+
+\item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
+}
+\value{
+Un objet flextable formaté
 }
 \description{
-Applique un thème analytique à une flextable
+Applique un formatage cohérent pour tous les tableaux du package analytique.
+Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16.5 cm).
+}
+\examples{
+\dontrun{
+ft <- flextable::flextable(head(iris))
+theme_analytique(ft)
+
+# Personnalisation
+theme_analytique(ft, page_width = 14, color = "blue")
+}
+
 }

@@ -134,16 +134,7 @@ freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
   # Création du flextable
   ft <- flextable::flextable(ft_data) %>%
     flextable::set_caption(caption) %>%
-    flextable::theme_booktabs() %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::set_table_properties(align = "left") %>%
-    flextable::bold(part = "header") %>%
-    flextable::align(align = "left", part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::align(j = 2:ncol(ft_data), align = "center", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::width(width = 16)
+    theme_analytique(color = color)
 
   # Mise en forme du Total
   if (total) {
@@ -153,8 +144,7 @@ freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
       flextable::bold(i = total_condition)
   }
 
-  ft <- flextable::autofit(ft)
-
+  # Calcul du n_total final (exclut la ligne Total si présente)
   n_total_final <- if (total) base::sum(freq_data$n[freq_data$variable != "Total"]) else base::sum(freq_data$n)
 
   structure(
