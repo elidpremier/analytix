@@ -162,7 +162,8 @@ freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
       data = freq_data,
       flextable = ft,
       variable_name = var_name,
-      n_total = n_total_final
+      n_total = n_total_final,
+      raw_data = x  # ←←← Ajout crucial pour la visualisation
     ),
     class = "freq_table"
   )

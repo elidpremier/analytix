@@ -125,7 +125,8 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
       flextable = ft,
       variable_name = var_name,
       n_valid = n_valid,
-      n_missing = n_missing
+      n_missing = n_missing,
+      raw_data = x  # ←←← Ajout crucial pour la visualisation
     ),
     class = "descr_numeric"
   )
