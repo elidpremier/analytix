@@ -72,19 +72,31 @@ analyse_descriptive_multiple(
 
 ##  Fonctions d'Analyse Bivariée
 
-### `freq_cross()`
+### `cross_test()`
 
-Génère un **tableau croisé (contingence)** de deux variables catégorielles.
+Génère un tableau croisé professionnel de deux variables catégorielles, avec effectifs, pourcentages (au choix : par ligne, colonne ou total) et un test d’association (khi² ou Fisher) adapté aux données.
 
-* Affiche l'effectif (`n`) et les pourcentages (**lignes, colonnes, total**) dans chaque cellule.
-* Calcule et affiche le résultat du **test du χ²**.
+* Affichage clair au format n (p%), conforme aux standards des rapports épidémiologiques.
+* Choix explicite du type de pourcentage → interprétation épidémiologique rigoureuse.
+* Test automatique ou manuel : khi² (avec ou sans correction de Yates), Fisher exact ou simulé.
+* Gestion des valeurs manquantes (NA incluses si présentes).
+* Format francophone : virgule décimale, espaces fines insécables (via flextable).
+* Tableau directement exportable avec export_to_word().
 
 ```r
-# Croisement entre type de transmission (am) et cylindres (cyl) dans mtcars
-freq_cross(
+# Exemple de base : croisement entre transmission et cylindres
+cross_test(
   mtcars, am, cyl,
   var1_name = "Boîte automatique",
   var2_name = "Cylindres"
+)
+
+# Exemple avancé : pourcentages en colonne + test de Fisher forcé
+cross_test(
+  mtcars, am, cyl,
+  pct = "col",
+  test = "fisher",
+  yates = FALSE
 )
 ```
 
