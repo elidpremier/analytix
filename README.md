@@ -100,6 +100,19 @@ cross_test(
 )
 ```
 
+### `cross_multi`
+
+Générez en un seul appel un tableau synthétique croisant une variable dépendante catégorielle avec plusieurs variables explicatives. Idéal pour les rapports épidémiologiques ou les tableaux descriptifs.
+
+
+```r
+# Tableau bivarié : boîte de vitesse (am) vs cylindres et forme du moteur
+cross_multi(
+  data = mtcars2,
+  outcome = am,
+  predictors = c("cyl", "vs")
+)
+```
 ### `descr_by_group()`
 
 Calcule les **statistiques descriptives** d'une variable numérique **par groupe** d'une variable catégorielle.

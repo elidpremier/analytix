@@ -39,7 +39,8 @@ theme_analytique <- function(ft, page_width = 16, color = "#D3D3D3") {
     flextable::color(color = "black", part = "header") %>%
     flextable::bold(part = "header") %>%
     flextable::fontsize(size = 11, part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all")
+    flextable::align(j = 1, align = "left", part = "all") %>%
+    flextable::font(part = "all", fontname = "Times New Roman")
 
   # Alignement centre pour colonnes 2+
   n_cols <- flextable::ncol_keys(ft)

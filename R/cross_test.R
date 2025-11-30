@@ -13,12 +13,12 @@
 #' @param digits nombre de décimales pour les pourcentages (défaut = 1)
 #' @param show_test afficher le résultat du test dans la légende ? (défaut = TRUE)
 #' @param color couleur de l'en-tête (défaut = "#D3D3D3")
+#' @param include_na inclure les valeurs manquantes (NA) dans le tableau ? (défaut = FALSE)
 #'
 #' @return objet flextable, avec classe "analytix_table" (compatible avec export_to_word)
 #'
 #' @examples
 #' cross_test(mtcars, am, cyl, var1_name = "Boîte automatique", var2_name = "Cylindres")
-#' cross_test(mtcars, am, cyl, pct = "col", test = "fisher")
 #'
 #' @export
 cross_test <- function(data, var1, var2,
@@ -26,9 +26,10 @@ cross_test <- function(data, var1, var2,
                        pct = c("row", "col", "total"),
                        test = c("auto", "chisq", "fisher"),
                        digits = 1, show_test = TRUE,
-                       color = "#D3D3D3") {
+                       color = "#D3D3D3",
+                       include_na = FALSE) {
 
-  # --- Dépendances (déjà dans Imports selon ton README) ---
+  # --- Dépendances ---
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
@@ -37,7 +38,7 @@ cross_test <- function(data, var1, var2,
   pct <- match.arg(pct)
   test <- match.arg(test)
 
-  # --- Extraction des variables ---
+  # --- Extraction des variables avec rlang ---
   var1_enq <- rlang::enquo(var1)
   var2_enq <- rlang::enquo(var2)
 
@@ -50,7 +51,7 @@ cross_test <- function(data, var1, var2,
   if (is.null(var1_name)) var1_name <- v1_name
   if (is.null(var2_name)) var2_name <- v2_name
 
-  # --- Vérification implicite : catégorielles ---
+  # --- Vérification implicite : trop de modalités ? ---
   if (is.numeric(x) && length(unique(x)) > 10) {
     warning("var1 semble numérique avec >10 modalités – résultat potentiellement illisible.")
   }
@@ -58,27 +59,34 @@ cross_test <- function(data, var1, var2,
     warning("var2 semble numérique avec >10 modalités – résultat potentiellement illisible.")
   }
 
+  # --- Définir useNA selon include_na ---
+  use_na_arg <- if (include_na) "ifany" else "no"
+
   # --- Tableau de contingence ---
-  tab <- table(x, y, useNA = "ifany", dnn = c("Ligne", "Colonne"))
+  tab <- table(x, y, useNA = use_na_arg, dnn = c("Ligne", "Colonne"))
 
   if (sum(tab) == 0) stop("Aucune observation valide.")
 
-  # --- Calcul du pourcentage choisi ---
+  # --- Convertir en matrice pour stabilité ---
+  tab_mat <- as.matrix(tab)
+
+  # --- Calcul du pourcentage choisi (basé sur le même jeu de données) ---
   pct_mat <- switch(pct,
-                    "row"    = prop.table(tab, margin = 1) * 100,
-                    "col"    = prop.table(tab, margin = 2) * 100,
-                    "total"  = prop.table(tab) * 100
+                    "row"    = prop.table(tab_mat, margin = 1) * 100,
+                    "col"    = prop.table(tab_mat, margin = 2) * 100,
+                    "total"  = prop.table(tab_mat) * 100
   )
 
-  # --- Préparer les données ---
-  df <- as.data.frame(tab, stringsAsFactors = FALSE)
-  names(df) <- c("Ligne", "Colonne", "n")
+  # --- Création de data.frames compatibles ---
+  df_n <- as.data.frame(tab, stringsAsFactors = FALSE)
+  names(df_n) <- c("Ligne", "Colonne", "n")
 
-  df$pct <- mapply(function(i, j) {
-    if (i %in% rownames(pct_mat) && j %in% colnames(pct_mat)) {
-      pct_mat[i, j]
-    } else 0
-  }, df$Ligne, df$Colonne)
+  df_pct <- as.data.frame(pct_mat, stringsAsFactors = FALSE)
+  names(df_pct) <- c("Ligne", "Colonne", "pct")
+
+  # Fusionner
+  df <- merge(df_n, df_pct, by = c("Ligne", "Colonne"), all.x = TRUE)
+  df$pct[is.na(df$pct)] <- 0
 
   # --- Formatage de la cellule : n (p%) ---
   df$cellule <- sprintf(
@@ -87,7 +95,7 @@ cross_test <- function(data, var1, var2,
     format(round(df$pct, digits), nsmall = digits, decimal.mark = ",")
   )
 
-  # --- Pivot ---
+  # --- Pivot en large ---
   cross_wide <- df %>%
     dplyr::select(Ligne, Colonne, cellule) %>%
     tidyr::pivot_wider(
@@ -96,11 +104,12 @@ cross_test <- function(data, var1, var2,
       values_fill = "0 (0%)"
     )
 
-  # --- Test d'association ---
+  # --- Test d'association (toujours sans NA) ---
   test_res <- test_association_internal(x, y, test)
 
   # --- Légende ---
   caption <- paste("Croisement :", var1_name, "×", var2_name)
+  if (include_na) caption <- paste(caption, "(NA inclus)")
 
   if (show_test && !is.na(test_res$p.value)) {
     p_val <- test_res$p.value
@@ -116,7 +125,6 @@ cross_test <- function(data, var1, var2,
     flextable::set_caption(caption) %>%
     theme_analytique(color = color)
 
-  # --- Classe pour compatibilité avec export_to_word ---
   class(ft) <- c("analytix_table", class(ft))
 
   return(ft)
@@ -124,8 +132,9 @@ cross_test <- function(data, var1, var2,
 
 
 # --- Fonction interne : logique de test (non exportée) ---
+# Toujours exclure les NA pour le test
 test_association_internal <- function(x, y, test = "auto") {
-  tab <- table(x, y)
+  tab <- table(x, y, useNA = "no")  # NA exclus pour le test
   if (sum(tab) == 0) return(list(p.value = NA, test = "vide", warning = NULL))
 
   chi <- suppressWarnings(chisq.test(tab, correct = FALSE))

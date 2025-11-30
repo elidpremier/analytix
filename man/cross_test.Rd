@@ -14,7 +14,8 @@ cross_test(
   test = c("auto", "chisq", "fisher"),
   digits = 1,
   show_test = TRUE,
-  color = "#D3D3D3"
+  color = "#D3D3D3",
+  include_na = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ cross_test(
 \item{show_test}{afficher le résultat du test dans la légende ? (défaut = TRUE)}
 
 \item{color}{couleur de l'en-tête (défaut = "#D3D3D3")}
+
+\item{include_na}{inclure les valeurs manquantes (NA) dans le tableau ? (défaut = FALSE)}
 }
 \value{
 objet flextable, avec classe "analytix_table" (compatible avec export_to_word)
@@ -48,6 +51,5 @@ avec effectifs, un type de pourcentage au choix, et un test d'association
 }
 \examples{
 cross_test(mtcars, am, cyl, var1_name = "Boîte automatique", var2_name = "Cylindres")
-cross_test(mtcars, am, cyl, pct = "col", test = "fisher")
 
 }
