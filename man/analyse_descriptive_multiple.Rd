@@ -31,10 +31,30 @@ Si NULL → toutes les variables.}
 
 \item{max_char_levels}{seuil max pour analyser une variable texte}
 
-\item{...}{arguments passés aux fonctions d’analyse}
+\item{sort}{TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel}
+
+\item{digits}{nombre de décimales pour les calculs et pourcentages (défaut: 2)}
+
+\item{na_rm}{supprimer les NA dans les calculs ? (défaut: TRUE)}
+
+\item{include_na}{TRUE pour inclure les NA dans le calcul des fréquences, FALSE pour les exclure}
+
+\item{na_label}{Étiquette pour les valeurs manquantes (défaut: "Manquant")}
+
+\item{show_valid}{afficher la ligne "Valeurs valides" ? (défaut: FALSE)}
+
+\item{show_skewness}{afficher l'asymétrie (skewness) ? (défaut: FALSE)}
+
+\item{total}{TRUE pour inclure une ligne de total}
+
+\item{caption}{Titre personnalisé du tableau}
+
+\item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
+
+\item{compact}{TRUE pour un affichage compact (n et \% sur la même ligne) pour les variables catégorielles}
 }
 \value{
-Une liste contenant des objets freq_table ou descr_numeric
+Une liste contenant des objets descr_categorial ou descr_numeric
 }
 \description{
 Analyse automatiquement une sélection de variables, avec

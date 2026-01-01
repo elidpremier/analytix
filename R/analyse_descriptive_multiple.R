@@ -10,7 +10,17 @@
 #' @param exclude_vars variables à exclure
 #' @param integer_as_category logique : TRUE = treat integers with few levels as categorical
 #' @param max_char_levels seuil max pour analyser une variable texte
-#' @param ... arguments passés aux fonctions d’analyse
+#' @param sort TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel
+#' @param digits nombre de décimales pour les calculs et pourcentages (défaut: 2)
+#' @param na_rm supprimer les NA dans les calculs ? (défaut: TRUE)
+#' @param include_na TRUE pour inclure les NA dans le calcul des fréquences, FALSE pour les exclure
+#' @param na_label Étiquette pour les valeurs manquantes (défaut: "Manquant")
+#' @param show_valid afficher la ligne "Valeurs valides" ? (défaut: FALSE)
+#' @param show_skewness afficher l'asymétrie (skewness) ? (défaut: FALSE)
+#' @param total TRUE pour inclure une ligne de total
+#' @param caption Titre personnalisé du tableau
+#' @param color Couleur de l'en-tête (défaut: "#D3D3D3")
+#' @param compact TRUE pour un affichage compact (n et % sur la même ligne) pour les variables catégorielles
 #' @examples
 #'
 #' Analyser seulement certaines variables
@@ -25,7 +35,7 @@
 #'  analyse_descriptive_multiple(iris, exclude_vars = "Species")
 #'
 #'
-#' @return Une liste contenant des objets freq_table ou descr_numeric
+#' @return Une liste contenant des objets descr_categorial ou descr_numeric
 #'
 #' @export
 analyse_descriptive_multiple <- function(
@@ -110,7 +120,7 @@ analyse_descriptive_multiple <- function(
         return("categorical")
       }
 
-      # Trop peu de variabilité → freq table utile
+      # Trop peu de variabilité → descr categorial utile
       if (unique_vals <= 5) return("categorical")
 
       return("numeric")
@@ -178,7 +188,7 @@ analyse_descriptive_multiple <- function(
     if (analyse_type == "numeric") {
       results[[v]] <- do.call(descr_numeric, args)
     } else {
-      results[[v]] <- do.call(freq_table, args)
+      results[[v]] <- do.call(descr_categorial, args)
     }
   }
 

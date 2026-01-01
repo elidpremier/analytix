@@ -18,8 +18,8 @@
 #' freq_table(iris, Species)
 #'
 #' @export
-freq_table <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
-                       include_na = TRUE, na_label = "Manquant", total = TRUE,
+descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
+                       include_na = FALSE, na_label = "Manquant", total = TRUE,
                        caption = NULL, color = "#D3D3D3", compact = FALSE) {
 
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("Package 'dplyr' requis")
