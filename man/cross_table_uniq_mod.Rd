@@ -2,14 +2,13 @@
 % Please edit documentation in R/cross_table_uniq_mod.R
 \name{cross_table_uniq_mod}
 \alias{cross_table_uniq_mod}
-\title{Tableau croisé multi-variables avec tests statistiques par modalité}
+\title{Tableau croisé multi-variables avec p-values par modalité (sans référence)}
 \usage{
 cross_table_uniq_mod(
   data,
   target,
   ...,
   target_name = NULL,
-  refs_list = list(),
   outcome_of_interest = NULL,
   pct = c("row", "col", "total"),
   test = c("auto", "chisq", "fisher"),
@@ -25,27 +24,26 @@ cross_table_uniq_mod(
 
 \item{...}{variables en LIGNES (ex: \code{var1, var2, var3}).}
 
-\item{refs_list}{(optionnel) Liste nommée des modalités de référence, ex: \code{list(var1="Non", var2="Stade 1")}.}
-
-\item{outcome_of_interest}{(optionnel) Modalité de la variable cible à considérer comme événement d'intérêt pour le calcul de l'OR.
+\item{outcome_of_interest}{(optionnel) Modalité de la variable cible à considérer comme événement d'intérêt.
 Si NULL, utilise la première modalité non-NA de \code{target}.}
 
-\item{pct}{Type de pourcentage à afficher : \code{"row"} (par ligne), \code{"col"} (par colonne), \code{"total"} (global).}
+\item{pct}{Type de pourcentage à afficher : \code{"row"}, \code{"col"}, \code{"total"}.}
 
-\item{test}{Choix du test statistique : \code{"auto"} (choisi selon effectifs observés), \code{"chisq"}, \code{"fisher"}.}
+\item{test}{Choix du test statistique : \code{"auto"}, \code{"chisq"}, \code{"fisher"}.}
 
 \item{digits}{Nombre de décimales pour les pourcentages.}
 
 \item{color}{Couleur de fond pour les titres de variables (par défaut : gris clair).}
 
-\item{include_na}{Inclure les valeurs manquantes dans les tableaux ? (\code{TRUE} ou \code{FALSE}).}
+\item{include_na}{Inclure les valeurs manquantes ? (\code{TRUE} ou \code{FALSE}).}
 }
 \description{
 Génère un tableau croisé comparant plusieurs variables (en lignes) contre une variable cible (en colonne),
-en calculant pour chaque modalité non-référence :
+en calculant pour chaque modalité :
 \itemize{
 \item l'effectif et le pourcentage (ligne/colonne/total),
-\item la p-value (Fisher ou χ² selon les effectifs observés),
-\item l'odds ratio et son intervalle de confiance 95\% (vs référence).
+\item la p-value du test d'indépendance (Fisher ou χ²) entre cette modalité (vs le reste) et l'issue d'intérêt.
 }
+
+Aucune modalité de référence n'est utilisée. Chaque modalité est testée indépendamment.
 }
