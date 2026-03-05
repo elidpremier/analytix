@@ -1,6 +1,26 @@
 # analytix
 
-Outils d’analyse descriptive pour la génération de tableaux professionnels avec **flextable**, optimisés pour les rapports francophones.
+<div align="center">
+
+**Outils d'analyse descriptive pour la génération de tableaux professionnels**
+
+Création de rapports analytiques automatisés en français, avec **flextable** et export **Word (.docx)**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Version](https://img.shields.io/badge/Version-0.0.0.9000-blue.svg)
+
+</div>
+
+---
+
+## 🎯 Caractéristiques principales
+
+- **📊 Analyses univariées** : fréquences, statistiques descriptives, rapports de manquants
+- **🔀 Analyses bivariées** : tableaux croisés avec tests statistiques (χ², Fisher)
+- **🎨 Sorties professionnelles** : tableaux flextable formatés, export Word intégré
+- **🇫🇷 100% francophone** : virgule décimale, libellés métier, format épidémiologiquement rigoureux
+- **⚙️ Flexible** : détection automatique de type de variable, surcharges manuelles disponibles
+- **🔧 Utilitaires** : recodage rapide, regroupement de catégories, nettoyage de données
 
 ---
 
@@ -129,9 +149,25 @@ descr_by_group(
 )
 ```
 
----
+### `categorize_numeric()`
 
-## 🛠️ Outils Utilitaires pour la Préparation
+Conversion d'une variable numérique continue en variable catégorielle via discrétisation.
+
+* Création automatique de **bins** (intervalle) basée sur la distribution.
+* Étiquétage personnalisable des catégories.
+* Gestion intelligente des limites et des `NA`.
+
+```r
+# Catégoriser l'âge en groupes cliniquement pertinents
+categorize_numeric(
+  data = iris,
+  var = Sepal.Length,
+  breaks = c(0, 5, 6, 8),
+  labels = c("Petit", "Moyen", "Grand")
+)
+```
+
+---
 
 ### `quick_code()`
 
@@ -185,6 +221,39 @@ Génère un tableau récapitulatif du **taux de valeurs manquantes** par variabl
 missing_report(airquality)
 ```
 
+### `plot_distribution()`
+
+Génère des **visualisations automatiques** des distributions à partir des résultats d'analyse.
+
+* Graphiques adaptatifs selon le type de variable (barplot, histogramme).
+* Compatible avec tous les résultats `analytix` (fréquences, statistiques).
+* Thème épidémiologique cohérent.
+
+```r
+# Visualiser la distribution d'une variable catégorielle
+result <- descr_categorial(iris, Species)
+plot_distribution(result)
+```
+
+---
+
+## 🎨 Personnalisation et Thème
+
+### `theme_analytique()`
+
+Applique un thème **professionnel et cohérent** aux tableaux flextable.
+
+* En-têtes gris clair avec texte noir.
+* Formatage optimisé pour l'impression et le Word.
+* Bordures légères, polices légibles.
+* Compatible avec tous les objets flextable.
+
+```r
+# Appliquer le thème à un tableau existant
+tab <- descr_numeric(iris, Sepal.Length)
+tab$flextable <- theme_analytique(tab$flextable)
+```
+
 ---
 
 ##  Export et Rapport
@@ -209,21 +278,93 @@ export_to_word(path = "rapport_analytix.docx")
 
 ## 📚 Dépendances
 
-* **dplyr**
-* **flextable**
-* **officer**
-* **tibble**
-* **rlang**
-* **stats**
-* **tidyr** 
+* **dplyr** - Manipulation de données
+* **flextable** - Création de tableaux professionnels
+* **officer** - Export vers Word
+* **tibble** - Structures de données modernes
+* **rlang** - Programmation non-standard
+* **stats** - Fonctions statistiques de base
+* **tidyr** - Remise en forme de données
+* **ggplot2** - Visualisations (optionnel)
+* **colorspace** - Gestion des couleurs
+
 ---
 
 ##  Orientation du package
 
-Conçu pour les **contextes d’expertise analytique francophones** :
+Conçu pour les **contextes d'expertise analytique francophones** :
 
-* Utilisation de la **virgule** comme séparateur décimal (`12,5 %`).
-* Libellés métier clairs.
-* Tableaux immédiatement exploitables pour les rapports officiels.
+* ✅ Utilisation de la **virgule** comme séparateur décimal (`12,5 %`)
+* ✅ Libellés métier clairs et adaptés
+* ✅ Tableaux immédiatement exploitables pour les rapports officiels
+* ✅ Format conforme aux standards épidémiologiques
+* ✅ Export prêt pour PowerPoint, Word ou impression
+
+---
+
+## 📖 Exemple complet de workflow
+
+```r
+library(analytix)
+
+# 1. Charger et préparer les données
+data <- mtcars
+
+# 2. Analyses univariées
+freq_cyl <- descr_categorial(data, cyl, var_name = "Nombre de cylindres")
+desc_mpg <- descr_numeric(data, mpg, var_name = "Consommation (mpg)")
+
+# 3. Analyse bivariée
+cross <- cross_table_uniq_mod(
+  data, am, cyl,
+  var1_name = "Transmission",
+  var2_name = "Cylindres",
+  pct = "col"
+)
+
+# 4. Visualisations
+plot_distribution(freq_cyl)
+plot_distribution(desc_mpg)
+
+# 5. Export vers Word
+export_to_word(
+  freq_cyl, desc_mpg, cross,
+  path = "rapport_analytique.docx"
+)
+```
+
+---
+
+## 📚 Documentation & Ressources
+
+- **[Getting Started](GETTING_STARTED.md)** - Guide rapide pour débuter en 5 minutes
+- **[News & Changelog](NEWS.md)** - Historique des versions et changements
+- **[Contributing Guide](CONTRIBUTING.md)** - Comment contribuer au projet
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Normes communautaires
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont bienvenues ! Si vous trouvez un bug ou avez une idée de fonctionnalité :
+
+1. Ouvrez une **issue** pour discuter de vos modifications
+2. Créez une **branche** à partir de `main`
+3. Soumettez une **pull request** avec une description claire
+
+---
+
+## 📜 Licence
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 💡 Support
+
+Pour toute question sur l'utilisation du package :
+- Consultez la documentation des fonctions : `?descr_categorial`, `?export_to_word`, etc.
+- Vérifiez les exemples dans cette documentation
+- Ouvrez une **discussion** ou une **issue** sur le repository
 
 
