@@ -28,38 +28,38 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   if (!requireNamespace("tibble", quietly = TRUE)) stop("Package 'tibble' requis")
   if (!requireNamespace("stats", quietly = TRUE)) stop("Package 'stats' requis")
 
-  var_name_auto <- base::deparse(base::substitute(var))
+  var_name_auto <- deparse(substitute(var))
   if (is.null(var_name)) var_name <- var_name_auto
 
-  if (!var_name_auto %in% base::names(data)) {
+  if (!var_name_auto %in% names(data)) {
     stop("La variable '", var_name_auto, "' n'existe pas.")
   }
 
   x <- data[[var_name_auto]]
 
-  if (!base::is.numeric(x)) {
+  if (!is.numeric(x)) {
     stop("La variable doit être numérique.")
   }
 
-  n_total <- base::length(x)
-  n_valid <- base::sum(!base::is.na(x))
+  n_total <- length(x)
+  n_valid <- sum(!is.na(x))
   n_missing <- n_total - n_valid
 
   if (n_valid == 0) stop("Aucune valeur valide dans la variable.")
 
-  x_clean <- if (na_rm) x[!base::is.na(x)] else x
+  x_clean <- if (na_rm) x[!is.na(x)] else x
 
   # Statistiques de base (toujours présentes)
-  stats_list <- base::list(
+  stats_list <- list(
     "Effectif total" = n_total,
     "Valeurs manquantes" = n_missing,
-    "Moyenne" = base::round(base::mean(x_clean, na.rm = TRUE), digits),
-    "Écart-type" = base::round(stats::sd(x_clean, na.rm = TRUE), digits),
-    "Médiane" = base::round(stats::median(x_clean, na.rm = TRUE), digits),
-    "Minimum" = base::min(x_clean, na.rm = TRUE),
-    "Maximum" = base::max(x_clean, na.rm = TRUE),
-    "Premier quartile (Q1)" = base::round(stats::quantile(x_clean, 0.25, na.rm = TRUE), digits),
-    "Troisième quartile (Q3)" = base::round(stats::quantile(x_clean, 0.75, na.rm = TRUE), digits)
+    "Moyenne" = round(mean(x_clean, na.rm = TRUE), digits),
+    "Écart-type" = round(stats::sd(x_clean, na.rm = TRUE), digits),
+    "Médiane" = round(stats::median(x_clean, na.rm = TRUE), digits),
+    "Minimum" = min(x_clean, na.rm = TRUE),
+    "Maximum" = max(x_clean, na.rm = TRUE),
+    "Premier quartile (Q1)" = round(stats::quantile(x_clean, 0.25, na.rm = TRUE), digits),
+    "Troisième quartile (Q3)" = round(stats::quantile(x_clean, 0.75, na.rm = TRUE), digits)
   )
 
   # Ajouter "Valeurs valides" si demandé
@@ -71,23 +71,23 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   if (show_skewness) {
     # Calcul manuel du skewness (pas de dépendance à e1071)
     if (n_valid > 2) {
-      m <- base::mean(x_clean, na.rm = TRUE)
+      m <- mean(x_clean, na.rm = TRUE)
       s <- stats::sd(x_clean, na.rm = TRUE)
       if (s > 0) {
-        skew <- base::mean(((x_clean - m) / s)^3, na.rm = TRUE)
+        skew <- mean(((x_clean - m) / s)^3, na.rm = TRUE)
       } else {
         skew <- 0
       }
     } else {
-      skew <- base::as.numeric(NA)
+      skew <- as.numeric(NA)
     }
-    stats_list[["Asymétrie (skewness)"]] <- base::round(skew, digits)
+    stats_list[["Asymétrie (skewness)"]] <- round(skew, digits)
   }
 
   # Créer le tibble
   stats <- tibble::tibble(
-    Statistique = base::names(stats_list),
-    Valeur = base::unlist(stats_list)
+    Statistique = names(stats_list),
+    Valeur = unlist(stats_list)
   )
 
   # Formatage : entiers vs décimaux
@@ -95,14 +95,14 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
     dplyr::mutate(
       Valeur = dplyr::if_else(
         Statistique %in% c("Effectif total", "Valeurs manquantes", "Valeurs valides"),
-        base::as.character(Valeur),  # Pas de décimale pour les effectifs
-        base::format(Valeur, nsmall = digits, decimal.mark = ",")
+        as.character(Valeur),  # Pas de décimale pour les effectifs
+        format(Valeur, nsmall = digits, decimal.mark = ",")
       )
     )
 
   # Titre
   if (is.null(caption)) {
-    caption <- base::paste("Analyse descriptive de :", var_name)
+    caption <- paste("Analyse descriptive de :", var_name)
   }
 
   # Flextable

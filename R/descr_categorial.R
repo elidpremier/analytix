@@ -158,3 +158,7 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
     class = "freq_table"
   )
 }
+
+#' @rdname descr_categorial
+#' @export
+freq_table <- descr_categorial

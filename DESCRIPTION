@@ -1,9 +1,13 @@
 Package: analytix
-Title: What the Package Does (One Line, Title Case)
+Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("IDO", "Utilisateur", role = c("aut", "cre"), email = "ido@example.com")
+Author: IDO Utilisateur
+Maintainer: IDO Utilisateur <ido@example.com>
+Description: Package fournissant des fonctions d'analyse descriptive univariée et bivariée
+    optimisées pour les rapports francophones, avec génération automatique de tableaux
+    professionnels via flextable et export Word.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
