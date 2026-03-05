@@ -32,7 +32,7 @@ Exporte des tableaux provenant de l'environnement, de listes, ou d'objets indivi
 \examples{
 \dontrun{
 # Cas 1 : tout depuis l'environnement
-tab1 <- freq_table(iris, Species)
+tab1 <- descr_categorial(iris, Species)
 tab2 <- descr_numeric(iris, Sepal.Length)
 export_to_word(path = "rapport1.docx")
 

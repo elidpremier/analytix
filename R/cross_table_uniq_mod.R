@@ -179,6 +179,4 @@ cross_table_uniq_mod <- function(data, target, ...,
   return(ft)
 }
 
-#' @rdname cross_table_uniq_mod
-#' @export
-cross_test <- cross_table_uniq_mod
+

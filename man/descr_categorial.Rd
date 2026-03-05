@@ -48,6 +48,6 @@ Une liste contenant le tableau de données et le flextable
 Calcule les fréquences et pourcentages d'une variable et génère un flextable professionnel
 }
 \examples{
-freq_table(iris, Species)
+descr_categorial(iris, Species)
 
 }

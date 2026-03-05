@@ -15,7 +15,7 @@
 #' @return Une liste contenant le tableau de données et le flextable
 #'
 #' @examples
-#' freq_table(iris, Species)
+#' descr_categorial(iris, Species)
 #'
 #' @export
 descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
@@ -159,6 +159,4 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
   )
 }
 
-#' @rdname descr_categorial
-#' @export
-freq_table <- descr_categorial
+

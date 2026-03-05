@@ -24,7 +24,7 @@ library(analytix)
 
 ##  Fonctions d'Analyse Univariée
 
-### `freq_table()`
+### `descr_categorial()`
 
 Analyse fréquentielle pour **variables catégorielles** (y compris numériques discrètes).
 
@@ -34,7 +34,7 @@ Analyse fréquentielle pour **variables catégorielles** (y compris numériques 
 
 ```r
 # Exemple avec le jeu de données iris
-freq_table(iris, Species, var_name = "Espèce", digits = 1, compact = TRUE)
+descr_categorial(iris, Species, var_name = "Espèce", digits = 1, compact = TRUE)
 ```
 
 ### `descr_numeric()`
@@ -72,7 +72,7 @@ analyse_descriptive_multiple(
 
 ##  Fonctions d'Analyse Bivariée
 
-### `cross_test()`
+### `cross_table_uniq_mod()`
 
 Génère un tableau croisé professionnel de deux variables catégorielles, avec effectifs, pourcentages (au choix : par ligne, colonne ou total) et un test d’association (khi² ou Fisher) adapté aux données.
 
@@ -85,14 +85,14 @@ Génère un tableau croisé professionnel de deux variables catégorielles, avec
 
 ```r
 # Exemple de base : croisement entre transmission et cylindres
-cross_test(
+cross_table_uniq_mod(
   mtcars, am, cyl,
   var1_name = "Boîte automatique",
   var2_name = "Cylindres"
 )
 
 # Exemple avancé : pourcentages en colonne + test de Fisher forcé
-cross_test(
+cross_table_uniq_mod(
   mtcars, am, cyl,
   pct = "col",
   test = "fisher",
@@ -198,7 +198,7 @@ Export **professionnel vers Word (.docx)** de tous les tableaux produits par `an
 
 ```r
 # 1. Créer vos tableaux
-tab_freq <- freq_table(mtcars, cyl)
+tab_freq <- descr_categorial(mtcars, cyl)
 tab_descr <- descr_numeric(mtcars, mpg)
 
 # 2. Exporter tout l'environnement

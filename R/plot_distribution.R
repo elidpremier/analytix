@@ -17,7 +17,7 @@
 #' plot_distribution(iris, Sepal.Length)
 #'
 #' # Depuis un objet freq_table ou descr_numeric
-#' resultat <- freq_table(iris, Species)
+#' resultat <- descr_categorial(iris, Species)
 #' plot_distribution(resultat)
 #'
 #' @export
