@@ -3,15 +3,14 @@
 export("%>%")
 export(analyse_descriptive_multiple)
 export(categorize_numeric)
+export(clean_names)
 export(collapse_categories)
 export(cross_multi)
 export(cross_table_uniq_mod)
-
 export(descr_by_group)
 export(descr_categorial)
 export(descr_numeric)
 export(export_to_word)
-
 export(missing_report)
 export(plot_distribution)
 export(quick_code)

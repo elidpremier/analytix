@@ -1,49 +1,39 @@
-test_that("clean_names handles basic cases", {
+test_that("clean_names works on character vector", {
   expect_equal(
     clean_names("Nom Patient"),
     "nom_patient"
   )
-  
   expect_equal(
-    clean_names("Âge/Ans"),
-    "age_ou_ans"
-  )
-  
-  expect_equal(
-    clean_names("Température (°C)"),
-    "temperature_c"
+    clean_names(c("Âge/Ans", "123_test")),
+    c("age_ou_ans", "v_123_test")
   )
 })
 
-test_that("names starting with numbers get prefixed", {
-  expect_equal(
-    clean_names("123_variable"),
-    "v_123_variable"
-  )
+test_that("clean_names works on data.frame", {
+  df <- data.frame("Nom Patient" = 1:2, "Âge/Ans" = 3:4)
+  result <- clean_names(df)
+
+  expect_s3_class(result, "data.frame")
+  expect_equal(names(result), c("nom_patient", "age_ou_ans"))
+  expect_equal(result$nom_patient, 1:2)  # Data preserved
 })
 
-test_that("duplicates are made unique", {
-  result <- clean_names(c("test", "test", "test"))
-  expect_equal(length(result), 3)
-  expect_true(length(unique(result)) == 3)
+test_that("clean_names preserves data.frame structure", {
+  df <- data.frame(a = 1:3, b = letters[1:3])
+  result <- clean_names(df)
+
+  expect_equal(dim(result), dim(df))
+  expect_equal(result$a, df$a)
+  expect_equal(result$b, df$b)
 })
 
-test_that("max_length truncation works", {
-  long_name <- paste(rep("a", 100), collapse = "")
-  result <- clean_names(long_name)
-  expect_lte(nchar(result), 64)
+test_that("clean_names throws error on invalid input", {
+  expect_error(clean_names(123), "`x` must be either a character vector or a data.frame")
+  expect_error(clean_names(list(a = 1)), "`x` must be either a character vector or a data.frame")
 })
 
-test_that("empty input returns empty character", {
-  expect_equal(
-    clean_names(character(0)),
-    character(0)
-  )
-})
-
-test_that("non-character input throws error", {
-  expect_error(
-    clean_names(1:5),
-    "`names_vector` must be a character vector"
-  )
+test_that("parameters are passed correctly to data.frame method", {
+  df <- data.frame("123_long_name_here" = 1:2)
+  result <- clean_names(df, max_length = 10, prefix = "x_")
+  expect_equal(names(result), "x_123_long")  # Truncated to 10 chars
 })

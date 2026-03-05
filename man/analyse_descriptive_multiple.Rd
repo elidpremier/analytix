@@ -62,14 +62,16 @@ une détection de type améliorée et des warnings intelligents.
 }
 \examples{
 
-# Analyser seulement certaines variables
-analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
+Analyser seulement certaines variables
+ analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
 
-# Analyser TOUTES les variables
-analyse_descriptive_multiple(iris)
 
-# Analyser toutes sauf certaines
-analyse_descriptive_multiple(iris, exclude_vars = "Species")
+ Analyser TOUTES les variables
+ analyse_descriptive_multiple(iris)
+
+
+ Analyser toutes sauf certaines
+ analyse_descriptive_multiple(iris, exclude_vars = "Species")
 
 
 }
