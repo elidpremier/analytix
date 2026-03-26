@@ -2,7 +2,7 @@
 % Please edit documentation in R/cross_multi.R
 \name{cross_multi}
 \alias{cross_multi}
-\title{Tableau bivarié unifié : plusieurs variables vs une variable dépendante}
+\title{Tableaux croisés épidémiologiques pour plusieurs variables prédictives}
 \usage{
 cross_multi(
   data,
@@ -11,58 +11,76 @@ cross_multi(
   include_na = FALSE,
   digits = 1,
   color = "#D3D3D3",
-  tidy_layout = FALSE
+  tidy_layout = TRUE,
+  method = c("logistic", "level"),
+  ref_levels = NULL
 )
 }
 \arguments{
-\item{data}{data.frame}
+\item{data}{Un \code{data.frame}.}
 
-\item{outcome}{Variable dépendante (symbole non évalué, ex: SARM)}
+\item{outcome}{Variable dépendante (binaire de préférence). Symbole non évalué (ex: \code{SARM}).}
 
-\item{predictors}{Vecteur de \strong{chaînes} (noms de colonnes, ex: c("Sexe", "Service"))}
+\item{predictors}{Vecteur de chaînes de caractères contenant les noms des colonnes indépendantes.}
 
-\item{include_na}{Inclure les NA dans les tableaux ? (défaut = FALSE)}
+\item{include_na}{Logique. Inclure les valeurs manquantes (NA) comme une catégorie ? Défaut: \code{FALSE}.}
 
-\item{digits}{Décimales pour les pourcentages (défaut = 1)}
+\item{digits}{Entier. Nombre de décimales pour les pourcentages. Défaut: \code{1}.}
 
-\item{color}{Couleur d'en-tête (défaut = "#D3D3D3")}
+\item{color}{Caractère. Couleur de fond pour l'en-tête du tableau flextable. Défaut: \code{"#D3D3D3"}.}
 
-\item{tidy_layout}{Si TRUE, utilise le format "tidy" avec colonnes "Variable" et "Modalité"
-(défaut = FALSE)}
+\item{tidy_layout}{Logique. Si \code{TRUE}, retourne un format "long" (tidy). Défaut: \code{FALSE}.}
+
+\item{method}{Caractère. Méthode de calcul des OR : \code{"logistic"} ou \code{"level"}. Défaut: \code{"level"}.}
+
+\item{ref_levels}{Liste nommée définissant les niveaux de référence.}
 }
 \value{
-Objet \code{flextable} avec classe \code{"analytix_table"}
+Un objet \code{flextable} avec la classe additionnelle \code{"analytix_table"}.
 }
 \description{
-Génère un tableau synthétique unique croisant une variable dépendante catégorielle
-avec plusieurs variables explicatives. Deux formats disponibles :
+Génère un tableau hiérarchique présentant les effectifs, pourcentages (conditionnels à la colonne),
+les Odds Ratios (OR) bruts avec intervalles de confiance à 95\\%, et les p-values par modalité.
+}
+\details{
+\strong{Caractéristiques principales :}
 \itemize{
-\item{\strong{Format hiérarchique} (\code{tidy_layout = FALSE}, par défaut) :}
-titres de variable en gras, modalités indentées, p-value alignée à droite.
-\item{\strong{Format tidy} (\code{tidy_layout = TRUE}) :}
-une colonne "Variable", une colonne "Modalité", une ligne par modalité —
-idéal pour l'export ou les données structurées.
+\item Les pourcentages sont calculés par colonne (selon la variable dépendante).
+\item Le test d'association global (Khi² ou Fisher) est calculé en interne mais \strong{n'est pas affiché} dans le tableau final.
+\item Seules les p-values des comparaisons spécifiques (Modalité vs Référence) apparaissent.
+\item Formatage automatique avec virgule décimale et crochets pour les IC.
 }
+}
+\section{Exemples}{
 
-Les pourcentages sont \strong{conditionnels à la colonne} (i.e. par modalité de la variable dépendante).
-Le test d'association (khi² ou Fisher) est automatique.
-}
-\examples{
-# Exemple reproductible avec mtcars (inclus dans R)
+\preformatted{
+# Charger les données exemple (mtcars intégré à R)
+data(mtcars)
+
+# Préparation des données
 mtcars2 <- transform(mtcars,
   am = factor(am, labels = c("Manuelle", "Automatique")),
-  cyl = factor(cyl),
-  vs = factor(vs, labels = c("V", "Ligne"))
+  cyl = factor(cyl, labels = c("4 cyl", "6 cyl", "8 cyl")),
+  vs = factor(vs, labels = c("V-Engine", "Ligne"))
 )
 
-# Format hiérarchique (par défaut)
+# 1. Format Hiérarchique (Défaut)
+# Tableau classique avec variables en gras et modalités indentées
+# (Ne pas exécuter automatiquement lors du check CRAN si flextable interactif)
 \dontrun{
 cross_multi(mtcars2, am, c("cyl", "vs"))
 }
 
-# Format tidy (export-friendly)
+# 2. Format Tidy (Pour export ou manipulation ultérieure)
 \dontrun{
 cross_multi(mtcars2, am, c("cyl", "vs"), tidy_layout = TRUE)
 }
 
+# 3. Avec définition des références personnalisées
+\dontrun{
+cross_multi(mtcars2, am, c("cyl", "vs"),
+            ref_levels = list(cyl = "8 cyl", vs = "Ligne"))
 }
+}
+}
+

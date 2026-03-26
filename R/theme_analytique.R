@@ -35,12 +35,14 @@ theme_analytique <- function(ft, page_width = 16, color = "#D3D3D3") {
       layout = "fixed",  # ← Essentiel pour Word
       align = "left"
     ) %>%
-    flextable::bg(bg = color, part = "header") %>%
-    flextable::color(color = "black", part = "header") %>%
-    flextable::bold(part = "header") %>%
-    flextable::fontsize(size = 11, part = "all") %>%
-    flextable::align(j = 1, align = "left", part = "all") %>%
-    flextable::font(part = "all", fontname = "Times New Roman")
+    flextable::bg(i = seq(1, nrow_part(., "body"), by = 2), bg = "#F2F2F2")  %>%  # Zébrure pour les lignes du corps
+    flextable::color(color = "black", part = "header") %>% # Couleur du texte pour l'en-tête
+    flextable::bold(part = "header") %>% # Gras pour l'en-tête
+    flextable::fontsize(size = 11, part = "all") %>% # Taille de police pour tout le tableau
+    flextable::align(j = 1, align = "left", part = "all") %>% # Alignement à gauche pour la première colonne
+    flextable::font(part = "all", fontname = "Times New Roman")  # Police pour tout le tableau
+
+
 
   # Alignement centre pour colonnes 2+
   n_cols <- flextable::ncol_keys(ft)
