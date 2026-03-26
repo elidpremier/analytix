@@ -2,32 +2,41 @@
 % Please edit documentation in R/theme_analytique.R
 \name{theme_analytique}
 \alias{theme_analytique}
-\title{Applique un thème analytique à une flextable}
+\title{Applique un thème analytique à un tableau}
 \usage{
-theme_analytique(ft, page_width = 16, color = "#D3D3D3")
+theme_analytique(data, page_width = 16, color = "#D3D3D3", ...)
 }
 \arguments{
-\item{ft}{Un objet flextable}
+\item{data}{Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable}
 
 \item{page_width}{Largeur de la zone utile de la page en cm.
 Par défaut : 16.5 cm (largeur Word standard A4 avec marges)}
 
 \item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
+
+\item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }
 \value{
 Un objet flextable formaté
 }
 \description{
-Applique un formatage cohérent pour tous les tableaux du package analytique.
+Convertit automatiquement les données en flextable et applique un formatage cohérent.
 Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16.5 cm).
 }
 \examples{
 \dontrun{
+# Avec un dataframe
+theme_analytique(head(iris))
+
+# Avec un tibble
+theme_analytique(tibble::tibble(x = 1:5, y = letters[1:5]))
+
+# Avec une flextable existante
 ft <- flextable::flextable(head(iris))
 theme_analytique(ft)
 
 # Personnalisation
-theme_analytique(ft, page_width = 14, color = "blue")
+theme_analytique(head(mtcars), page_width = 14, color = "blue")
 }
 
 }
