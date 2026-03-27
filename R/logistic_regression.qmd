@@ -1,0 +1,266 @@
+
+```{r}
+#' Logistic Regression with Publication-Ready Tables (Data Frame Output)
+#'
+#' @description
+#' Performs a binary logistic regression and returns publication-ready tables
+#' as data frames (tibbles), allowing direct use with flextable or other tools.
+#'
+#' @inheritParams logistic_regression_spss_gtsummary
+#'
+#' @return
+#' A list containing:
+#' \describe{
+#'   \item{model}{glm object}
+#'   \item{table1}{Descriptive table (tibble)}
+#'   \item{table2}{Regression table (tibble)}
+#'   \item{diagnostics}{Model diagnostics}
+#' }
+#'
+#' @export
+logistic_regression <- function(
+  data,
+  target,
+  predictors,
+  categorical_vars = NULL,
+  reference_levels = list(),
+  alpha = 0.05,
+  add_global_p = TRUE,
+  sort_variables = TRUE
+) {
+  
+  # ---------------------------------------------------------
+  # 0. Vérification des packages
+  # ---------------------------------------------------------
+  required_pkgs <- c("gtsummary", "dplyr", "broom", "rlang", "tibble", "stringr", "tidyr")
+  missing_pkgs <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+  
+  if (length(missing_pkgs) > 0) {
+    stop(paste("Missing packages:", paste(missing_pkgs, collapse = ", ")), call. = FALSE)
+  }
+  
+  # ---------------------------------------------------------
+  # 1. Data prep
+  # ---------------------------------------------------------
+  
+  all_cols <- c(target, predictors)
+  if (!all(all_cols %in% names(data))) {
+    stop("Variables missing in dataset.", call. = FALSE)
+  }
+  
+  df <- data[, all_cols, drop = FALSE]
+  df <- stats::na.omit(df)
+  
+  # Cible en facteur
+  df[[target]] <- as.factor(df[[target]])
+  if (nlevels(df[[target]]) != 2) {
+    stop("Target must be binary.", call. = FALSE)
+  }
+  
+  # Définir le niveau de référence de la cible (le premier niveau est la référence "0")
+  df[[target]] <- stats::relevel(df[[target]], ref = levels(df[[target]])[1])
+  target_levels <- levels(df[[target]])
+  col_neg <- target_levels[1]
+  col_pos <- target_levels[2]
+  
+  # Prédicteurs en facteur si nécessaire
+  if (!is.null(categorical_vars)) {
+    for (var in categorical_vars) {
+      if (var %in% names(df)) df[[var]] <- as.factor(df[[var]])
+    }
+  }
+  
+  # Appliquer les niveaux de référence spécifiés
+  for (var in names(reference_levels)) {
+    if (var %in% names(df)) {
+      df[[var]] <- stats::relevel(as.factor(df[[var]]), ref = reference_levels[[var]])
+    }
+  }
+  
+  # ---------------------------------------------------------
+  # 2. TABLE 1 (Descriptive Statistics)
+  # ---------------------------------------------------------
+  
+  tbl1 <- gtsummary::tbl_summary(
+    df,
+    by = !!rlang::sym(target),
+    statistic = list(
+      gtsummary::all_continuous() ~ "{mean} ± {sd}",
+      gtsummary::all_categorical() ~ "{n} ({p}%)"
+    )
+  ) %>%
+    gtsummary::add_p() %>%
+    gtsummary::add_overall()
+  
+  table1 <- gtsummary::as_tibble(tbl1)
+  
+  # ---------------------------------------------------------
+  # 3. MODEL
+  # ---------------------------------------------------------
+  
+  formula_str <- paste(target, "~", paste(predictors, collapse = " + "))
+  model <- stats::glm(
+    stats::as.formula(formula_str),
+    data = df,
+    family = stats::binomial
+  )
+  
+  # ---------------------------------------------------------
+  # 4. TABLE 2 (Consolidated: Descriptive + Model Results)
+  # ---------------------------------------------------------
+  
+  # A. Récupérer les stats du modèle (broom)
+  tidy_mod <- broom::tidy(
+    model,
+    conf.int = TRUE,
+    conf.level = 1 - alpha
+  )
+  
+  # B. Récupérer les effectifs descriptifs par modalité
+  # On crée un tableau descriptif manuel pour avoir le contrôle total
+  desc_list <- list()
+  
+  for (var in predictors) {
+    var_data <- df[[var]]
+    if (!is.factor(var_data)) var_data <- as.factor(var_data)
+    
+    levels_var <- levels(var_data)
+    n_total_var <- sum(table(var_data, useNA = "no"))
+    
+    # Déterminer la référence pour cette variable
+    ref_level <- levels_var[1] # Par défaut, le premier niveau
+    
+    for (lvl in levels_var) {
+      mask <- var_data == lvl
+      n_lvl <- sum(mask)
+      
+      # Calcul croisé avec la cible
+      cross <- table(var_data[mask], df[[target]][mask])
+      
+      # Récupérer les counts pour chaque niveau de la cible
+      n_neg <- ifelse(col_neg %in% colnames(cross), cross[1, col_neg], 0)
+      n_pos <- ifelse(col_pos %in% colnames(cross), cross[1, col_pos], 0)
+      
+      pct_neg <- if (n_lvl > 0) round(100 * n_neg / n_lvl, 1) else 0
+      pct_pos <- if (n_lvl > 0) round(100 * n_pos / n_lvl, 1) else 0
+      
+      # Stats du modèle
+      is_ref <- (lvl == ref_level)
+      
+      if (!is_ref) {
+        # Chercher le coefficient dans tidy_mod
+        # Le nom est souvent "variablelevel"
+        term_name <- paste0(var, lvl)
+        # Parfois broom met des points ou autres caractères, on fait une recherche flexible
+        matching_row <- tidy_mod %>% 
+          dplyr::filter(grepl(paste0("^", var, lvl, "$"), term) | 
+                        grepl(paste0("^", var, ".", lvl, "$"), term))
+        
+        if (nrow(matching_row) > 0) {
+          or_val <- exp(matching_row$estimate)
+          ci_l <- exp(matching_row$conf.low)
+          ci_u <- exp(matching_row$conf.high)
+          p_val <- matching_row$p.value
+          
+          or_ci_str <- sprintf("%.2f [%.2f–%.2f]", or_val, ci_l, ci_u)
+          p_str <- if (p_val < 0.001) "<0.001" else sprintf("%.3f", p_val)
+        } else {
+          or_ci_str <- ""
+          p_str <- ""
+        }
+      } else {
+        or_ci_str <- "Réf."
+        p_str <- ""
+      }
+      
+      row_data <- tibble::tibble(
+        Variable = var,
+        Modalite = lvl,
+        N_Total = n_total_var,
+        N_Neg = n_neg,
+        Pct_Neg = paste0(n_neg, " (", pct_neg, "%)"),
+        N_Pos = n_pos,
+        Pct_Pos = paste0(n_pos, " (", pct_pos, "%)"),
+        OR_CI = or_ci_str,
+        p_value = p_str,
+        is_ref = is_ref
+      )
+      
+      desc_list[[length(desc_list) + 1]] <- row_data
+    }
+  }
+  
+  table2 <- dplyr::bind_rows(desc_list)
+  
+  # ---------------------------------------------------------
+  # 5. Formatting & Indentation
+  # ---------------------------------------------------------
+  
+  table2 <- table2 %>%
+    dplyr::mutate(
+      # Indentation des modalités
+      Variable_Display = dplyr::if_else(
+        is_ref,
+        paste0("**", Variable, "** (n=", N_Total, ")"),
+        paste0("   ", Modalite)
+      ),
+      
+      # Formatage des p-values (virgule française si besoin)
+      p_value = stringr::str_replace_all(p_value, "\\.", ",")
+    )
+  
+  # Tri par p-value si demandé
+  if (sort_variables) {
+    table2 <- table2 %>%
+      dplyr::mutate(
+        order_p = suppressWarnings(as.numeric(gsub(",", ".", gsub("<", "", p_value))))
+      ) %>%
+      dplyr::arrange(dplyr::desc(is_ref), order_p) %>%
+      dplyr::select(-order_p)
+  }
+  
+  # Sélection des colonnes finales pour l'affichage
+  table2_final <- table2 %>%
+    dplyr::select(
+      Variable = Variable_Display,
+      Modalite,
+      !!col_neg := Pct_Neg,
+      !!col_pos := Pct_Pos,
+      `ORa (IC 95%)` = OR_CI,
+      `p-value` = p_value
+    )
+  
+  # ---------------------------------------------------------
+  # 6. Diagnostics
+  # ---------------------------------------------------------
+  
+  null_dev <- model$null.deviance
+  res_dev <- model$deviance
+  n <- model$n
+  logLik_null <- -null_dev / 2
+  logLik_model <- -res_dev / 2
+  
+  diagnostics <- list(
+    AIC = stats::AIC(model),
+    BIC = stats::BIC(model),
+    Deviance = res_dev,
+    R2_CoxSnell = 1 - exp((logLik_null - logLik_model) * (2 / n)),
+    R2_Nagelkerke = {
+      r2_cs <- 1 - exp((logLik_null - logLik_model) * (2 / n))
+      r2_max <- 1 - exp((2 * logLik_null) / n)
+      r2_cs / r2_max
+    }
+  )
+  
+  # ---------------------------------------------------------
+  # 7. Output
+  # ---------------------------------------------------------
+  
+  list(
+    model = model,
+    table1 = table1,
+    table2 = table2_final,
+    diagnostics = diagnostics
+  )
+}
+```
