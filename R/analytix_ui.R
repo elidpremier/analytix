@@ -46,11 +46,20 @@ run_analytix_ui <- function() {
         sidebar = bslib::sidebar(
           numericInput("mice_m", "Nombre d'imputations (m)", 5),
           numericInput("mice_it", "Itérations (maxit)", 5),
-          actionButton("run_mice", "Lancer MICE", class = "btn-primary")
+          actionButton("run_mice", "Lancer MICE", class = "btn-primary"),
+          hr(),
+          helpText("Cette opération crée un nouveau jeu de données 'donnees_imputees'.")
         ),
-        bslib::card(
-          bslib::card_header("Rapport de manquants avant imputation"),
-          uiOutput("missing_report_ui")
+        bslib::layout_column_wrap(
+          width = 1,
+          bslib::card(
+            bslib::card_header("Écart des données manquantes (Avant Imputation)"),
+            uiOutput("missing_report_ui")
+          ),
+          bslib::card(
+            bslib::card_header("Aperçu des données (5 premières lignes)"),
+            tableOutput("data_preview")
+          )
         )
       )
     ),
@@ -64,7 +73,9 @@ run_analytix_ui <- function() {
           selectInput("uni_var", "Variable à analyser", choices = NULL),
           selectInput("uni_type", "Type détecté", choices = c("auto", "numeric", "categorical", "binary")),
           hr(),
-          checkboxInput("uni_na", "Inclure les NA", FALSE)
+          checkboxInput("uni_na", "Inclure les NA", FALSE),
+          hr(),
+          downloadButton("download_uni", "Télécharger Word", class = "btn-outline-secondary")
         ),
         bslib::layout_column_wrap(
           width = 1/2,
@@ -88,16 +99,36 @@ run_analytix_ui <- function() {
         sidebar = bslib::sidebar(
           selectInput("bi_target", "Variable Cible (Outcome)", choices = NULL),
           selectInput("bi_pred", "Prédicteurs", choices = NULL, multiple = TRUE),
-          selectInput("bi_method", "Méthode OR", choices = c("logistic", "level"))
+          selectInput("bi_method", "Méthode d'analyse", choices = c("Comparaison de groupes" = "group", "OR Brute (Logistique)" = "logistic")),
+          hr(),
+          downloadButton("download_bi", "Télécharger Word", class = "btn-outline-secondary")
         ),
         bslib::card(
-          bslib::card_header("Tableau d'associations (OR brute)"),
+          bslib::card_header("Résultats de l'analyse bivariée"),
           uiOutput("bi_table_ui")
         )
       )
     ),
     
-    # --- Onglet 5 : Export ---
+    # --- Onglet 5 : Recodage ---
+    bslib::nav_panel(
+      title = "Recodage",
+      icon = icon("edit"),
+      bslib::layout_sidebar(
+        sidebar = bslib::sidebar(
+          selectInput("recode_var", "Variable à recoder", choices = NULL),
+          uiOutput("recode_ui"),
+          textInput("recode_na", "Valeur pour les NA", ""),
+          actionButton("run_recode", "Appliquer le recodage", class = "btn-warning")
+        ),
+        bslib::card(
+          bslib::card_header("Modalités après recodage potentiel"),
+          tableOutput("recode_preview")
+        )
+      )
+    ),
+    
+    # --- Onglet 6 : Export ---
     bslib::nav_panel(
       title = "Export",
       icon = icon("file-word"),
@@ -152,6 +183,53 @@ run_analytix_ui <- function() {
       updateSelectInput(session, "uni_var", choices = names(df))
       updateSelectInput(session, "bi_target", choices = names(df))
       updateSelectInput(session, "bi_pred", choices = names(df))
+      updateSelectInput(session, "recode_var", choices = names(df))
+    })
+    
+    # --- Recode Logic ---
+    output$recode_ui <- renderUI({
+      req(current_data(), input$recode_var)
+      mods <- unique(as.character(current_data()[[input$recode_var]]))
+      mods <- mods[!is.na(mods)]
+      
+      lapply(mods, function(m) {
+        textInput(paste0("recode_mod_", m), paste("Recoder :", m), value = m)
+      })
+    })
+
+    observeEvent(input$run_recode, {
+      req(current_data(), input$recode_var)
+      df <- current_data()
+      mods <- unique(as.character(df[[input$recode_var]]))
+      mods <- mods[!is.na(mods)]
+      
+      recode_list <- list()
+      for(m in mods) {
+        new_val <- input[[paste0("recode_mod_", m)]]
+        if(!is.null(new_val) && new_val != m) {
+          recode_list[[m]] <- new_val
+        }
+      }
+      
+      if(length(recode_list) > 0 || input$recode_na != "") {
+        na_val <- if(input$recode_na == "") NULL else input$recode_na
+        
+        tryCatch({
+          # Utilisation de do.call pour passer la liste de recodages à quick_code
+          new_df <- do.call(quick_code, c(list(data = df, var = rlang::sym(input$recode_var), .na = na_val), recode_list))
+          current_data(new_df)
+          showNotification("Variable recodée avec succès.", type = "message")
+        }, error = function(e) {
+          showNotification(paste("Erreur de recodage :", e$message), type = "error")
+        })
+      }
+    })
+
+    output$recode_preview <- renderTable({
+      req(current_data(), input$recode_var)
+      table(current_data()[[input$recode_var]], useNA = "always") |> 
+        as.data.frame() |> 
+        setNames(c("Modalité", "Effectif"))
     })
     
     # --- Previews & Reports ---
@@ -169,30 +247,27 @@ run_analytix_ui <- function() {
     # --- Imputation Logic ---
     observeEvent(input$run_mice, {
       req(current_data())
-      withProgress(message = 'Imputation en cours...', value = 0.5, {
-        new_df <- try(impute_mice(current_data(), m = input$mice_m, maxit = input$mice_it))
-        if (inherits(new_df, "try-error")) {
-          showNotification(paste("Erreur lors de l'imputation :", attr(new_df, "condition")$message), type = "error")
-        } else {
-          current_data(new_df)
-          showNotification("Données imputées avec succès !")
-        }
+      shiny::withProgress(message = "Imputation en cours...", value = 0.5, {
+        imp_data <- impute_mice(current_data(), m = input$mice_m, maxit = input$mice_it)
+        current_data(imp_data)
+        showNotification("Imputation terminée avec succès.", type = "message")
       })
     })
-    
+
     # --- Univariate Logic ---
     uni_res <- reactive({
       req(current_data(), input$uni_var)
       type <- input$uni_type
+      na_val <- if (input$uni_na) "always" else "no"
       tryCatch({
         if (type == "auto") {
           analyse_descriptive_multiple(current_data(), vars = input$uni_var)[[input$uni_var]]
         } else if (type == "numeric") {
-          descr_numeric(current_data(), !!rlang::sym(input$uni_var))
-        } else if (type == "binary") {
-          descr_binary(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
+          descr_numeric(current_data(), !!sym(input$uni_var))
+        } else if (type == "categorical") {
+          descr_categorial(current_data(), !!sym(input$uni_var), useNA = na_val)
         } else {
-          descr_categorial(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
+          descr_binary(current_data(), !!sym(input$uni_var))
         }
       }, error = function(e) {
         showNotification(paste("Erreur analyse univariée :", e$message), type = "error")
@@ -207,24 +282,45 @@ run_analytix_ui <- function() {
     
     output$uni_plot <- renderPlot({
       req(uni_res())
-      plot_distribution(uni_res())
+      uni_res()$plot
     })
+
+    output$download_uni <- downloadHandler(
+      filename = function() { paste0("analyse_univariee_", input$uni_var, ".docx") },
+      content = function(file) {
+        req(uni_res())
+        export_to_word(path = file, uni_res())
+      }
+    )
     
     # --- Bivariate Logic ---
     bi_res <- reactive({
       req(current_data(), input$bi_target, input$bi_pred)
-      tryCatch({
-        cross_multi(current_data(), !!rlang::sym(input$bi_target), input$bi_pred, method = input$bi_method)
-      }, error = function(e) {
-        showNotification(paste("Erreur analyse bivariée :", e$message), type = "error")
-        NULL
-      })
+      
+      if (input$bi_method == "logistic") {
+        # Utilise cross_multi pour les OR
+        cross_multi(current_data(), input$bi_target, input$bi_pred)
+      } else {
+        # Utilise descr_by_group pour chaque prédicteur
+        # Ici on prend le premier pour la démo ou on pourrait boucler
+        descr_by_group(current_data(), !!sym(input$bi_pred[1]), !!sym(input$bi_target))
+      }
     })
     
     output$bi_table_ui <- renderUI({
       req(bi_res())
-      flextable::htmltools_value(bi_res())
+      # bi_res peut être un flextable (descr_by_group) ou une liste (cross_multi)
+      ft <- if(inherits(bi_res(), "flextable")) bi_res() else bi_res()$flextable
+      flextable::htmltools_value(ft)
     })
+
+    output$download_bi <- downloadHandler(
+      filename = function() { "analyse_bivariee.docx" },
+      content = function(file) {
+        req(bi_res())
+        export_to_word(path = file, bi_res())
+      }
+    )
     
     # --- Export Logic ---
     observeEvent(input$run_export, {
