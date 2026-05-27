@@ -8,6 +8,7 @@ descr_numeric(
   data,
   var,
   var_name = NULL,
+  subset = NULL,
   digits = 2,
   na_rm = TRUE,
   show_valid = FALSE,
@@ -22,6 +23,8 @@ descr_numeric(
 \item{var}{variable numérique à analyser (sans guillemets)}
 
 \item{var_name}{nom personnalisé (optionnel)}
+
+\item{subset}{Expression logique pour filtrer les données (ex: sexe == "M")}
 
 \item{digits}{nombre de décimales (défaut: 2)}
 
@@ -43,5 +46,6 @@ Génère un tableau récapitulatif des statistiques descriptives d'une variable 
 }
 \examples{
 descr_numeric(mtcars, mpg)
+descr_numeric(mtcars, mpg, subset = cyl == 4)
 
 }

@@ -1,79 +1,107 @@
 #' @title Statistiques descriptives par groupe
-#' @description Tableau de statistiques (moyenne, médiane, etc.) par catégorie d'une variable de groupe.
+#' @description Tableau de statistiques par catégorie d'une variable de groupe.
+#' Supporte les variables numériques (moyenne, médiane...) et catégorielles (pourcentages, test Chi²).
 #' @param data data.frame
-#' @param var variable numérique à décrire
-#' @param by variable catégorielle de groupement
-#' @param var_name libellé de la variable numérique
+#' @param var variable à décrire (numérique ou catégorielle)
+#' @param by variable de groupement (catégorielle)
+#' @param var_name libellé de la variable
 #' @param by_name libellé de la variable de groupe
 #' @param digits nombre de décimales
 #' @param color couleur de l'en-tête
-#' @return un objet de classe "descr_by_group" contenant un flextable
+#' @param test_stat logique. Afficher le test statistique ? (défaut: TRUE)
+#' @return un objet flextable
 #' @examples
+#' # Cas numérique
 #' descr_by_group(mtcars, mpg, cyl, var_name = "Consommation", by_name = "Cylindres")
+#' 
+#' # Cas catégoriel
+#' descr_by_group(mtcars, am, vs, var_name = "Transmission", by_name = "Moteur")
+#'
 #' @export
-descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digits = 1, color = "#D3D3D3") {
+descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digits = 1, color = "#D3D3D3", test_stat = TRUE) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
+  if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
 
   var_nm <- base::deparse(base::substitute(var))
   by_nm <- base::deparse(base::substitute(by))
 
-  if (!var_nm %in% base::names(data)) stop("Variable '", var_nm, "' non trouvée.")
-  if (!by_nm %in% base::names(data)) stop("Variable '", by_nm, "' non trouvée.")
-
-  if (is.null(var_name)) var_name <- var_nm
-  if (is.null(by_name)) by_name <- by_nm
+  if (is.null(var_name)) {
+    attr_l <- attr(data[[var_nm]], "label")
+    var_name <- if(!is.null(attr_l)) attr_l else var_nm
+  }
+  if (is.null(by_name)) {
+    attr_l <- attr(data[[by_nm]], "label")
+    by_name <- if(!is.null(attr_l)) attr_l else by_nm
+  }
 
   x <- data[[var_nm]]
   g <- data[[by_nm]]
 
-  if (!base::is.numeric(x)) stop("`var` doit être numérique.")
+  if (is.numeric(x)) {
+    # --- Cas numérique (comportement original amélioré) ---
+    stats_df <- data %>%
+      dplyr::group_by(dplyr::across({{ by }})) %>%
+      dplyr::summarise(
+        n = base::sum(!base::is.na({{ var }})),
+        Moyenne = base::mean({{ var }}, na.rm = TRUE),
+        Mediane = stats::median({{ var }}, na.rm = TRUE),
+        Ecart_type = stats::sd({{ var }}, na.rm = TRUE),
+        Min_Max = paste0(min({{ var }}, na.rm = TRUE), " - ", max({{ var }}, na.rm = TRUE)),
+        .groups = "drop"
+      )
 
-  # Calcul par groupe
-  stats_df <- data %>%
-    dplyr::group_by(dplyr::across({{ by }})) %>%
-    dplyr::summarise(
-      n = base::sum(!base::is.na({{ var }})),
-      Moyenne = base::round(base::mean({{ var }}, na.rm = TRUE), digits),
-      Mediane = base::round(stats::median({{ var }}, na.rm = TRUE), digits),
-      Ecart_type = base::round(stats::sd({{ var }}, na.rm = TRUE), digits),
-      Minimum = base::min({{ var }}, na.rm = TRUE),
-      Maximum = base::max({{ var }}, na.rm = TRUE),
-      .groups = "drop"
-    )
+    # Pivot pour présentation
+    final_df <- stats_df %>%
+      tidyr::pivot_longer(cols = -{{ by }}, names_to = "Statistique", values_to = "Valeur") %>%
+      dplyr::mutate(
+        Valeur = dplyr::case_when(
+          Statistique == "n" ~ as.character(as.integer(Valeur)),
+          Statistique == "Min_Max" ~ Valeur,
+          TRUE ~ base::format(base::round(as.numeric(Valeur), digits), nsmall = digits, decimal.mark = ",")
+        )
+      ) %>%
+      tidyr::pivot_wider(names_from = {{ by }}, values_from = Valeur)
 
-  # Ligne des effectifs (convertie en caractères dès le début)
-  n_row <- stats_df %>%
-    dplyr::select({{ by }}, n) %>%
-    tidyr::pivot_wider(names_from = {{ by }}, values_from = n) %>%
-    dplyr::mutate(
-      dplyr::across(dplyr::where(base::is.numeric), as.character),
-      Statistique = "Effectif",
-      .before = 1
-    )
+    caption <- paste("Distribution de", var_name, "par", by_name)
+    ft <- flextable::flextable(final_df) %>%
+      flextable::set_caption(caption) %>%
+      theme_analytique(color = color)
+    
+    return(ft)
 
-  # Lignes des statistiques (déjà en caractères)
-  stats_wide <- stats_df %>%
-    dplyr::select(-n) %>%
-    tidyr::pivot_longer(
-      cols = -{{ by }},
-      names_to = "Statistique",
-      values_to = "Valeur"
-    ) %>%
-    dplyr::mutate(
-      Valeur = base::format(Valeur, nsmall = digits, decimal.mark = ",")
-    ) %>%
-    tidyr::pivot_wider(names_from = {{ by }}, values_from = Valeur)
+  } else {
+    # --- Cas catégoriel (Nouveau) ---
+    tab <- table(x, g, useNA = "no")
+    pct_tab <- prop.table(tab, margin = 2) * 100
+    
+    res_list <- list()
+    for (mod in rownames(tab)) {
+      row_data <- data.frame(Statistique = mod, stringsAsFactors = FALSE)
+      for (col_nm in colnames(tab)) {
+        row_data[[col_nm]] <- sprintf("%s (%s%%)", tab[mod, col_nm], format(round(pct_tab[mod, col_nm], digits), nsmall = digits, decimal.mark = ","))
+      }
+      res_list[[mod]] <- row_data
+    }
+    
+    final_df <- dplyr::bind_rows(res_list)
+    
+    # Ajout du test de Khi² si demandé
+    footer_msg <- ""
+    if (test_stat) {
+      test_res <- suppressWarnings(stats::chisq.test(tab))
+      p_val <- test_res$p.value
+      p_str <- if(p_val < 0.001) "< 0,001" else format(round(p_val, 3), decimal.mark = ",")
+      footer_msg <- paste0("Test de Khi² : p = ", p_str)
+    }
 
-  # Combiner : maintenant les types sont compatibles (tous character)
-  final_df <- dplyr::bind_rows(n_row, stats_wide)
-
-  caption <- base::paste("Distribution de", var_name, "par", by_name)
-
-  ft <- flextable::flextable(final_df) %>%
-    flextable::set_caption(caption) %>%
-    theme_analytique(color = color)
-
-  structure(list(flextable = ft, data = final_df), class = "descr_by_group")
+    ft <- flextable::flextable(final_df) %>%
+      flextable::set_caption(paste(var_name, "par", by_name)) %>%
+      theme_analytique(color = color)
+    
+    if (footer_msg != "") ft <- flextable::add_footer_lines(ft, footer_msg)
+    
+    return(ft)
+  }
 }

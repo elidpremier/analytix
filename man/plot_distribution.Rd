@@ -8,27 +8,18 @@ plot_distribution(
   data,
   var = NULL,
   type = "auto",
-  color = "#3366CC",
   fill = "#3366CC",
-  alpha = 0.7,
-  add_stats = TRUE,
   theme = "minimal"
 )
 }
 \arguments{
-\item{data}{data.frame ou résultat d'analyse (ex: issu de \code{freq_table} ou \code{descr_numeric})}
+\item{data}{data.frame ou résultat d'analyse (ex: issu de \code{descr_categorial})}
 
-\item{var}{variable à visualiser (optionnel si \code{data} est un objet d'analyse)}
+\item{var}{variable à visualiser (si data est un dataframe)}
 
 \item{type}{type de graphique ("auto", "histogram", "density", "bar", "boxplot")}
 
-\item{color}{couleur de contour (défaut: "#3366CC")}
-
 \item{fill}{couleur de remplissage (défaut: "#3366CC")}
-
-\item{alpha}{transparence (défaut: 0.7)}
-
-\item{add_stats}{ajouter les statistiques sur le graphique ? (défaut: TRUE)}
 
 \item{theme}{style du thème ("minimal", "classic", "light")}
 }
@@ -36,15 +27,5 @@ plot_distribution(
 un objet \code{ggplot}
 }
 \description{
-Génère un graphique ggplot2 adapté au type de variable
-}
-\examples{
-# Depuis un dataframe
-plot_distribution(iris, Species)
-plot_distribution(iris, Sepal.Length)
-
-# Depuis un objet freq_table ou descr_numeric
-resultat <- descr_categorial(iris, Species)
-plot_distribution(resultat)
-
+Génère un graphique ggplot2 adapté au type de variable.
 }

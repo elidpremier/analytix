@@ -8,10 +8,11 @@ cross_multi(
   data,
   outcome,
   predictors,
+  outcome_level = NULL,
   include_na = FALSE,
   digits = 1,
   color = "#D3D3D3",
-  tidy_layout = TRUE,
+  tidy_layout = FALSE,
   method = c("logistic", "level"),
   ref_levels = NULL
 )
@@ -19,68 +20,34 @@ cross_multi(
 \arguments{
 \item{data}{Un \code{data.frame}.}
 
-\item{outcome}{Variable dépendante (binaire de préférence). Symbole non évalué (ex: \code{SARM}).}
+\item{outcome}{Variable dépendante (binaire de préférence).}
 
 \item{predictors}{Vecteur de chaînes de caractères contenant les noms des colonnes indépendantes.}
 
-\item{include_na}{Logique. Inclure les valeurs manquantes (NA) comme une catégorie ? Défaut: \code{FALSE}.}
+\item{outcome_level}{La modalité de l'outcome à considérer comme l'événement (ex: "Oui", 1). Si NULL, utilise la 2ème modalité.}
+
+\item{include_na}{Logique. Inclure les valeurs manquantes (NA) ? Défaut: \code{FALSE}.}
 
 \item{digits}{Entier. Nombre de décimales pour les pourcentages. Défaut: \code{1}.}
 
-\item{color}{Caractère. Couleur de fond pour l'en-tête du tableau flextable. Défaut: \code{"#D3D3D3"}.}
+\item{color}{Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"#D3D3D3"}.}
 
-\item{tidy_layout}{Logique. Si \code{TRUE}, retourne un format "long" (tidy). Défaut: \code{FALSE}.}
+\item{tidy_layout}{Logique. Si \code{TRUE}, retourne un format "long". Défaut: \code{FALSE}.}
 
-\item{method}{Caractère. Méthode de calcul des OR : \code{"logistic"} ou \code{"level"}. Défaut: \code{"level"}.}
+\item{method}{Caractère. Méthode : \code{"logistic"} ou \code{"level"}. Défaut: \code{"logistic"}.}
 
 \item{ref_levels}{Liste nommée définissant les niveaux de référence.}
-}
-\value{
-Un objet \code{flextable} avec la classe additionnelle \code{"analytix_table"}.
 }
 \description{
 Génère un tableau hiérarchique présentant les effectifs, pourcentages (conditionnels à la colonne),
 les Odds Ratios (OR) bruts avec intervalles de confiance à 95\\%, et les p-values par modalité.
 }
-\details{
-\strong{Caractéristiques principales :}
-\itemize{
-\item Les pourcentages sont calculés par colonne (selon la variable dépendante).
-\item Le test d'association global (Khi² ou Fisher) est calculé en interne mais \strong{n'est pas affiché} dans le tableau final.
-\item Seules les p-values des comparaisons spécifiques (Modalité vs Référence) apparaissent.
-\item Formatage automatique avec virgule décimale et crochets pour les IC.
-}
-}
-\section{Exemples}{
+\examples{
+# Exemple simple
+cross_multi(mtcars, am, c("cyl", "vs"))
 
-\preformatted{
-# Charger les données exemple (mtcars intégré à R)
-data(mtcars)
+# Avec spécification de l'outcome d'intérêt
+mtcars$am_f <- factor(mtcars$am, labels = c("Auto", "Manuelle"))
+cross_multi(mtcars, am_f, c("cyl", "vs"), outcome_level = "Manuelle")
 
-# Préparation des données
-mtcars2 <- transform(mtcars,
-  am = factor(am, labels = c("Manuelle", "Automatique")),
-  cyl = factor(cyl, labels = c("4 cyl", "6 cyl", "8 cyl")),
-  vs = factor(vs, labels = c("V-Engine", "Ligne"))
-)
-
-# 1. Format Hiérarchique (Défaut)
-# Tableau classique avec variables en gras et modalités indentées
-# (Ne pas exécuter automatiquement lors du check CRAN si flextable interactif)
-\dontrun{
-cross_multi(mtcars2, am, c("cyl", "vs"))
 }
-
-# 2. Format Tidy (Pour export ou manipulation ultérieure)
-\dontrun{
-cross_multi(mtcars2, am, c("cyl", "vs"), tidy_layout = TRUE)
-}
-
-# 3. Avec définition des références personnalisées
-\dontrun{
-cross_multi(mtcars2, am, c("cyl", "vs"),
-            ref_levels = list(cyl = "8 cyl", vs = "Ligne"))
-}
-}
-}
-

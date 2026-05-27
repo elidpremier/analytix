@@ -3,6 +3,7 @@
 #' @param data Le dataframe contenant les données
 #' @param var La variable à analyser (peut être character, factor, numeric, logical, etc.)
 #' @param var_name Nom personnalisé pour la variable (optionnel)
+#' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param sort TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel
 #' @param digits Nombre de décimales pour les pourcentages (défaut: 1)
 #' @param include_na TRUE pour inclure les NA dans le calcul, FALSE pour les exclure
@@ -16,9 +17,10 @@
 #'
 #' @examples
 #' descr_categorial(iris, Species)
+#' descr_categorial(iris, Species, subset = Sepal.Length > 5)
 #'
 #' @export
-descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1,
+descr_categorial <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
                        include_na = FALSE, na_label = "Manquant", total = TRUE,
                        caption = NULL, color = "#D3D3D3", compact = FALSE) {
 
@@ -27,8 +29,24 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
   if (!requireNamespace("tibble", quietly = TRUE)) stop("Package 'tibble' requis")
   if (!requireNamespace("rlang", quietly = TRUE)) stop("Package 'rlang' requis")
 
+  # Gestion du filtrage
+  subset_enq <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset_enq)) {
+    data <- dplyr::filter(data, !!subset_enq)
+  }
+
   var_name_auto <- deparse(substitute(var))
-  if (is.null(var_name)) var_name <- var_name_auto
+  
+  # Récupération du label si var_name est NULL
+  if (is.null(var_name)) {
+    # Tenter de récupérer l'attribut label
+    attr_label <- attr(data[[var_name_auto]], "label")
+    if (!is.null(attr_label)) {
+      var_name <- attr_label
+    } else {
+      var_name <- var_name_auto
+    }
+  }
 
   if (!var_name_auto %in% names(data)) {
     stop("La variable '", var_name_auto, "' n'existe pas dans le dataframe.")
@@ -36,6 +54,7 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
 
   x <- data[[var_name_auto]]
 
+  # Conversion en character pour uniformité
   if (is.factor(x)) {
     x <- as.character(x)
   } else if (is.logical(x)) {
@@ -52,61 +71,43 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
     x[is.na(x)] <- na_label
   }
 
+  if (length(x) == 0) {
+    warning("Aucune donnée à analyser après filtrage ou exclusion des NA.")
+    return(NULL)
+  }
+
   df <- tibble::tibble(variable = x)
 
   # Calcul des fréquences
   freq_data <- df %>%
     dplyr::count(variable, name = "n", sort = FALSE) %>%
     dplyr::mutate(
-      pourcentage = (n / sum(n)) * 100,
-      pourcentage_formate = base::format(base::round(pourcentage, digits),
-                                         nsmall = digits,
-                                         decimal.mark = ",")
+      pourcentage = (n / sum(n)) * 100
     )
 
   if (sort) freq_data <- dplyr::arrange(freq_data, dplyr::desc(n))
 
-  # Calcul du total REEL (pas forcé à 100)
-  # Fonction interne pour formater intelligemment les pourcentages
-  format_pourcentage_intelligent <- function(x, digits = 1) {
-    if (base::isTRUE(base::all.equal(x, base::round(x)))) {
-      base::as.character(base::as.integer(base::round(x)))
-    } else {
-      base::format(base::round(x, digits), nsmall = digits, decimal.mark = ",")
-    }
+  # Formater les pourcentages
+  format_pct <- function(val, d = digits) {
+    base::format(base::round(val, d), nsmall = d, decimal.mark = ",")
   }
 
-  # Calcul du total REEL
+  freq_data <- freq_data %>%
+    dplyr::mutate(pourcentage_formate = format_pct(pourcentage))
+
+  # Calcul du total
   if (total) {
-    n_total <- base::sum(freq_data$n)
-    pct_total <- base::sum(freq_data$pourcentage)  # Peut être < 100 si NA exclus
-
-    # Formater le pourcentage du Total de façon intelligente
-    pct_total_formate <- format_pourcentage_intelligent(pct_total, digits)
-
-    # Formater les pourcentages des catégories (toujours avec décimales si demandé)
-    freq_data <- freq_data %>%
-      dplyr::mutate(pourcentage_formate = base::format(base::round(pourcentage, digits),
-                                                       nsmall = digits,
-                                                       decimal.mark = ","))
-
     total_row <- tibble::tibble(
       variable = "Total",
-      n = n_total,
-      pourcentage = pct_total,
-      pourcentage_formate = pct_total_formate  # ← format intelligent ici
+      n = sum(freq_data$n),
+      pourcentage = sum(freq_data$pourcentage),
+      pourcentage_formate = format_pct(sum(freq_data$pourcentage))
     )
     freq_data <- dplyr::bind_rows(freq_data, total_row)
-  } else {
-    # Si pas de total, formater les pourcentages normalement
-    freq_data <- freq_data %>%
-      dplyr::mutate(pourcentage_formate = base::format(base::round(pourcentage, digits),
-                                                       nsmall = digits,
-                                                       decimal.mark = ","))
   }
 
   # Nom de la colonne des modalités
-  col_label <- var_name  # car var_name est soit personnalisé, soit = var_name_auto
+  col_label <- var_name
 
   # Préparation des données pour flextable
   ft_data <- if (compact) {
@@ -114,8 +115,8 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
       dplyr::mutate(
         `Effectif (%)` = dplyr::if_else(
           variable == "Total",
-          base::as.character(n),  # ← pas de % pour le Total
-          base::paste0(n, " (", pourcentage_formate, "%)")  # ← avec % pour les catégories
+          base::as.character(n),
+          base::paste0(n, " (", pourcentage_formate, "%)")
         )
       ) %>%
       dplyr::select(!!rlang::sym(col_label) := variable, `Effectif (%)`)
@@ -124,9 +125,8 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
       dplyr::select(
         !!rlang::sym(col_label) := variable,
         Effectif = n,
-        `Pourcentage (%)` = pourcentage_formate  # ← pas de % dans les cellules, mais dans le nom de colonne
+        `Pourcentage (%)` = pourcentage_formate
       )
-    # → aucune mutation avec paste0("%") ici
   }
 
   if (is.null(caption)) caption <- base::paste("Distribution de :", col_label)
@@ -138,14 +138,14 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
 
   # Mise en forme du Total
   if (total) {
-    safe_col <- base::paste0("`", col_label, "`")
-    total_condition <- stats::as.formula(paste("~", safe_col, "== 'Total'"))
+    # Utiliser l'index de la ligne Total
+    total_idx <- which(freq_data$variable == "Total")
     ft <- ft %>%
-      flextable::bold(i = total_condition)
+      flextable::bold(i = total_idx)
   }
 
-  # Calcul du n_total final (exclut la ligne Total si présente)
-  n_total_final <- if (total) base::sum(freq_data$n[freq_data$variable != "Total"]) else base::sum(freq_data$n)
+  # Meta-données de retour
+  n_total_final <- if (total) sum(freq_data$n[freq_data$variable != "Total"]) else sum(freq_data$n)
 
   structure(
     list(
@@ -153,7 +153,7 @@ descr_categorial <- function(data, var, var_name = NULL, sort = TRUE, digits = 1
       flextable = ft,
       variable_name = var_name,
       n_total = n_total_final,
-      raw_data = x  # ←←← Ajout crucial pour la visualisation
+      raw_data = x
     ),
     class = "freq_table"
   )

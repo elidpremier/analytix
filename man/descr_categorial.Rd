@@ -8,6 +8,7 @@ descr_categorial(
   data,
   var,
   var_name = NULL,
+  subset = NULL,
   sort = TRUE,
   digits = 1,
   include_na = FALSE,
@@ -24,6 +25,8 @@ descr_categorial(
 \item{var}{La variable à analyser (peut être character, factor, numeric, logical, etc.)}
 
 \item{var_name}{Nom personnalisé pour la variable (optionnel)}
+
+\item{subset}{Expression logique pour filtrer les données (ex: sexe == "M")}
 
 \item{sort}{TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel}
 
@@ -49,5 +52,6 @@ Calcule les fréquences et pourcentages d'une variable et génère un flextable 
 }
 \examples{
 descr_categorial(iris, Species)
+descr_categorial(iris, Species, subset = Sepal.Length > 5)
 
 }

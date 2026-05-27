@@ -3,194 +3,83 @@
 #' une détection de type améliorée et des warnings intelligents.
 #'
 #' @param data data.frame
-#' @param vars vecteur de noms de variables à analyser.
-#'             Si NULL → toutes les variables.
+#' @param vars vecteur de noms de variables à analyser. Si NULL → toutes.
+#' @param subset Expression de filtrage globale appliquée avant l'analyse.
 #' @param var_labels nommage personnalisé : c("VAR" = "Libellé")
-#' @param var_types typage manuel : c("VAR" = "numeric", "VAR2" = "categorical")
+#' @param var_types typage manuel : c("VAR" = "numeric", "VAR2" = "categorical", "VAR3" = "binary")
 #' @param exclude_vars variables à exclure
 #' @param integer_as_category logique : TRUE = treat integers with few levels as categorical
-#' @param max_char_levels seuil max pour analyser une variable texte
-#' @param sort TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel
-#' @param digits nombre de décimales pour les calculs et pourcentages (défaut: 2)
-#' @param na_rm supprimer les NA dans les calculs ? (défaut: TRUE)
-#' @param include_na TRUE pour inclure les NA dans le calcul des fréquences, FALSE pour les exclure
-#' @param na_label Étiquette pour les valeurs manquantes (défaut: "Manquant")
-#' @param show_valid afficher la ligne "Valeurs valides" ? (défaut: FALSE)
-#' @param show_skewness afficher l'asymétrie (skewness) ? (défaut: FALSE)
-#' @param total TRUE pour inclure une ligne de total
-#' @param caption Titre personnalisé du tableau
-#' @param color Couleur de l'en-tête (défaut: "#D3D3D3")
-#' @param compact TRUE pour un affichage compact (n et % sur la même ligne) pour les variables catégorielles
+#' @param ... arguments passés aux fonctions sous-jacentes (descr_numeric, descr_categorial, descr_binary)
+#'
+#' @return Une liste d'objets d'analyse
+#' 
 #' @examples
-#'
-#' Analyser seulement certaines variables
-#'  analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
-#'
-#'
-#'  Analyser TOUTES les variables
-#'  analyse_descriptive_multiple(iris)
-#'
-#'
-#'  Analyser toutes sauf certaines
-#'  analyse_descriptive_multiple(iris, exclude_vars = "Species")
-#'
-#'
-#' @return Une liste contenant des objets descr_categorial ou descr_numeric
+#' # Analyse globale
+#' analyse_descriptive_multiple(iris)
+#' 
+#' # Avec filtrage (subset)
+#' analyse_descriptive_multiple(iris, subset = Sepal.Length > 5)
+#' 
+#' # Forcer un type binaire
+#' mtcars$cyl_bin <- ifelse(mtcars$cyl > 6, 1, 0)
+#' analyse_descriptive_multiple(mtcars, vars = "cyl_bin", var_types = c("cyl_bin" = "binary"))
 #'
 #' @export
 analyse_descriptive_multiple <- function(
     data,
     vars = NULL,
+    subset = NULL,
     var_labels = NULL,
     var_types = NULL,
     exclude_vars = NULL,
     integer_as_category = TRUE,
-    max_char_levels = 30,
     ...
 ) {
 
-  #---------------------------------------------------------------------------
-  # 1. Sélection des variables
-  #---------------------------------------------------------------------------
+  if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
+  
+  # Filtrage global
+  subset_enq <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset_enq)) {
+    data <- dplyr::filter(data, !!subset_enq)
+  }
 
   if (is.null(vars)) vars <- names(data)
-
-  if (!is.null(exclude_vars)) {
-    unknown_excluded <- setdiff(exclude_vars, names(data))
-    if (length(unknown_excluded) > 0) {
-      warning("Variables dans exclude_vars non trouvées : ",
-              paste(unknown_excluded, collapse=", "))
-    }
-    vars <- setdiff(vars, exclude_vars)
-  }
-
-  missing_vars <- setdiff(vars, names(data))
-  if (length(missing_vars) > 0) {
-    stop("Variables non trouvées dans les données : ",
-         paste(missing_vars, collapse=", "))
-  }
-
-  if (length(vars) == 0) stop("Aucune variable à analyser.")
-
-  #---------------------------------------------------------------------------
-  # 2. Gestion des libellés
-  #---------------------------------------------------------------------------
-
-  if (is.null(var_labels)) {
-    var_labels <- stats::setNames(vars, vars)
-  } else {
-    missing_labels <- setdiff(vars, names(var_labels))
-    if (length(missing_labels) > 0) {
-      warning("Libellés manquants pour : ",
-              paste(missing_labels, collapse=", "),
-              ". Libellés remplacés par le nom de la variable.")
-      var_labels[missing_labels] <- missing_labels
-    }
-    var_labels <- var_labels[vars]
-  }
-
-  #---------------------------------------------------------------------------
-  # 3. Typage robuste des variables
-  #---------------------------------------------------------------------------
-
-  detect_type <- function(x, name) {
-    # Facteurs
-    if (is.factor(x)) {
-      if (is.ordered(x)) return("numeric_ordinal")
-      return("categorical")
-    }
-
-    # Logiques
-    if (is.logical(x)) return("categorical")
-
-    # Dates
-    if (inherits(x, "Date") || inherits(x, "POSIXct")) {
-      return("numeric_date")
-    }
-
-    # Numériques
-    if (is.numeric(x)) {
-      unique_vals <- length(unique(na.omit(x)))
-
-      # entiers déguisés
-      is_integer_like <- all(abs(x - round(x)) < 1e-9, na.rm=TRUE)
-
-      # Numeric mais codes discrets
-      if (is_integer_like && integer_as_category && unique_vals <= 10) {
-        return("categorical")
-      }
-
-      # Trop peu de variabilité → descr categorial utile
-      if (unique_vals <= 5) return("categorical")
-
-      return("numeric")
-    }
-
-    # Caractères
-    if (is.character(x)) {
-      unique_vals <- length(unique(na.omit(x)))
-
-      if (unique_vals > max_char_levels) {
-        warning("La variable '", name,
-                "' contient ", unique_vals,
-                " modalités uniques (texte libre). Elle est ignorée.")
-        return("ignore")
-      }
-      return("categorical")
-    }
-
-    # Type inconnu → ignorer proprement
-    warning("Type non pris en charge pour la variable '", name,
-            "'. Variable ignorée.")
-    return("ignore")
-  }
-
-  # Gestion des types manuels vs automatiques
-  if (is.null(var_types)) {
-    var_types <- setNames(rep("auto", length(vars)), vars)
-  } else {
-    missing_types <- setdiff(vars, names(var_types))
-    var_types[missing_types] <- "auto"
-    var_types <- var_types[vars]
-  }
-
-  #---------------------------------------------------------------------------
-  # 4. Boucle d'analyse
-  #---------------------------------------------------------------------------
+  vars <- setdiff(vars, exclude_vars)
 
   results <- list()
-  extra_args <- list(...)
-
+  
   for (v in vars) {
     x <- data[[v]]
-    label <- var_labels[[v]]
-    declared_type <- var_types[[v]]
-
-    # Détection automatique si "auto"
-    type <- if (declared_type == "auto") detect_type(x, v) else declared_type
-
-    # Décisions
-    if (type == "ignore") next
-
-    if (type %in% c("numeric", "numeric_ordinal", "numeric_date")) {
-      analyse_type <- "numeric"
-    } else {
-      analyse_type <- "categorical"
+    label <- if (!is.null(var_labels[[v]])) var_labels[[v]] else {
+      attr_l <- attr(x, "label")
+      if (!is.null(attr_l)) attr_l else v
+    }
+    
+    type <- if (!is.null(var_types[[v]])) var_types[[v]] else "auto"
+    
+    if (type == "auto") {
+      if (is.numeric(x)) {
+        u <- length(unique(na.omit(x)))
+        if (u == 2) type <- "binary"
+        else if (u <= 5 && integer_as_category) type <- "categorical"
+        else type <- "numeric"
+      } else {
+        type <- "categorical"
+      }
     }
 
-    # Construction des arguments
-    args <- c(list(data = data,
-                   var = as.name(v),
-                   var_name = label),
-              extra_args)
-
-    # Appel aux bonnes fonctions
-    if (analyse_type == "numeric") {
-      results[[v]] <- do.call(descr_numeric, args)
-    } else {
-      results[[v]] <- do.call(descr_categorial, args)
-    }
+    args <- list(data = data, var = as.name(v), var_name = label, ...)
+    
+    results[[v]] <- tryCatch({
+      if (type == "binary") do.call(descr_binary, args)
+      else if (type == "numeric") do.call(descr_numeric, args)
+      else do.call(descr_categorial, args)
+    }, error = function(e) {
+      warning("Erreur lors de l'analyse de ", v, " : ", e$message)
+      NULL
+    })
   }
-
+  
   return(results)
 }

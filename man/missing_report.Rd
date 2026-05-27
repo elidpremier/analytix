@@ -19,8 +19,5 @@ missing_report(data, vars = base::names(data), digits = 1, color = "#D3D3D3")
 un objet de classe "missing_report"
 }
 \description{
-Tableau du taux de valeurs manquantes par variable.
-}
-\examples{
-missing_report(airquality)
+Tableau détaillé du taux de valeurs manquantes par variable.
 }

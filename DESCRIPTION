@@ -11,7 +11,6 @@ Description: Package fournissant des fonctions d'analyse descriptive univariée 
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports: 
     dplyr,
     flextable,
@@ -22,7 +21,11 @@ Imports:
     tidyr,
     ggplot2,
     rlang,
-    colorspace
+    colorspace,
+    shiny,
+    bslib,
+    shinyWidgets
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

@@ -7,71 +7,47 @@
 analyse_descriptive_multiple(
   data,
   vars = NULL,
+  subset = NULL,
   var_labels = NULL,
   var_types = NULL,
   exclude_vars = NULL,
   integer_as_category = TRUE,
-  max_char_levels = 30,
   ...
 )
 }
 \arguments{
 \item{data}{data.frame}
 
-\item{vars}{vecteur de noms de variables à analyser.
-Si NULL → toutes les variables.}
+\item{vars}{vecteur de noms de variables à analyser. Si NULL → toutes.}
+
+\item{subset}{Expression de filtrage globale appliquée avant l'analyse.}
 
 \item{var_labels}{nommage personnalisé : c("VAR" = "Libellé")}
 
-\item{var_types}{typage manuel : c("VAR" = "numeric", "VAR2" = "categorical")}
+\item{var_types}{typage manuel : c("VAR" = "numeric", "VAR2" = "categorical", "VAR3" = "binary")}
 
 \item{exclude_vars}{variables à exclure}
 
 \item{integer_as_category}{logique : TRUE = treat integers with few levels as categorical}
 
-\item{max_char_levels}{seuil max pour analyser une variable texte}
-
-\item{sort}{TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel}
-
-\item{digits}{nombre de décimales pour les calculs et pourcentages (défaut: 2)}
-
-\item{na_rm}{supprimer les NA dans les calculs ? (défaut: TRUE)}
-
-\item{include_na}{TRUE pour inclure les NA dans le calcul des fréquences, FALSE pour les exclure}
-
-\item{na_label}{Étiquette pour les valeurs manquantes (défaut: "Manquant")}
-
-\item{show_valid}{afficher la ligne "Valeurs valides" ? (défaut: FALSE)}
-
-\item{show_skewness}{afficher l'asymétrie (skewness) ? (défaut: FALSE)}
-
-\item{total}{TRUE pour inclure une ligne de total}
-
-\item{caption}{Titre personnalisé du tableau}
-
-\item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
-
-\item{compact}{TRUE pour un affichage compact (n et \% sur la même ligne) pour les variables catégorielles}
+\item{...}{arguments passés aux fonctions sous-jacentes (descr_numeric, descr_categorial, descr_binary)}
 }
 \value{
-Une liste contenant des objets descr_categorial ou descr_numeric
+Une liste d'objets d'analyse
 }
 \description{
 Analyse automatiquement une sélection de variables, avec
 une détection de type améliorée et des warnings intelligents.
 }
 \examples{
+# Analyse globale
+analyse_descriptive_multiple(iris)
 
-Analyser seulement certaines variables
- analyse_descriptive_multiple(iris, c("Species", "Sepal.Length"))
+# Avec filtrage (subset)
+analyse_descriptive_multiple(iris, subset = Sepal.Length > 5)
 
-
- Analyser TOUTES les variables
- analyse_descriptive_multiple(iris)
-
-
- Analyser toutes sauf certaines
- analyse_descriptive_multiple(iris, exclude_vars = "Species")
-
+# Forcer un type binaire
+mtcars$cyl_bin <- ifelse(mtcars$cyl > 6, 1, 0)
+analyse_descriptive_multiple(mtcars, vars = "cyl_bin", var_types = c("cyl_bin" = "binary"))
 
 }

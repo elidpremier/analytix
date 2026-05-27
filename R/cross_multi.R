@@ -3,404 +3,174 @@
 #' Génère un tableau hiérarchique présentant les effectifs, pourcentages (conditionnels à la colonne),
 #' les Odds Ratios (OR) bruts avec intervalles de confiance à 95\%, et les p-values par modalité.
 #'
-#' \strong{Caractéristiques principales :}
-#' \itemize{
-#'   \item Les pourcentages sont calculés par colonne (selon la variable dépendante).
-#'   \item Le test d'association global (Khi² ou Fisher) est calculé en interne mais \strong{n'est pas affiché} dans le tableau final.
-#'   \item Seules les p-values des comparaisons spécifiques (Modalité vs Référence) apparaissent.
-#'   \item Formatage automatique avec virgule décimale et crochets pour les IC.
-#' }
-#'
 #' @param data Un \code{data.frame}.
-#' @param outcome Variable dépendante (binaire de préférence). Symbole non évalué (ex: \code{SARM}).
+#' @param outcome Variable dépendante (binaire de préférence).
 #' @param predictors Vecteur de chaînes de caractères contenant les noms des colonnes indépendantes.
-#' @param include_na Logique. Inclure les valeurs manquantes (NA) comme une catégorie ? Défaut: \code{FALSE}.
+#' @param outcome_level La modalité de l'outcome à considérer comme l'événement (ex: "Oui", 1). Si NULL, utilise la 2ème modalité.
+#' @param include_na Logique. Inclure les valeurs manquantes (NA) ? Défaut: \code{FALSE}.
 #' @param digits Entier. Nombre de décimales pour les pourcentages. Défaut: \code{1}.
-#' @param color Caractère. Couleur de fond pour l'en-tête du tableau flextable. Défaut: \code{"#D3D3D3"}.
-#' @param tidy_layout Logique. Si \code{TRUE}, retourne un format "long" (tidy). Défaut: \code{FALSE}.
-#' @param method Caractère. Méthode de calcul des OR : \code{"logistic"} ou \code{"level"}. Défaut: \code{"level"}.
+#' @param color Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"#D3D3D3"}.
+#' @param tidy_layout Logique. Si \code{TRUE}, retourne un format "long". Défaut: \code{FALSE}.
+#' @param method Caractère. Méthode : \code{"logistic"} ou \code{"level"}. Défaut: \code{"logistic"}.
 #' @param ref_levels Liste nommée définissant les niveaux de référence.
 #'
-#' @return Un objet \code{flextable} avec la classe additionnelle \code{"analytix_table"}.
+#' @examples
+#' # Exemple simple
+#' cross_multi(mtcars, am, c("cyl", "vs"))
+#' 
+#' # Avec spécification de l'outcome d'intérêt
+#' mtcars$am_f <- factor(mtcars$am, labels = c("Auto", "Manuelle"))
+#' cross_multi(mtcars, am_f, c("cyl", "vs"), outcome_level = "Manuelle")
 #'
-#' @section Exemples:
-#' \preformatted{
-#' # Charger les données exemple (mtcars intégré à R)
-#' data(mtcars)
-#'
-#' # Préparation des données
-#' mtcars2 <- transform(mtcars,
-#'   am = factor(am, labels = c("Manuelle", "Automatique")),
-#'   cyl = factor(cyl, labels = c("4 cyl", "6 cyl", "8 cyl")),
-#'   vs = factor(vs, labels = c("V-Engine", "Ligne"))
-#' )
-#'
-#' # 1. Format Hiérarchique (Défaut)
-#' # Tableau classique avec variables en gras et modalités indentées
-#' # (Ne pas exécuter automatiquement lors du check CRAN si flextable interactif)
-#' \dontrun{
-#' cross_multi(mtcars2, am, c("cyl", "vs"))
-#' }
-#'
-#' # 2. Format Tidy (Pour export ou manipulation ultérieure)
-#' \dontrun{
-#' cross_multi(mtcars2, am, c("cyl", "vs"), tidy_layout = TRUE)
-#' }
-#'
-#' # 3. Avec définition des références personnalisées
-#' \dontrun{
-#' cross_multi(mtcars2, am, c("cyl", "vs"),
-#'             ref_levels = list(cyl = "8 cyl", vs = "Ligne"))
-#' }
-#' }
-#'
-#' @importFrom rlang enquo quo_name :=
-#' @importFrom dplyr bind_rows pull
-#' @importFrom flextable flextable set_caption theme_zebra bold align bg
-#' @importFrom stats fisher.test chisq.test qnorm relevel setNames na.omit
 #' @export
 cross_multi <- function(data,
                         outcome,
                         predictors,
+                        outcome_level = NULL,
                         include_na = FALSE,
                         digits = 1,
                         color = "#D3D3D3",
-                        tidy_layout = TRUE,
+                        tidy_layout = FALSE,
                         method = c("logistic", "level"),
                         ref_levels = NULL) {
 
   method <- match.arg(method)
 
-  # Vérification des dépendances (sans stopper si installé, juste warning si manquant)
-  deps <- c("dplyr", "rlang", "flextable", "tidyr")
-  for (pkg in deps) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      stop(sprintf("Le package '%s' est requis pour cette fonction.", pkg))
-    }
-  }
-
-  if (!is.character(predictors) || length(predictors) == 0) {
-    stop("L'argument 'predictors' doit être un vecteur de chaînes non vide.")
-  }
-
-  missing_vars <- predictors[!predictors %in% names(data)]
-  if (length(missing_vars) > 0) {
-    stop("Colonnes manquantes dans les données : ", paste(missing_vars, collapse = ", "))
-  }
+  if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
+  if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
+  if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
+  if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
 
   outcome_enq <- rlang::enquo(outcome)
   outcome_name <- rlang::quo_name(outcome_enq)
-  y <- dplyr::pull(data, !!outcome_enq)
+  
+  # Label de l'outcome
+  attr_outcome_label <- attr(data[[outcome_name]], "label")
+  outcome_label <- if (!is.null(attr_outcome_label)) attr_outcome_label else outcome_name
 
-  # --- Gestion de la variable dépendante (Y) ---
-  use_na_arg <- if (include_na) "ifany" else "no"
-  y_tab_full <- base::table(y, useNA = use_na_arg)
-  y_levels <- names(y_tab_full)
-  n_per_level <- as.numeric(y_tab_full)
+  y <- data[[outcome_name]]
+  y_levels <- if (is.factor(y)) levels(y) else sort(unique(na.omit(y)))
+  
+  if (length(y_levels) < 2) stop("L'outcome doit avoir au moins 2 modalités.")
 
-  if (length(y_levels) == 0) stop("La variable dépendante n'a aucune modalité valide.")
-
-  # Libellés des colonnes de Y
-  col_labels_y <- mapply(function(val, n) {
-    val_lab <- if (is.na(val)) "<NA>" else as.character(val)
-    sprintf("%s (n=%s)", val_lab, n)
-  }, names(y_tab_full), n_per_level, SIMPLIFY = TRUE)
-
-  # Helper: Déterminer le niveau de référence
-  get_ref_for_var <- function(var_name, x_levels) {
-    if (!is.null(ref_levels)) {
-      if (!is.null(names(ref_levels)) && var_name %in% names(ref_levels)) {
-        return(as.character(ref_levels[[var_name]]))
-      }
-      if (is.null(names(ref_levels)) && length(ref_levels) == length(predictors)) {
-        idx <- which(predictors == var_name)
-        return(as.character(ref_levels[idx]))
-      }
-    }
-    return(x_levels[1])
+  if (is.null(outcome_level)) {
+    outcome_level <- y_levels[2] # Par défaut la 2ème (souvent "Oui", "1", "Malade")
   }
+  
+  ref_y <- setdiff(y_levels, outcome_level)[1]
+  y_factor <- factor(y, levels = c(ref_y, outcome_level))
 
-  # Helpers de formatage
+  # Dénominateurs par colonne
+  y_tab_full <- table(y_factor, useNA = if(include_na) "ifany" else "no")
+  col_labels_y <- mapply(function(val, n) {
+    sprintf("%s (n=%s)", val, n)
+  }, names(y_tab_full), as.numeric(y_tab_full))
+
+  # Helpers
   fmt_num <- function(x) format(round(x, 2), nsmall = 2, decimal.mark = ",")
   fmt_pct <- function(x) format(round(x, digits), nsmall = digits, decimal.mark = ",")
   fmt_p <- function(p) {
     if (is.na(p)) return("")
-    if (p >= 1) return("1")
     if (p < 0.001) return("< 0,001")
     format(round(p, 3), decimal.mark = ",")
   }
 
   z <- stats::qnorm(0.975)
+  result_rows <- list()
 
-  # ==============================
-  # FORMAT TIDY
-  # ==============================
-  if (tidy_layout) {
-    tidy_rows <- list()
+  for (var_name in predictors) {
+    x_raw <- data[[var_name]]
+    
+    # Label predictor
+    attr_x_label <- attr(data[[var_name]], "label")
+    x_label <- if (!is.null(attr_x_label)) attr_x_label else var_name
 
-    for (var_name in predictors) {
-      x_raw <- data[[var_name]]
-      x_tab <- base::table(x_raw, useNA = use_na_arg)
-      x_levels <- names(x_tab)
-      if (length(x_levels) == 0) next
+    x_levels <- if (is.factor(x_raw)) levels(x_raw) else sort(unique(na.omit(x_raw)))
+    if (include_na && any(is.na(x_raw))) x_levels <- c(x_levels, NA)
+    
+    if (length(x_levels) == 0) next
+    
+    tab <- table(factor(x_raw, levels = x_levels, exclude = NULL), y_factor, useNA = "no")
+    pct_mat <- prop.table(tab, margin = 2) * 100
+    
+    ref_x <- if (!is.null(ref_levels[[var_name]])) ref_levels[[var_name]] else x_levels[1]
+    
+    or_per_level <- setNames(rep("", length(x_levels)), as.character(x_levels))
+    pval_per_level <- setNames(rep("", length(x_levels)), as.character(x_levels))
+    
+    or_per_level[as.character(ref_x)] <- "Réf."
 
-      tab <- base::table(
-        x = factor(x_raw, levels = x_levels),
-        y = factor(y, levels = y_levels),
-        useNA = "no"
-      )
-      pct_mat <- prop.table(tab, margin = 2) * 100
-
-      or_per_level <- stats::setNames(rep("", length(x_levels)), x_levels)
-      pval_per_level <- stats::setNames(rep("", length(x_levels)), x_levels)
-
-      if (length(y_levels) == 2) {
-        ref <- get_ref_for_var(var_name, x_levels)
-        if (!ref %in% x_levels) {
-          warning(sprintf("Référence '%s' introuvable pour %s. Utilisation de '%s'.", ref, var_name, x_levels[1]))
-          ref <- x_levels[1]
-        }
-
-        or_per_level[ref] <- "Réf."
-
-        if (method == "logistic") {
-          y_bin <- as.integer(factor(y, levels = y_levels) == y_levels[2])
-          fac <- stats::relevel(factor(x_raw, levels = x_levels), ref)
-          fit <- try(stats::glm(y_bin ~ fac, family = stats::binomial()), silent = TRUE)
-
-          if (!inherits(fit, "try-error")) {
-            coefs <- summary(fit)$coefficients
-            for (lvl in x_levels) {
-              if (lvl == ref) next
-              row_idx <- grep(paste0(lvl, "$"), rownames(coefs))
-              if (length(row_idx) == 1) {
-                est <- coefs[row_idx, 1]; se <- coefs[row_idx, 2]; pval <- coefs[row_idx, 4]
-                or_val <- exp(est); ci <- exp(est + c(-1, 1) * z * se)
-                or_per_level[lvl] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
-                pval_per_level[lvl] <- fmt_p(pval)
-              }
-            }
-          }
-        } else if (method == "level") {
-          for (lvl in x_levels) {
-            if (lvl == ref) next
-            a <- sum(x_raw == lvl & y == y_levels[1], na.rm = TRUE)
-            b <- sum(x_raw == lvl & y == y_levels[2], na.rm = TRUE)
-            c <- sum(x_raw == ref & y == y_levels[1], na.rm = TRUE)
-            d <- sum(x_raw == ref & y == y_levels[2], na.rm = TRUE)
-
-            if (a + b + c + d == 0) next
-            a0 <- a; b0 <- b; c0 <- c; d0 <- d
-            if (any(c(a0, b0, c0, d0) == 0)) { a0 <- a0 + 0.5; b0 <- b0 + 0.5; c0 <- c0 + 0.5; d0 <- d0 + 0.5 }
-
-            or_val <- (a0 * d0) / (b0 * c0)
-            log_or <- log(or_val)
-            se_log_or <- sqrt(1/a0 + 1/b0 + 1/c0 + 1/d0)
-            ci <- exp(log_or + c(-1, 1) * z * se_log_or)
-
-            pval <- tryCatch(stats::fisher.test(matrix(c(a, b, c, d), nrow = 2, byrow = TRUE))$p.value, error = function(e) NA_real_)
-
-            or_per_level[lvl] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
-            pval_per_level[lvl] <- fmt_p(pval)
+    if (method == "logistic") {
+      y_bin <- as.integer(y_factor == outcome_level)
+      fac <- stats::relevel(factor(x_raw, levels = x_levels, exclude = NULL), ref = as.character(ref_x))
+      fit <- try(stats::glm(y_bin ~ fac, family = stats::binomial()), silent = TRUE)
+      
+      if (!inherits(fit, "try-error")) {
+        sum_fit <- summary(fit)$coefficients
+        for (lvl in setdiff(x_levels, ref_x)) {
+          lvl_char <- as.character(lvl)
+          row_nm <- paste0("fac", lvl_char)
+          if (row_nm %in% rownames(sum_fit)) {
+            est <- sum_fit[row_nm, 1]; se <- sum_fit[row_nm, 2]
+            or_val <- exp(est); ci <- exp(est + c(-1, 1) * z * se)
+            or_per_level[lvl_char] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
+            pval_per_level[lvl_char] <- fmt_p(sum_fit[row_nm, 4])
           }
         }
       }
-
-      for (i in seq_len(nrow(tab))) {
-        mod_label <- rownames(tab)[i]
-        mod_clean <- if (is.na(mod_label)) "<NA>" else as.character(mod_label)
-
-        cells <- character(length(y_levels))
-        for (j in seq_along(y_levels)) {
-          n_val <- tab[i, j]
-          p_val <- pct_mat[i, j]
-          cells[j] <- sprintf("%s (%s%%)", n_val, fmt_pct(p_val))
-        }
-
-        row_vec <- c(
-          Variable = var_name,
-          Modalite = mod_clean,
-          cells,
-          `p-value` = if(mod_clean %in% names(pval_per_level)) pval_per_level[mod_clean] else "",
-          OR = if(mod_clean %in% names(or_per_level)) or_per_level[mod_clean] else ""
-        )
-        tidy_rows[[length(tidy_rows) + 1]] <- row_vec
+    } else {
+      # Method "level" (Fisher/Matrix)
+      for (lvl in setdiff(x_levels, ref_x)) {
+        lvl_char <- as.character(lvl)
+        m <- matrix(c(tab[lvl_char, outcome_level], tab[lvl_char, ref_y],
+                      tab[as.character(ref_x), outcome_level], tab[as.character(ref_x), ref_y]), 
+                    nrow = 2, byrow = TRUE)
+        
+        # Haldane-Anscombe correction if zero
+        if (any(m == 0)) m <- m + 0.5
+        or_val <- (m[1,1]*m[2,2])/(m[1,2]*m[2,1])
+        se_log_or <- sqrt(sum(1/m))
+        ci <- exp(log(or_val) + c(-1, 1) * z * se_log_or)
+        
+        pval <- tryCatch(stats::fisher.test(matrix(c(tab[lvl_char, outcome_level], tab[lvl_char, ref_y],
+                                                   tab[as.character(ref_x), outcome_level], tab[as.character(ref_x), ref_y]), 
+                                                 nrow = 2))$p.value, error = function(e) NA)
+        
+        or_per_level[lvl_char] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
+        pval_per_level[lvl_char] <- fmt_p(pval)
       }
     }
 
-    if (length(tidy_rows) == 0) stop("Aucune donnée à afficher.")
-    df_out <- as.data.frame(do.call(rbind, tidy_rows), stringsAsFactors = FALSE)
-    names(df_out)[3:(2 + length(y_levels))] <- col_labels_y
+    # Header row for the variable
+    header_row <- list(Variable = x_label, `OR brute (IC 95%)` = "", `p-value` = "")
+    for (lbl in col_labels_y) header_row[[lbl]] <- ""
+    result_rows[[length(result_rows) + 1]] <- header_row
 
-  } else {
-    # ==============================
-    # FORMAT HIÉRARCHIQUE
-
-    # ==============================
-    # On utilise directement les noms finaux désirés pour éviter les erreurs de mapping
-    result_rows <- list()
-    
-    for (var_name in predictors) {
-      x_raw <- data[[var_name]]
-      x_tab <- table(x_raw, useNA = use_na_arg)
-      x_levels <- names(x_tab)
-      if (length(x_levels) == 0) next
-      
-      n_var <- sum(x_tab, na.rm = TRUE)
-      
-      tab <- table(
-        x = factor(x_raw, levels = x_levels),
-        y = factor(y, levels = y_levels),
-        useNA = "no"
-      )
-      pct_mat <- prop.table(tab, margin = 2) * 100
-      
-      # Initialisation des vecteurs de résultats
-      or_per_level <- setNames(rep("", length(x_levels)), x_levels)
-      pval_per_level <- setNames(rep("", length(x_levels)), x_levels)
-      
-      # Calculs uniquement si Y est binaire
-      if (length(y_levels) == 2) {
-        ref <- get_ref_for_var(var_name, x_levels)
-        if (!ref %in% x_levels) {
-          warning(sprintf("Référence '%s' non trouvée pour %s — utilisation de '%s'", ref, var_name, x_levels[1]))
-          ref <- x_levels[1]
-        }
-        
-        or_per_level[ref] <- "Réf." # Marqueur explicite
-        
-        if (method == "logistic") {
-          y_bin <- as.integer(factor(y, levels = y_levels) == y_levels[2])
-          fac <- relevel(factor(x_raw, levels = x_levels), ref)
-          fit <- try(stats::glm(y_bin ~ fac, family = stats::binomial()), silent = TRUE)
-          
-          if (!inherits(fit, "try-error")) {
-            coefs <- summary(fit)$coefficients
-            for (lvl in x_levels) {
-              if (lvl == ref) next
-              row_idx <- grep(paste0(lvl, "$"), rownames(coefs))
-              if (length(row_idx) == 1) {
-                est <- coefs[row_idx, 1]; se <- coefs[row_idx, 2]; pval <- coefs[row_idx, 4]
-                or_val <- exp(est); ci <- exp(est + c(-1, 1) * z * se)
-                or_per_level[lvl] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
-                pval_per_level[lvl] <- fmt_p(pval)
-              }
-            }
-          }
-        } else if (method == "level") {
-          for (lvl in x_levels) {
-            if (lvl == ref) next
-            a <- sum(x_raw == lvl & y == y_levels[1], na.rm = TRUE)
-            b <- sum(x_raw == lvl & y == y_levels[2], na.rm = TRUE)
-            c <- sum(x_raw == ref & y == y_levels[1], na.rm = TRUE)
-            d <- sum(x_raw == ref & y == y_levels[2], na.rm = TRUE)
-            
-            if (a + b + c + d == 0) next
-            
-            a0 <- a; b0 <- b; c0 <- c; d0 <- d
-            if (any(c(a0, b0, c0, d0) == 0)) { a0 <- a0 + 0.5; b0 <- b0 + 0.5; c0 <- c0 + 0.5; d0 <- d0 + 0.5 }
-            
-            or_val <- (a0 * d0) / (b0 * c0)
-            log_or <- log(or_val)
-            se_log_or <- sqrt(1/a0 + 1/b0 + 1/c0 + 1/d0)
-            ci <- exp(log_or + c(-1, 1) * z * se_log_or)
-            
-            pval <- tryCatch(stats::fisher.test(matrix(c(a, b, c, d), nrow = 2, byrow = TRUE))$p.value, error = function(e) NA_real_)
-            
-            or_per_level[lvl] <- sprintf("%s [%s – %s]", fmt_num(or_val), fmt_num(ci[1]), fmt_num(ci[2]))
-            pval_per_level[lvl] <- fmt_p(pval)
-          }
-        }
+    # Modality rows
+    for (lvl in x_levels) {
+      lvl_char <- as.character(lvl)
+      row_data <- list(Variable = paste0("  ", ifelse(is.na(lvl), "<NA>", lvl_char)))
+      for (j in seq_along(col_labels_y)) {
+        row_data[[col_labels_y[j]]] <- sprintf("%s (%s%%)", tab[lvl_char, j], fmt_pct(pct_mat[lvl_char, j]))
       }
-      
-      # 1. Ligne Titre (Variable + N)
-      # IMPORTANT: On met "" pour p-value et OR car on ne veut pas la p-value globale ici
-      header_row <- list(
-        Variable = sprintf("%s (n=%s)", var_name, n_var),
-        `OR brute (IC 95%)` = "",
-        `p-value` = "" 
-      )
-      # Ajout dynamique des colonnes de résultats (BLSE-, BLSE+) vides
-      for (col_lbl in col_labels_y) {
-        header_row[[col_lbl]] <- ""
-      }
-      # Réordonner pour que Variable soit en premier, puis les cols Y, puis OR, puis p-value
-      # L'ordre final sera fixé après le bind_rows, ici on s'assure juste que les clés existent
-      
-      result_rows[[length(result_rows) + 1]] <- header_row
-      
-      # 2. Lignes Modalités
-      for (i in seq_len(nrow(tab))) {
-        mod_label <- rownames(tab)[i]
-        mod_clean <- if (is.na(mod_label)) "<NA>" else as.character(mod_label)
-        row_data <- list(Variable = paste("  ", mod_clean))
-        
-        # Cellules de comptage (%)
-        for (j in seq_along(y_levels)) {
-          n_val <- tab[i, j]
-          p_val <- pct_mat[i, j]
-          lbl <- col_labels_y[j]
-          row_data[[lbl]] <- sprintf("%s (%s%%)", n_val, fmt_pct(p_val))
-        }
-        
-        # Assignation OR et p-value (clé "p-value" avec tiret)
-        val_or <- or_per_level[mod_clean]
-        val_p <- pval_per_level[mod_clean]
-        
-        # Sécurité si NA
-        if (is.na(val_or)) val_or <- ""
-        if (is.na(val_p)) val_p <- ""
-        
-        row_data[["OR brute (IC 95%)"]] <- val_or
-        row_data[["p-value"]] <- val_p
-        
-        result_rows[[length(result_rows) + 1]] <- row_data
-      }
+      row_data[["OR brute (IC 95%)"]] <- or_per_level[lvl_char]
+      row_data[["p-value"]] <- pval_per_level[lvl_char]
+      result_rows[[length(result_rows) + 1]] <- row_data
     }
-    
-    if (length(result_rows) == 0) stop("Aucune donnée à afficher.")
-    
-    # Conversion en dataframe
-    df_list <- lapply(result_rows, function(r) {
-      # S'assurer que toutes les colonnes attendues sont présentes même si vides
-      full_row <- as.data.frame(t(unlist(r)), stringsAsFactors = FALSE)
-      return(full_row)
-    })
-    
-    df_out <- dplyr::bind_rows(df_list)
-    
-    # Définition stricte de l'ordre des colonnes
-    final_cols <- c("Variable", col_labels_y, "OR brute (IC 95%)", "p-value")
-    
-    # Vérification que toutes les colonnes existent (sinon création de colonnes vides)
-    for (col in final_cols) {
-      if (!col %in% names(df_out)) {
-        df_out[[col]] <- ""
-      }
-    }
-    
-    df_out <- df_out[, final_cols, drop = FALSE]
   }
 
-  # ==============================
-  # GÉNÉRATION FLEXTABLE
-  # ==============================
+  df_out <- dplyr::bind_rows(lapply(result_rows, as.data.frame, stringsAsFactors = FALSE))
+  
+  if (tidy_layout) return(df_out)
 
   ft <- flextable::flextable(df_out) %>%
-    flextable::set_caption(sprintf("Associations bivariées avec %s", outcome_name)) %>%
-    flextable::theme_zebra() # Remplacement de theme_default
-
-  if (!tidy_layout) {
-    is_header <- !startsWith(df_out$Variable, "  ")
-    if (any(is_header)) {
-      ft <- flextable::bold(ft, i = which(is_header), part = "body")
-    }
-  }
-
-  ft <- flextable::align(ft, align = "center", part = "all")
-  ft <- flextable::align(ft, j = 1, align = "left", part = "body")
-
-  class(ft) <- c("analytix_table", class(ft))
+    flextable::set_caption(sprintf("Associations bivariées avec %s (%s)", outcome_label, outcome_level)) %>%
+    flextable::theme_zebra() %>%
+    flextable::bold(i = ~ !startsWith(Variable, "  "), part = "body") %>%
+    flextable::align(align = "center", part = "all") %>%
+    flextable::align(j = 1, align = "left", part = "body") %>%
+    flextable::bg(i = ~ !startsWith(Variable, "  "), bg = color)
+    
   return(ft)
 }
 

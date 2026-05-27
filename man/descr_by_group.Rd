@@ -11,30 +11,39 @@ descr_by_group(
   var_name = NULL,
   by_name = NULL,
   digits = 1,
-  color = "#D3D3D3"
+  color = "#D3D3D3",
+  test_stat = TRUE
 )
 }
 \arguments{
 \item{data}{data.frame}
 
-\item{var}{variable numérique à décrire}
+\item{var}{variable à décrire (numérique ou catégorielle)}
 
-\item{by}{variable catégorielle de groupement}
+\item{by}{variable de groupement (catégorielle)}
 
-\item{var_name}{libellé de la variable numérique}
+\item{var_name}{libellé de la variable}
 
 \item{by_name}{libellé de la variable de groupe}
 
 \item{digits}{nombre de décimales}
 
 \item{color}{couleur de l'en-tête}
+
+\item{test_stat}{logique. Afficher le test statistique ? (défaut: TRUE)}
 }
 \value{
-un objet de classe "descr_by_group" contenant un flextable
+un objet flextable
 }
 \description{
-Tableau de statistiques (moyenne, médiane, etc.) par catégorie d'une variable de groupe.
+Tableau de statistiques par catégorie d'une variable de groupe.
+Supporte les variables numériques (moyenne, médiane...) et catégorielles (pourcentages, test Chi²).
 }
 \examples{
+# Cas numérique
 descr_by_group(mtcars, mpg, cyl, var_name = "Consommation", by_name = "Cylindres")
+
+# Cas catégoriel
+descr_by_group(mtcars, am, vs, var_name = "Transmission", by_name = "Moteur")
+
 }

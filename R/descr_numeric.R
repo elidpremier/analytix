@@ -3,6 +3,7 @@
 #' @param data data.frame
 #' @param var variable numérique à analyser (sans guillemets)
 #' @param var_name nom personnalisé (optionnel)
+#' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param digits nombre de décimales (défaut: 2)
 #' @param na_rm supprimer les NA dans les calculs ? (défaut: TRUE)
 #' @param show_valid afficher la ligne "Valeurs valides" ? (défaut: FALSE)
@@ -13,9 +14,10 @@
 #' @return un objet de classe "descr_numeric" contenant les données et le flextable
 #' @examples
 #' descr_numeric(mtcars, mpg)
+#' descr_numeric(mtcars, mpg, subset = cyl == 4)
 #'
 #' @export
-descr_numeric <- function(data, var, var_name = NULL, digits = 2,
+descr_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
                           na_rm = TRUE,
                           show_valid = FALSE,
                           show_skewness = FALSE,
@@ -27,9 +29,25 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   if (!requireNamespace("flextable", quietly = TRUE)) stop("Package 'flextable' requis")
   if (!requireNamespace("tibble", quietly = TRUE)) stop("Package 'tibble' requis")
   if (!requireNamespace("stats", quietly = TRUE)) stop("Package 'stats' requis")
+  if (!requireNamespace("rlang", quietly = TRUE)) stop("Package 'rlang' requis")
+
+  # Gestion du filtrage
+  subset_enq <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset_enq)) {
+    data <- dplyr::filter(data, !!subset_enq)
+  }
 
   var_name_auto <- deparse(substitute(var))
-  if (is.null(var_name)) var_name <- var_name_auto
+  
+  # Récupération du label si var_name est NULL
+  if (is.null(var_name)) {
+    attr_label <- attr(data[[var_name_auto]], "label")
+    if (!is.null(attr_label)) {
+      var_name <- attr_label
+    } else {
+      var_name <- var_name_auto
+    }
+  }
 
   if (!var_name_auto %in% names(data)) {
     stop("La variable '", var_name_auto, "' n'existe pas.")
@@ -45,60 +63,57 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   n_valid <- sum(!is.na(x))
   n_missing <- n_total - n_valid
 
-  if (n_valid == 0) stop("Aucune valeur valide dans la variable.")
+  if (n_valid == 0) {
+    warning("Aucune valeur valide dans la variable après filtrage.")
+    return(NULL)
+  }
 
   x_clean <- if (na_rm) x[!is.na(x)] else x
 
-  # Statistiques de base (toujours présentes)
+  # Statistiques de base
   stats_list <- list(
     "Effectif total" = n_total,
     "Valeurs manquantes" = n_missing,
-    "Moyenne" = round(mean(x_clean, na.rm = TRUE), digits),
-    "Écart-type" = round(stats::sd(x_clean, na.rm = TRUE), digits),
-    "Médiane" = round(stats::median(x_clean, na.rm = TRUE), digits),
+    "Moyenne" = mean(x_clean, na.rm = TRUE),
+    "Écart-type" = stats::sd(x_clean, na.rm = TRUE),
+    "Médiane" = stats::median(x_clean, na.rm = TRUE),
     "Minimum" = min(x_clean, na.rm = TRUE),
     "Maximum" = max(x_clean, na.rm = TRUE),
-    "Premier quartile (Q1)" = round(stats::quantile(x_clean, 0.25, na.rm = TRUE), digits),
-    "Troisième quartile (Q3)" = round(stats::quantile(x_clean, 0.75, na.rm = TRUE), digits)
+    "Premier quartile (Q1)" = stats::quantile(x_clean, 0.25, na.rm = TRUE),
+    "Troisième quartile (Q3)" = stats::quantile(x_clean, 0.75, na.rm = TRUE)
   )
 
-  # Ajouter "Valeurs valides" si demandé
   if (show_valid) {
     stats_list[["Valeurs valides"]] <- n_valid
   }
 
-  # Ajouter skewness si demandé
   if (show_skewness) {
-    # Calcul manuel du skewness (pas de dépendance à e1071)
     if (n_valid > 2) {
       m <- mean(x_clean, na.rm = TRUE)
       s <- stats::sd(x_clean, na.rm = TRUE)
-      if (s > 0) {
-        skew <- mean(((x_clean - m) / s)^3, na.rm = TRUE)
-      } else {
-        skew <- 0
-      }
+      skew <- if (s > 0) mean(((x_clean - m) / s)^3, na.rm = TRUE) else 0
     } else {
       skew <- as.numeric(NA)
     }
-    stats_list[["Asymétrie (skewness)"]] <- round(skew, digits)
+    stats_list[["Asymétrie (skewness)"]] <- skew
   }
 
   # Créer le tibble
   stats <- tibble::tibble(
     Statistique = names(stats_list),
-    Valeur = unlist(stats_list)
+    Valeur_num = unname(unlist(stats_list))
   )
 
-  # Formatage : entiers vs décimaux
-  stats <- stats %>%
-    dplyr::mutate(
-      Valeur = dplyr::if_else(
-        Statistique %in% c("Effectif total", "Valeurs manquantes", "Valeurs valides"),
-        as.character(Valeur),  # Pas de décimale pour les effectifs
-        format(Valeur, nsmall = digits, decimal.mark = ",")
-      )
-    )
+  # Formatage
+  format_val <- function(val, stat_name) {
+    if (stat_name %in% c("Effectif total", "Valeurs manquantes", "Valeurs valides")) {
+      return(as.character(as.integer(val)))
+    } else {
+      return(format(round(val, digits), nsmall = digits, decimal.mark = ","))
+    }
+  }
+
+  stats$Valeur <- mapply(format_val, stats$Valeur_num, stats$Statistique)
 
   # Titre
   if (is.null(caption)) {
@@ -106,9 +121,11 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
   }
 
   # Flextable
-  ft <- flextable::flextable(stats) %>%
+  ft_data <- stats %>% dplyr::select(Statistique, Valeur)
+  ft <- flextable::flextable(ft_data) %>%
     flextable::set_caption(caption) %>%
     theme_analytique(color = color)
+
   # Retour
   structure(
     list(
@@ -117,7 +134,7 @@ descr_numeric <- function(data, var, var_name = NULL, digits = 2,
       variable_name = var_name,
       n_valid = n_valid,
       n_missing = n_missing,
-      raw_data = x  # ←←← Ajout crucial pour la visualisation
+      raw_data = x
     ),
     class = "descr_numeric"
   )
