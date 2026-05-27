@@ -22,7 +22,8 @@ descr_binary <- function(data, var, target_level = NULL, var_name = NULL, subset
     data <- dplyr::filter(data, !!subset_enq)
   }
 
-  var_name_auto <- deparse(substitute(var))
+  var_enq <- rlang::enquo(var)
+  var_name_auto <- rlang::as_name(var_enq)
   if (is.null(var_name)) {
     attr_label <- attr(data[[var_name_auto]], "label")
     var_name <- if (!is.null(attr_label)) attr_label else var_name_auto

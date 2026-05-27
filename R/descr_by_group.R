@@ -24,8 +24,10 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
   if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
   if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
 
-  var_nm <- base::deparse(base::substitute(var))
-  by_nm <- base::deparse(base::substitute(by))
+  var_enq <- rlang::enquo(var)
+  by_enq <- rlang::enquo(by)
+  var_nm <- rlang::as_name(var_enq)
+  by_nm <- rlang::as_name(by_enq)
 
   if (is.null(var_name)) {
     attr_l <- attr(data[[var_nm]], "label")
@@ -42,27 +44,30 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
   if (is.numeric(x)) {
     # --- Cas numérique (comportement original amélioré) ---
     stats_df <- data %>%
-      dplyr::group_by(dplyr::across({{ by }})) %>%
+      dplyr::group_by(!!by_enq) %>%
       dplyr::summarise(
-        n = base::sum(!base::is.na({{ var }})),
-        Moyenne = base::mean({{ var }}, na.rm = TRUE),
-        Mediane = stats::median({{ var }}, na.rm = TRUE),
-        Ecart_type = stats::sd({{ var }}, na.rm = TRUE),
-        Min_Max = paste0(min({{ var }}, na.rm = TRUE), " - ", max({{ var }}, na.rm = TRUE)),
+        n = base::sum(!base::is.na(!!var_enq)),
+        Moyenne = base::mean(!!var_enq, na.rm = TRUE),
+        Mediane = stats::median(!!var_enq, na.rm = TRUE),
+        Ecart_type = stats::sd(!!var_enq, na.rm = TRUE),
+        Min_Max = paste0(min(!!var_enq, na.rm = TRUE), " - ", max(!!var_enq, na.rm = TRUE)),
         .groups = "drop"
       )
 
     # Pivot pour présentation
     final_df <- stats_df %>%
-      tidyr::pivot_longer(cols = -{{ by }}, names_to = "Statistique", values_to = "Valeur") %>%
-      dplyr::mutate(
-        Valeur = dplyr::case_when(
-          Statistique == "n" ~ as.character(as.integer(Valeur)),
-          Statistique == "Min_Max" ~ Valeur,
-          TRUE ~ base::format(base::round(as.numeric(Valeur), digits), nsmall = digits, decimal.mark = ",")
-        )
-      ) %>%
-      tidyr::pivot_wider(names_from = {{ by }}, values_from = Valeur)
+      dplyr::mutate(dplyr::across(-!!by_enq, as.character)) %>%
+      tidyr::pivot_longer(cols = -!!by_enq, names_to = "Statistique", values_to = "Valeur")
+    
+    # Formatage sélectif pour éviter les warnings de conversion sur Min_Max et n
+    idx_num <- !final_df$Statistique %in% c("n", "Min_Max")
+    final_df$Valeur[idx_num] <- base::format(
+      base::round(as.numeric(final_df$Valeur[idx_num]), digits),
+      nsmall = digits, decimal.mark = ","
+    )
+
+    final_df <- final_df %>%
+      tidyr::pivot_wider(names_from = !!by_enq, values_from = Valeur)
 
     caption <- paste("Distribution de", var_name, "par", by_name)
     ft <- flextable::flextable(final_df) %>%

@@ -1,8 +1,6 @@
 #' @title Lancer l'interface graphique Analytix-UI
 #' @description Ouvre une interface Shiny interactive pour réaliser vos analyses sans coder.
 #' @import shiny
-#' @import bslib
-#' @import shinyWidgets
 #' @export
 run_analytix_ui <- function() {
   
@@ -17,7 +15,18 @@ run_analytix_ui <- function() {
       bslib::layout_sidebar(
         sidebar = bslib::sidebar(
           title = "Chargement",
-          fileInput("file", "Choisir un fichier (CSV, Excel, RDS)", accept = c(".csv", ".rds", ".xlsx")),
+          radioButtons("data_source", "Source des données",
+                       choices = c("Fichier" = "file", "Session R" = "session"),
+                       selected = "file"),
+          conditionalPanel(
+            condition = "input.data_source == 'file'",
+            fileInput("file", "Choisir un fichier (CSV, Excel, RDS)", accept = c(".csv", ".rds", ".xlsx", ".xls"))
+          ),
+          conditionalPanel(
+            condition = "input.data_source == 'session'",
+            selectInput("session_df", "Choisir un objet de la session", choices = NULL),
+            actionButton("refresh_session", "Rafraîchir", icon = icon("sync"), class = "btn-sm")
+          ),
           checkboxInput("use_example", "Utiliser l'exemple (iris)", FALSE),
           hr(),
           uiOutput("var_selector_ui")
@@ -104,18 +113,37 @@ run_analytix_ui <- function() {
   server <- function(input, output, session) {
     
     # --- Data Reactive ---
+    observe({
+      input$refresh_session
+      dfs <- Filter(function(x) is.data.frame(get(x, envir = .GlobalEnv)), ls(envir = .GlobalEnv))
+      updateSelectInput(session, "session_df", choices = dfs)
+    })
+
     raw_data <- reactive({
       if (input$use_example) return(iris)
+      
+      if (input$data_source == "session") {
+        req(input$session_df)
+        return(get(input$session_df, envir = .GlobalEnv))
+      }
+      
       req(input$file)
       ext <- tools::file_ext(input$file$name)
       switch(ext,
              csv = read.csv(input$file$datapath),
+             xlsx = readxl::read_excel(input$file$datapath),
+             xls = readxl::read_excel(input$file$datapath),
              rds = readRDS(input$file$datapath),
              stop("Format non supporté"))
     })
     
     current_data <- reactiveVal(NULL)
-    observe({ current_data(raw_data()) })
+    observe({ 
+      df <- try(raw_data(), silent = TRUE)
+      if (!inherits(df, "try-error") && is.data.frame(df)) {
+        current_data(df)
+      }
+    })
     
     # --- Update Selectors ---
     observe({
@@ -128,43 +156,53 @@ run_analytix_ui <- function() {
     
     # --- Previews & Reports ---
     output$data_preview <- renderTable({
+      req(current_data())
       head(current_data())
     })
     
     output$missing_report_ui <- renderUI({
       req(current_data())
       res <- missing_report(current_data())
-      htmltools::HTML(flextable::as_html_widget(res$flextable)$x$html)
+      flextable::htmltools_value(res$flextable)
     })
     
     # --- Imputation Logic ---
     observeEvent(input$run_mice, {
       req(current_data())
       withProgress(message = 'Imputation en cours...', value = 0.5, {
-        new_df <- impute_mice(current_data(), m = input$mice_m, maxit = input$mice_it)
-        current_data(new_df)
+        new_df <- try(impute_mice(current_data(), m = input$mice_m, maxit = input$mice_it))
+        if (inherits(new_df, "try-error")) {
+          showNotification(paste("Erreur lors de l'imputation :", attr(new_df, "condition")$message), type = "error")
+        } else {
+          current_data(new_df)
+          showNotification("Données imputées avec succès !")
+        }
       })
-      showNotification("Données imputées avec succès !")
     })
     
     # --- Univariate Logic ---
     uni_res <- reactive({
       req(current_data(), input$uni_var)
       type <- input$uni_type
-      if (type == "auto") {
-        analyse_descriptive_multiple(current_data(), vars = input$uni_var)[[input$uni_var]]
-      } else if (type == "numeric") {
-        descr_numeric(current_data(), !!rlang::sym(input$uni_var))
-      } else if (type == "binary") {
-        descr_binary(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
-      } else {
-        descr_categorial(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
-      }
+      tryCatch({
+        if (type == "auto") {
+          analyse_descriptive_multiple(current_data(), vars = input$uni_var)[[input$uni_var]]
+        } else if (type == "numeric") {
+          descr_numeric(current_data(), !!rlang::sym(input$uni_var))
+        } else if (type == "binary") {
+          descr_binary(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
+        } else {
+          descr_categorial(current_data(), !!rlang::sym(input$uni_var), include_na = input$uni_na)
+        }
+      }, error = function(e) {
+        showNotification(paste("Erreur analyse univariée :", e$message), type = "error")
+        NULL
+      })
     })
     
     output$uni_table_ui <- renderUI({
       req(uni_res())
-      htmltools::HTML(flextable::as_html_widget(uni_res()$flextable)$x$html)
+      flextable::htmltools_value(uni_res()$flextable)
     })
     
     output$uni_plot <- renderPlot({
@@ -175,12 +213,17 @@ run_analytix_ui <- function() {
     # --- Bivariate Logic ---
     bi_res <- reactive({
       req(current_data(), input$bi_target, input$bi_pred)
-      cross_multi(current_data(), !!rlang::sym(input$bi_target), input$bi_pred, method = input$bi_method)
+      tryCatch({
+        cross_multi(current_data(), !!rlang::sym(input$bi_target), input$bi_pred, method = input$bi_method)
+      }, error = function(e) {
+        showNotification(paste("Erreur analyse bivariée :", e$message), type = "error")
+        NULL
+      })
     })
     
     output$bi_table_ui <- renderUI({
       req(bi_res())
-      htmltools::HTML(flextable::as_html_widget(bi_res())$x$html)
+      flextable::htmltools_value(bi_res())
     })
     
     # --- Export Logic ---

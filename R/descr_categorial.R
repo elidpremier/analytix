@@ -35,7 +35,8 @@ descr_categorial <- function(data, var, var_name = NULL, subset = NULL, sort = T
     data <- dplyr::filter(data, !!subset_enq)
   }
 
-  var_name_auto <- deparse(substitute(var))
+  var_enq <- rlang::enquo(var)
+  var_name_auto <- rlang::as_name(var_enq)
   
   # Récupération du label si var_name est NULL
   if (is.null(var_name)) {
