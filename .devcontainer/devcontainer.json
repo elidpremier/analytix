@@ -1,0 +1,14 @@
+{
+  "name": "Environnement R Positron",
+  "image": "://microsoft.com",
+  "features": {
+    "ghcr.io/devcontainers/features/r:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "posit.ark"
+      ]
+    }
+  }
+}
