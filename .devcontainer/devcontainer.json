@@ -1,14 +1,21 @@
 {
-  "name": "Environnement R Positron",
-  "image": "://microsoft.com",
-  "features": {
-    "ghcr.io/devcontainers/features/r:1": {}
-  },
+  "name": "R + Quarto Data Analysis",
+  "image": "ghcr.io/rocker-org/devcontainer/tidyverse:4.4",
   "customizations": {
     "vscode": {
       "extensions": [
-        "posit.ark"
-      ]
+        "REditorSupport.r",
+        "quarto.quarto",
+        "RDebugger.r-debugger",
+        "mechatroner.rainbow-csv"
+      ],
+      "settings": {
+        "r.sessionWatcher": true,
+        "r.plot.useHttpgd": true,
+        "r.bracketedPaste": true,
+        "workbench.panel.defaultLocation": "right"
+      }
     }
-  }
+  },
+  "postCreateCommand": "R -e \"install.packages(c('languageserver','httpgd','renv'), repos='https://cloud.r-project.org')\""
 }
