@@ -4,7 +4,14 @@
 \alias{theme_analytique}
 \title{Applique un thème analytique à un tableau}
 \usage{
-theme_analytique(data, page_width = 16, color = "#D3D3D3", ...)
+theme_analytique(
+  data,
+  page_width = 16,
+  color = "#D3D3D3",
+  zebre = FALSE,
+  zebre_color = "#F2F2F2",
+  ...
+)
 }
 \arguments{
 \item{data}{Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable}
@@ -13,6 +20,11 @@ theme_analytique(data, page_width = 16, color = "#D3D3D3", ...)
 Par défaut : 16.5 cm (largeur Word standard A4 avec marges)}
 
 \item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
+
+\item{zebre}{Logique. Applique un zébrage alterné sur les lignes du corps
+du tableau (défaut: FALSE, c'est-à-dire absent)}
+
+\item{zebre_color}{Couleur utilisée pour le zébrage (défaut: "#F2F2F2")}
 
 \item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }

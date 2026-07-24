@@ -8,6 +8,9 @@
 #' @param page_width Largeur de la zone utile de la page en cm.
 #'   Par défaut : 16.5 cm (largeur Word standard A4 avec marges)
 #' @param color Couleur de l'en-tête (défaut: "#D3D3D3")
+#' @param zebre Logique. Applique un zébrage alterné sur les lignes du corps
+#'   du tableau (défaut: FALSE, c'est-à-dire absent)
+#' @param zebre_color Couleur utilisée pour le zébrage (défaut: "#F2F2F2")
 #' @param ... Autres arguments passés à flextable::flextable() si conversion nécessaire
 #'
 #' @return Un objet flextable formaté
@@ -29,7 +32,8 @@
 #' }
 #'
 #' @export
-theme_analytique <- function(data, page_width = 16, color = "#D3D3D3", ...) {
+theme_analytique <- function(data, page_width = 16, color = "#D3D3D3",
+                              zebre = FALSE, zebre_color = "#F2F2F2", ...) {
 
   # Validation des paramètres
   if (!is.numeric(page_width) || page_width <= 0) {
@@ -53,8 +57,6 @@ theme_analytique <- function(data, page_width = 16, color = "#D3D3D3", ...) {
       layout = "fixed",  # Essentiel pour Word
       align = "left"
     ) %>%
-    flextable::bg(i = seq(1, flextable::nrow_part(ft, "body"), by = 2),
-                  bg = "#F2F2F2") %>%  # Zébrure pour les lignes du corps
     flextable::color(color = "black", part = "header") %>%  # Couleur du texte pour l'en-tête
     flextable::bold(part = "header") %>%  # Gras pour l'en-tête
     flextable::fontsize(size = 11, part = "all") %>%  # Taille de police pour tout le tableau
@@ -62,6 +64,13 @@ theme_analytique <- function(data, page_width = 16, color = "#D3D3D3", ...) {
 
   # Appliquer la couleur d'en-tête personnalisée
   ft <- ft %>% flextable::bg(part = "header", bg = color)
+
+  # Zébrage alterné des lignes du corps (optionnel, absent par défaut)
+  if (isTRUE(zebre)) {
+    ft <- ft %>%
+      flextable::bg(i = seq(1, flextable::nrow_part(ft, "body"), by = 2),
+                    bg = zebre_color, part = "body")
+  }
 
   # Alignement à gauche pour la première colonne
   ft <- ft %>% flextable::align(j = 1, align = "left", part = "all")
