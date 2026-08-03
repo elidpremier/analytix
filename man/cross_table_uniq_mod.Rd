@@ -24,6 +24,8 @@ cross_table_uniq_mod(
 
 \item{...}{variables en LIGNES (ex: \code{var1, var2, var3}).}
 
+\item{target_name}{Nom/libellé de la variable cible.}
+
 \item{outcome_of_interest}{(optionnel) Modalité de la variable cible à considérer comme événement d'intérêt.
 Si NULL, utilise la première modalité non-NA de \code{target}.}
 

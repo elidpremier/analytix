@@ -1,6 +1,8 @@
 #' @title Statistiques descriptives par groupe
 #' @description Tableau de statistiques par catégorie d'une variable de groupe.
-#' Supporte les variables numériques (moyenne, médiane...) et catégorielles (pourcentages, test Chi²).
+#' Supporte les variables numériques (moyenne, médiane, écart-type, tests T-test/ANOVA/Mann-Whitney/Kruskal-Wallis)
+#' et catégorielles (pourcentages, test Chi²).
+#' 
 #' @param data data.frame
 #' @param var variable à décrire (numérique ou catégorielle)
 #' @param by variable de groupement (catégorielle)
@@ -9,6 +11,8 @@
 #' @param digits nombre de décimales
 #' @param color couleur de l'en-tête
 #' @param test_stat logique. Afficher le test statistique ? (défaut: TRUE)
+#' @param test_type type de test pour les variables numériques: "auto", "parametric" (t-test/ANOVA), ou "nonparametric" (Mann-Whitney/Kruskal-Wallis).
+#' 
 #' @return un objet flextable
 #' @examples
 #' # Cas numérique
@@ -18,12 +22,16 @@
 #' descr_by_group(mtcars, am, vs, var_name = "Transmission", by_name = "Moteur")
 #'
 #' @export
-descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digits = 1, color = "#D3D3D3", test_stat = TRUE) {
+descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
+                           digits = 1, color = "#D3D3D3", test_stat = TRUE,
+                           test_type = c("auto", "parametric", "nonparametric")) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
   if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
+  if (!requireNamespace("stats", quietly = TRUE)) stop("stats requis")
 
+  test_type <- match.arg(test_type)
   var_enq <- rlang::enquo(var)
   by_enq <- rlang::enquo(by)
   var_nm <- rlang::as_name(var_enq)
@@ -42,7 +50,7 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
   g <- data[[by_nm]]
 
   if (is.numeric(x)) {
-    # --- Cas numérique (comportement original amélioré) ---
+    # --- Cas numérique ---
     stats_df <- data %>%
       dplyr::group_by(!!by_enq) %>%
       dplyr::summarise(
@@ -74,10 +82,46 @@ descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL, digit
       flextable::set_caption(caption) %>%
       theme_analytique(color = color)
     
+    if (test_stat) {
+      clean_g <- factor(g[!is.na(x) & !is.na(g)])
+      clean_x <- x[!is.na(x) & !is.na(g)]
+      n_grps <- length(unique(clean_g))
+      
+      if (n_grps >= 2) {
+        test_label <- ""
+        p_val <- NA
+        
+        if (n_grps == 2) {
+          if (test_type %in% c("auto", "parametric")) {
+            tres <- suppressWarnings(stats::t.test(clean_x ~ clean_g))
+            test_label <- "Test t de Student"
+            p_val <- tres$p.value
+          } else {
+            tres <- suppressWarnings(stats::wilcox.test(clean_x ~ clean_g))
+            test_label <- "Test de Mann-Whitney (Wilcoxon)"
+            p_val <- tres$p.value
+          }
+        } else { # > 2 groupes
+          if (test_type %in% c("auto", "parametric")) {
+            tres <- suppressWarnings(stats::oneway.test(clean_x ~ clean_g, var.equal = FALSE))
+            test_label <- "ANOVA (Welch)"
+            p_val <- tres$p.value
+          } else {
+            tres <- suppressWarnings(stats::kruskal.test(clean_x ~ clean_g))
+            test_label <- "Test de Kruskal-Wallis"
+            p_val <- tres$p.value
+          }
+        }
+        
+        p_str <- if (p_val < 0.001) "< 0,001" else format(round(p_val, 3), decimal.mark = ",")
+        ft <- flextable::add_footer_lines(ft, paste0(test_label, " : p = ", p_str))
+      }
+    }
+    
     return(ft)
 
   } else {
-    # --- Cas catégoriel (Nouveau) ---
+    # --- Cas catégoriel ---
     tab <- table(x, g, useNA = "no")
     pct_tab <- prop.table(tab, margin = 2) * 100
     

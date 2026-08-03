@@ -1,3 +1,12 @@
 ^analytix\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.devcontainer$
+^\.vscode$
+^GETTING_STARTED\.md$
+^CONTRIBUTING\.md$
+^CODE_OF_CONDUCT\.md$
+^NEWS\.md$
+^README\.md$
+^"R/note d'amélioration du package\.md"$
+^\.github$

@@ -9,6 +9,7 @@
 #' @param data data.frame contenant les données.
 #' @param target variable en COLONNE (ex: \code{sexe}, \code{outcome}).
 #' @param ... variables en LIGNES (ex: \code{var1, var2, var3}).
+#' @param target_name Nom/libellé de la variable cible.
 #' @param outcome_of_interest (optionnel) Modalité de la variable cible à considérer comme événement d'intérêt.
 #'   Si NULL, utilise la première modalité non-NA de \code{target}.
 #' @param pct Type de pourcentage à afficher : \code{"row"}, \code{"col"}, \code{"total"}.
@@ -32,10 +33,10 @@ cross_table_uniq_mod <- function(data, target, ...,
                                  include_na = FALSE) {
 
   # --- Dépendances ---
-  library(dplyr)
-  library(tidyr)
-  library(flextable)
-  library(rlang)
+  if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
+  if (!requireNamespace("tidyr", quietly = TRUE)) stop("tidyr requis")
+  if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
+  if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
 
   pct <- match.arg(pct)
   test <- match.arg(test)
@@ -132,15 +133,15 @@ cross_table_uniq_mod <- function(data, target, ...,
     df_pct <- as.data.frame(pct_mat) %>% setNames(c("Modalité", "Target", "pct"))
 
     block <- merge(df_n, df_pct) %>%
-      mutate(
+      dplyr::mutate(
         cellule = sprintf(
           "%s (%s%%)",
           n,
           format(round(pct, digits), nsmall = digits, decimal.mark = ",")
         )
       ) %>%
-      select(Modalité, Target, cellule) %>%
-      pivot_wider(names_from = Target, values_from = cellule)
+      dplyr::select(Modalité, Target, cellule) %>%
+      tidyr::pivot_wider(names_from = Target, values_from = cellule)
 
     # Ajout de la p-value
     stats_df <- data.frame(Modalité = names(p_vals), p_value = as.character(p_vals))

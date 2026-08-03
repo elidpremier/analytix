@@ -1,0 +1,161 @@
+---
+title: "Workflow complet d'analyse de données avec analytix"
+author: "IDO Elisée"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Workflow complet d'analyse de données avec analytix}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+Le package **`analytix`** fournit une boîte à outils intégrée en R pour automatiser le nettoyage des données, la réalisation d'analyses descriptives univariées et bivariées, la modélisation statistique d'association (Odds Ratios) et la génération de tableaux prêts à la publication au format `flextable` et Word (`.docx`).
+
+Ce tutoriel illustre un workflow d'analyse typique de A à Z.
+
+---
+
+# 1. Nettoyage et Imputation des données
+
+Chargement du package et préparation des variables :
+
+```r
+library(analytix)
+
+# Données brutes d'exemple
+data_raw <- data.frame(
+  sexe = c("  homme ", "femme", "", "NA", "homme"),
+  statut_vaccinal = c("oui", "NON", "1", "0", "Yes"),
+  age_str = c("25,5", " 30 ", "NA", "45", "18"),
+  groupe = c("A", "A", "B", "A", NA)
+)
+
+# 1. Nettoyage des textes et binaires
+data_clean <- data_raw %>%
+  dplyr::mutate(
+    sexe = clean_text(sexe),
+    statut_vaccinal = clean_binary(statut_vaccinal),
+    age = clean_numeric(age_str)
+  )
+
+# 2. Imputation des valeurs manquantes
+data_clean <- data_clean %>%
+  dplyr::mutate(
+    groupe = impute_mode(groupe),
+    age = impute_mean(age, type = "median")
+  )
+```
+
+---
+
+# 2. Analyses Descriptives Univariées
+
+## Variables Catégorielles et Numériques
+
+```r
+# Analyse d'une variable catégorielle
+descr_categorial(data_clean, statut_vaccinal, var_name = "Statut vaccinal")
+
+# Analyse d'une variable numérique
+descr_numeric(data_clean, age, var_name = "Âge (années)", digits = 1)
+```
+
+## Questions à Réponses Multiples
+
+Pour analyser des questions où l'enquêté pouvait cocher plusieurs propositions :
+
+```r
+df_multi <- data.frame(
+  symptome_fievre = c(1, 1, 0, 0, 1),
+  symptome_toux   = c(1, 0, 1, 0, 0),
+  symptome_fatigue = c(0, 0, 1, 1, 1)
+)
+
+descr_multi_choice(
+  df_multi,
+  cols = c("symptome_fievre", "symptome_toux", "symptome_fatigue"),
+  var_labels = c(
+    symptome_fievre = "Fièvre",
+    symptome_toux = "Toux",
+    symptome_fatigue = "Fatigue"
+  ),
+  title = "Symptômes présentés par les patients"
+)
+```
+
+---
+
+# 3. Prévalences et Intervalles de Confiance à 95%
+
+Pour les données épidémiologiques ou biologiques (ex: taux de résistance antibiotique ou prévalence) :
+
+```r
+df_bio <- data.frame(blse = c(1, 0, 1, 1, 0, 0, 1, 0, 1, 1))
+
+prev_res <- calc_prevalence(df_bio, blse, cases_val = 1, method = "wilson")
+print(prev_res$Formate)
+# Exemple de sortie : "7/10 (70,0% [IC95%: 39,7 - 89,2])"
+```
+
+---
+
+# 4. Analyses Bivariées & Comparaisons de Groupes
+
+```r
+# Comparaison de l'âge par groupe avec test de comparaison automatique (Student / Mann-Whitney)
+ft_by_group <- descr_by_group(
+  mtcars, mpg, am,
+  var_name = "Consommation (mpg)",
+  by_name = "Transmission",
+  test_stat = TRUE
+)
+
+ft_by_group
+```
+
+---
+
+# 5. Régression Logistique Bivariée (Odds Ratios)
+
+Calcul automatique des Odds Ratios bruts (OR), de leurs IC95% et des p-values pour plusieurs variables explicatives face à une variable dépendante binaire :
+
+```r
+ft_or <- bivariate_or_table(
+  data = mtcars,
+  outcome = "am",
+  exposures = c("cyl", "vs"),
+  outcome_positive_val = 1,
+  var_labels = c(cyl = "Cylindres", vs = "Moteur (V/S)")
+)
+
+ft_or
+```
+
+---
+
+# 6. Formatage et Exportation Word (.docx)
+
+Tous les tableaux générés avec `analytix` peuvent être formatés aux normes académiques et exportés en un seul appel vers Word :
+
+```r
+# Formatage personnalisé d'un flextable
+ft_formatted <- format_flextable(ft_or, max_width = 6.5, font_family = "Times New Roman")
+
+# Exportation de plusieurs tableaux vers un rapport Word
+export_to_word(
+  list(
+    "Tableau 1 : Description par groupe" = ft_by_group,
+    "Tableau 2 : Odds Ratios bivariés" = ft_formatted
+  ),
+  file_path = "Rapport_Analytique.docx"
+)
+```

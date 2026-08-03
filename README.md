@@ -2,12 +2,14 @@
 
 <div align="center">
 
-**Outils d'analyse descriptive pour la génération de tableaux professionnels**
+**Outils d'automatisation de l'analyse de données pour la génération de rapports professionnels**
 
-Création de rapports analytiques automatisés en français, avec **flextable** et export **Word (.docx)**
+Nettoyage, description, statistiques, visualisation et export Word — entièrement en français
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Version](https://img.shields.io/badge/Version-0.0.0.9000-blue.svg)
+![Version](https://img.shields.io/badge/Version-0.3.0-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-87%20pass-brightgreen.svg)
+![Fonctions](https://img.shields.io/badge/Fonctions-50-informational.svg)
 
 </div>
 
@@ -15,16 +17,17 @@ Création de rapports analytiques automatisés en français, avec **flextable** 
 
 ## 🎯 Caractéristiques principales
 
-- **📊 Analyses univariées** : fréquences, statistiques descriptives, rapports de manquants
-- **🔀 Analyses bivariées** : tableaux croisés avec tests statistiques (χ², Fisher)
-- **🎨 Sorties professionnelles** : tableaux flextable formatés, export Word intégré
+- **🧹 Nettoyage & Préparation** : nettoyage de texte, recodage, imputation, import Excel/CSV, labellisation
+- **📊 Analyses univariées** : catégorielles, numériques, âge, Likert, choix multiples, prévalences IC95%
+- **🔀 Analyses bivariées** : tableaux croisés, OR bivariés, comparaison par groupes
+- **🔬 Statistiques avancées** : ANOVA + Tukey, régression logistique multivariée, indicateurs diagnostiques, corrélations
+- **📈 Visualisations** : barplots, camemberts, boxplots, Likert divergent, heatmap de corrélations, carte des manquants
+- **📤 Export professionnel** : tableaux flextable, export Word structuré (tableau unique ou liste complète)
 - **🇫🇷 100% francophone** : virgule décimale, libellés métier, format épidémiologiquement rigoureux
-- **⚙️ Flexible** : détection automatique de type de variable, surcharges manuelles disponibles
-- **🔧 Utilitaires** : recodage rapide, regroupement de catégories, nettoyage de données
 
 ---
 
-##  Installation
+## 📦 Installation
 
 ```r
 # Installer devtools si nécessaire
@@ -37,299 +40,243 @@ devtools::install_github("elidpremier/analytix")
 library(analytix)
 ```
 
-> 💡 **Note** : les dépendances (`dplyr`, `flextable`, `officer`, etc.) sont installées automatiquement.
-> Aucun `library(dplyr)` ou `library(flextable)` n’est requis après `library(analytix)`.
+> 💡 Les dépendances (`dplyr`, `flextable`, `officer`, `ggplot2`, etc.) sont installées automatiquement.
 
 ---
 
-##  Fonctions d'Analyse Univariée
+## 🗂️ Vue d'ensemble des fonctions
 
-### `descr_categorial()`
+### 🧹 Nettoyage & Préparation des données
 
-Analyse fréquentielle pour **variables catégorielles** (y compris numériques discrètes).
-
-* Effectifs et pourcentages.
-* Gestion des valeurs manquantes.
-* Formats **compact** ou détaillé.
-
-```r
-# Exemple avec le jeu de données iris
-descr_categorial(iris, Species, var_name = "Espèce", digits = 1, compact = TRUE)
-```
-
-### `descr_numeric()`
-
-Statistiques descriptives pour **variables numériques** continues.
-
-* Moyenne, médiane, écart-type, min/max, quartiles.
-* Option pour l'**asymétrie** (`show_skewness`).
-* Gestion des valeurs manquantes.
-
-```r
-# Exemple avec la longueur des sépales
-descr_numeric(iris, Sepal.Length, digits = 2, show_skewness = TRUE)
-```
-
-### `analyse_descriptive_multiple()`
-
-Analyse automatisée de **plusieurs variables** (catégorielles + numériques).
-
-* Détection automatique du type de variable.
-* Possibilité de forcer le type (`categorical` / `numeric`).
-* Libellés personnalisables.
-
-```r
-# Exemple mixte avec mtcars
-analyse_descriptive_multiple(
-  mtcars,
-  vars = c("cyl", "mpg"),
-  var_labels = c("cyl" = "Cylindres", "mpg" = "Consommation"),
-  var_types = c("mpg" = "numeric")
-)
-```
+| Fonction | Description |
+|---|---|
+| `import_clean()` | Import Excel/CSV + nettoyage automatique des noms |
+| `clean_names()` | Nettoyage des noms de colonnes (accents, espaces, casse) |
+| `clean_text()` | Nettoyage d'une variable textuelle |
+| `clean_binary()` | Standardisation d'une variable binaire (Oui/Non, 0/1) |
+| `clean_numeric()` | Nettoyage d'une variable numérique (virgules, espaces) |
+| `label_vars()` | Attacher des libellés à plusieurs variables en une seule opération |
+| `detect_outliers()` | Détection des valeurs aberrantes (IQR, Z-score) avec rapport |
+| `quick_code()` | Recodage rapide d'une variable catégorielle |
+| `collapse_categories()` | Regroupement de modalités |
+| `categorize_numeric()` | Conversion numérique → catégorielle par tranches |
+| `impute_mode()` | Imputation par le mode |
+| `impute_mean()` | Imputation par la moyenne |
+| `missing_report()` | Rapport des taux de valeurs manquantes |
 
 ---
 
-##  Fonctions d'Analyse Bivariée
+### 📊 Analyse univariée
 
-### `cross_table_uniq_mod()`
-
-Génère un tableau croisé professionnel de deux variables catégorielles, avec effectifs, pourcentages (au choix : par ligne, colonne ou total) et un test d’association (khi² ou Fisher) adapté aux données.
-
-* Affichage clair au format n (p%), conforme aux standards des rapports épidémiologiques.
-* Choix explicite du type de pourcentage → interprétation épidémiologique rigoureuse.
-* Test automatique ou manuel : khi² (avec ou sans correction de Yates), Fisher exact ou simulé.
-* Gestion des valeurs manquantes (NA incluses si présentes).
-* Format francophone : virgule décimale, espaces fines insécables (via flextable).
-* Tableau directement exportable avec export_to_word().
-
-```r
-# Exemple de base : croisement entre transmission et cylindres
-cross_table_uniq_mod(
-  mtcars, am, cyl,
-  var1_name = "Boîte automatique",
-  var2_name = "Cylindres"
-)
-
-# Exemple avancé : pourcentages en colonne + test de Fisher forcé
-cross_table_uniq_mod(
-  mtcars, am, cyl,
-  pct = "col",
-  test = "fisher",
-  yates = FALSE
-)
-```
-
-### `cross_multi`
-
-Générez en un seul appel un tableau synthétique croisant une variable dépendante catégorielle avec plusieurs variables explicatives. Idéal pour les rapports épidémiologiques ou les tableaux descriptifs.
-
-
-```r
-# Tableau bivarié : boîte de vitesse (am) vs cylindres et forme du moteur
-cross_multi(
-  data = mtcars2,
-  outcome = am,
-  predictors = c("cyl", "vs")
-)
-```
-### `descr_by_group()`
-
-Calcule les **statistiques descriptives** d'une variable numérique **par groupe** d'une variable catégorielle.
-
-* Moyenne, médiane, écart-type, min, max et effectifs par catégorie.
-* Tableau idéal pour la comparaison de distributions.
-
-```r
-# Consommation (mpg) par nombre de cylindres (cyl)
-descr_by_group(
-  mtcars, mpg, cyl,
-  var_name = "Consommation",
-  by_name = "Cylindres"
-)
-```
-
-### `categorize_numeric()`
-
-Conversion d'une variable numérique continue en variable catégorielle via discrétisation.
-
-* Création automatique de **bins** (intervalle) basée sur la distribution.
-* Étiquétage personnalisable des catégories.
-* Gestion intelligente des limites et des `NA`.
-
-```r
-# Catégoriser l'âge en groupes cliniquement pertinents
-categorize_numeric(
-  data = iris,
-  var = Sepal.Length,
-  breaks = c(0, 5, 6, 8),
-  labels = c("Petit", "Moyen", "Grand")
-)
-```
+| Fonction | Description |
+|---|---|
+| `descr_categorial()` | Fréquences et pourcentages pour variables catégorielles |
+| `descr_numeric()` | Statistiques descriptives pour variables numériques |
+| `descr_binary()` | Prévalence et IC95% pour variables binaires |
+| `descr_age()` | Résumé standardisé d'une variable âge (stats + tranches) |
+| `descr_likert()` | Tableau + graphique pour une variable Likert |
+| `recode_likert()` | Recodage texte → numérique selon un mapping Likert |
+| `multi_likert_table()` | Tableau récapitulatif de plusieurs variables Likert |
+| `descr_multi_choice()` | Analyse des questions à choix multiples |
+| `calc_prevalence()` | Calcul de prévalence avec IC95% (Wilson) |
+| `analyse_descriptive_multiple()` | Analyse automatisée de plusieurs variables mixtes |
 
 ---
 
-### `quick_code()`
+### 🔀 Analyse bivariée
 
-Recodage rapide et intuitif d’une variable catégorielle.
-
-* Syntaxe courte : `"ancien" = "nouveau"`.
-* Gestion des `NA` via l'argument `.na`.
-* Non-destructif : les valeurs non recodées sont conservées.
-
-```r
-patients <- data.frame(
-  sexe = c("H", "F", NA),
-  statut = c(1, 2, 1)
-)
-
-quick_code(
-  patients,
-  sexe,
-  "H" = "Homme",
-  "F" = "Femme",
-  .na = "Inconnu"
-)
-```
-
-### `collapse_categories()`
-
-Regroupement de plusieurs modalités d'une variable catégorielle sous de **nouvelles catégories**.
-
-* Permet de simplifier des variables avec trop de modalités.
-* Gestion flexible des modalités non regroupées et des `NA`.
-
-```r
-# Regrouper 'setosa' et 'versicolor' sous 'SetosaVersicolor'
-collapse_categories(
-  iris,
-  Species,
-  groups = list(SetosaVersicolor = c("setosa", "versicolor")),
-  other_label = "Virginica"
-)
-```
-
-### `missing_report()`
-
-Génère un tableau récapitulatif du **taux de valeurs manquantes** par variable.
-
-* Tableau prêt à l'emploi pour l'évaluation de la qualité des données.
-* Affiche l'effectif total, le nombre de manquants et le taux en pourcentage.
-
-```r
-# Exemple avec airquality
-missing_report(airquality)
-```
-
-### `plot_distribution()`
-
-Génère des **visualisations automatiques** des distributions à partir des résultats d'analyse.
-
-* Graphiques adaptatifs selon le type de variable (barplot, histogramme).
-* Compatible avec tous les résultats `analytix` (fréquences, statistiques).
-* Thème épidémiologique cohérent.
-
-```r
-# Visualiser la distribution d'une variable catégorielle
-result <- descr_categorial(iris, Species)
-plot_distribution(result)
-```
+| Fonction | Description |
+|---|---|
+| `cross_table_uniq_mod()` | Tableau croisé avec test χ² ou Fisher |
+| `cross_multi()` | Tableau croisé multi-variables (outcome vs plusieurs prédicteurs) |
+| `descr_by_group()` | Statistiques descriptives numériques par groupe + tests |
+| `bivariate_or_table()` | Tableau d'Odds Ratios bivariés (régression logistique) |
 
 ---
 
-## 🎨 Personnalisation et Thème
+### 🔬 Statistiques avancées
 
-### `theme_analytique()`
-
-Applique un thème **professionnel et cohérent** aux tableaux flextable.
-
-* En-têtes gris clair avec texte noir.
-* Formatage optimisé pour l'impression et le Word.
-* Bordures légères, polices légibles.
-* Compatible avec tous les objets flextable.
-
-```r
-# Appliquer le thème à un tableau existant
-tab <- descr_numeric(iris, Sepal.Length)
-tab$flextable <- theme_analytique(tab$flextable)
-```
+| Fonction | Description |
+|---|---|
+| `multivariable_logistic_table()` | Tableau de régression logistique multivariée (ORa, IC95%, p) |
+| `anova_table()` | ANOVA à un facteur + post-hoc Tukey |
+| `correlation_table()` | Matrice de corrélations (Pearson/Spearman) formatée |
+| `calc_sensitivity_specificity()` | Se, Sp, VPP, VPN, LR+/- avec IC95% |
 
 ---
 
-##  Export et Rapport
+### 📈 Visualisations
 
-### `export_to_word()`
+| Fonction | Description |
+|---|---|
+| `plot_barplot()` | Graphique en barres pour variables catégorielles |
+| `plot_pie_chart()` | Camembert pour variables catégorielles |
+| `plot_boxplot()` | Boxplot d'une variable numérique par groupe |
+| `plot_grouped_bar()` | Barres groupées pour variables bivariées |
+| `plot_stacked_bar_100()` | Barres empilées à 100% |
+| `plot_distribution()` | Histogramme/densité adaptatif |
+| `plot_likert_divergent()` | Graphique divergent pour échelles de Likert |
+| `plot_correlation()` | Heatmap de corrélations (ggplot2) |
+| `plot_missing_map()` | Carte visuelle des données manquantes |
+| `plot_heatmap_matrix()` | Heatmap d'une matrice de données |
 
-Export **professionnel vers Word (.docx)** de tous les tableaux produits par `analytix`.
+---
 
-* Prend en entrée des objets individuels, des listes de résultats, ou scanne l'environnement global.
-* Ajout automatique d'un titre (`heading 2`) et de sauts de page optionnels.
+### 📤 Mise en forme & Export
+
+| Fonction | Description |
+|---|---|
+| `theme_analytique()` | Thème flextable professionnel (en-têtes, bordures, police) |
+| `format_flextable()` | Formatage avancé d'un flextable existant |
+| `export_to_word()` | Export Word d'objets individuels ou de l'environnement global |
+| `export_all_tables()` | Export Word structuré d'une liste nommée de tableaux |
+| `fmt_regression_fr()` | Formatage francophone des résultats de régression |
+
+---
+
+## 🚀 Exemples rapides
+
+### Importer et nettoyer des données
 
 ```r
-# 1. Créer vos tableaux
-tab_freq <- descr_categorial(mtcars, cyl)
-tab_descr <- descr_numeric(mtcars, mpg)
+library(analytix)
 
-# 2. Exporter tout l'environnement
-export_to_word(path = "rapport_analytix.docx")
+# Import Excel + nettoyage automatique
+df <- import_clean("data/enquete.xlsx", sheet = 1)
+
+# Attacher des libellés
+df <- label_vars(df, c(
+  age   = "Âge en années",
+  sexe  = "Sexe du participant",
+  score = "Score de satisfaction (1-5)"
+))
+
+# Vérifier les valeurs aberrantes
+res <- detect_outliers(df, age, var_name = "Âge")
+res$summary  # flextable
+```
+
+### Analyse descriptive complète
+
+```r
+# Variable catégorielle
+descr_categorial(df, sexe, var_name = "Sexe")
+
+# Variable âge avec tranches
+descr_age(df, age, var_name = "Âge des participants")
+
+# Variable Likert (avec graphique)
+descr_likert(df, score, var_name = "Satisfaction globale",
+             plot = TRUE)$plot
+
+# Plusieurs variables Likert en un tableau
+multi_likert_table(df,
+  cols = c("q1", "q2", "q3"),
+  var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Délai"))
+```
+
+### Statistiques avancées
+
+```r
+# Régression logistique multivariée
+mod <- glm(issue ~ age + sexe + groupe, data = df, family = binomial())
+multivariable_logistic_table(mod)
+
+# ANOVA + Tukey
+res <- anova_table(df, score, groupe, var_name = "Score", group_name = "Groupe")
+res$anova   # tableau ANOVA
+res$tukey   # comparaisons par paires
+
+# Matrice de corrélations
+correlation_table(df, cols = c("age", "score", "poids"))
+plot_correlation(df, cols = c("age", "score", "poids"))
+
+# Indicateurs diagnostiques
+calc_sensitivity_specificity(actual = df$reference, predicted = df$test)
+```
+
+### Visualisation Likert divergente
+
+```r
+plot_likert_divergent(df,
+  cols = c("q1", "q2", "q3"),
+  var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Délai"),
+  title = "Satisfaction des bénéficiaires")
+```
+
+### Export Word complet
+
+```r
+# Option 1 : exporter une liste nommée de tableaux
+export_all_tables(
+  tables = list(
+    "Description de la population"  = descr_age(df, age),
+    "Répartition par sexe"          = descr_categorial(df, sexe),
+    "Satisfaction globale (Likert)" = descr_likert(df, score)
+  ),
+  file     = "rapport_final.docx",
+  title    = "Rapport d'analyse — Enquête 2025",
+  author   = "IDO Esliée"
+)
+
+# Option 2 : exporter des objets individuels
+export_to_word(tab1, tab2, tab3, path = "rapport.docx")
 ```
 
 ---
 
 ## 📚 Dépendances
 
-* **dplyr** - Manipulation de données
-* **flextable** - Création de tableaux professionnels
-* **officer** - Export vers Word
-* **tibble** - Structures de données modernes
-* **rlang** - Programmation non-standard
-* **stats** - Fonctions statistiques de base
-* **tidyr** - Remise en forme de données
-* **ggplot2** - Visualisations (optionnel)
-* **colorspace** - Gestion des couleurs
+| Package | Rôle |
+|---|---|
+| `dplyr` | Manipulation de données |
+| `flextable` | Création de tableaux professionnels |
+| `officer` | Export vers Word (.docx) |
+| `ggplot2` | Visualisations |
+| `tidyr` | Remise en forme des données |
+| `rlang` | Programmation non-standard (NSE) |
+| `stringr` | Manipulation de chaînes |
+| `readxl` | Lecture de fichiers Excel |
+| `stats` | Fonctions statistiques de base (R base) |
+| `colorspace` | Gestion des couleurs |
+| `shiny` / `bslib` | Interface utilisateur interactive |
 
 ---
 
-##  Orientation du package
-
-Conçu pour les **contextes d'expertise analytique francophones** :
-
-* ✅ Utilisation de la **virgule** comme séparateur décimal (`12,5 %`)
-* ✅ Libellés métier clairs et adaptés
-* ✅ Tableaux immédiatement exploitables pour les rapports officiels
-* ✅ Format conforme aux standards épidémiologiques
-* ✅ Export prêt pour PowerPoint, Word ou impression
-
----
-
-## 📖 Exemple complet de workflow
+## 📖 Workflow complet recommandé
 
 ```r
 library(analytix)
 
-# 1. Charger et préparer les données
-data <- mtcars
+# ── 1. Import & Nettoyage ──────────────────────────────────────
+df <- import_clean("data/enquete.xlsx")
+df <- label_vars(df, c(age = "Âge", sexe = "Sexe", note = "Note /5"))
 
-# 2. Analyses univariées
-freq_cyl <- descr_categorial(data, cyl, var_name = "Nombre de cylindres")
-desc_mpg <- descr_numeric(data, mpg, var_name = "Consommation (mpg)")
+# ── 2. Qualité des données ─────────────────────────────────────
+missing_report(df)
+detect_outliers(df, age)$summary
 
-# 3. Analyse bivariée
-cross <- cross_table_uniq_mod(
-  data, am, cyl,
-  var1_name = "Transmission",
-  var2_name = "Cylindres",
-  pct = "col"
-)
+# ── 3. Descriptif univarié ─────────────────────────────────────
+t_age  <- descr_age(df, age, var_name = "Âge")
+t_sexe <- descr_categorial(df, sexe, var_name = "Sexe")
+t_note <- descr_likert(df, note, var_name = "Note globale")
 
-# 4. Visualisations
-plot_distribution(freq_cyl)
-plot_distribution(desc_mpg)
+# ── 4. Analyses bivariées ──────────────────────────────────────
+t_croise <- cross_table_uniq_mod(df, issue, sexe,
+  var1_name = "Issue", var2_name = "Sexe")
+t_or     <- bivariate_or_table(df, issue, sexe)
 
-# 5. Export vers Word
-export_to_word(
-  freq_cyl, desc_mpg, cross,
-  path = "rapport_analytique.docx"
+# ── 5. Multivarié ─────────────────────────────────────────────
+mod <- glm(issue ~ age + sexe + groupe, data = df, family = binomial())
+t_multi <- multivariable_logistic_table(mod)
+
+# ── 6. Export Word ─────────────────────────────────────────────
+export_all_tables(
+  list("Âge" = t_age, "Sexe" = t_sexe, "Note" = t_note,
+       "Croisement" = t_croise, "OR bivariés" = t_or,
+       "Multivariée" = t_multi),
+  file  = "rapport_complet.docx",
+  title = "Rapport d'analyse"
 )
 ```
 
@@ -337,16 +284,17 @@ export_to_word(
 
 ## 📚 Documentation & Ressources
 
-- **[Getting Started](GETTING_STARTED.md)** - Guide rapide pour débuter en 5 minutes
-- **[News & Changelog](NEWS.md)** - Historique des versions et changements
-- **[Contributing Guide](CONTRIBUTING.md)** - Comment contribuer au projet
-- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Normes communautaires
+- **[Getting Started](GETTING_STARTED.md)** — Guide rapide pour débuter en 5 minutes
+- **[News & Changelog](NEWS.md)** — Historique des versions
+- **[Contributing Guide](CONTRIBUTING.md)** — Comment contribuer
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** — Normes communautaires
+- **Aide intégrée** : `?descr_likert`, `?correlation_table`, `?export_all_tables`, etc.
 
 ---
 
 ## 🤝 Contribution
 
-Les contributions sont bienvenues ! Si vous trouvez un bug ou avez une idée de fonctionnalité :
+Les contributions sont bienvenues !
 
 1. Ouvrez une **issue** pour discuter de vos modifications
 2. Créez une **branche** à partir de `main`
@@ -356,15 +304,4 @@ Les contributions sont bienvenues ! Si vous trouvez un bug ou avez une idée de 
 
 ## 📜 Licence
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 💡 Support
-
-Pour toute question sur l'utilisation du package :
-- Consultez la documentation des fonctions : `?descr_categorial`, `?export_to_word`, etc.
-- Vérifiez les exemples dans cette documentation
-- Ouvrez une **discussion** ou une **issue** sur le repository
-
-
+Ce projet est sous licence **MIT** — voir le fichier [LICENSE](LICENSE) pour les détails.

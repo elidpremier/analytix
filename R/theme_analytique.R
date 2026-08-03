@@ -2,88 +2,76 @@
 #'
 #' @description
 #' Convertit automatiquement les données en flextable et applique un formatage cohérent.
-#' Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16.5 cm).
+#' Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16 cm).
 #'
 #' @param data Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable
 #' @param page_width Largeur de la zone utile de la page en cm.
-#'   Par défaut : 16.5 cm (largeur Word standard A4 avec marges)
+#'   Par défaut : 16 cm (largeur Word standard A4 avec marges)
 #' @param color Couleur de l'en-tête (défaut: "#D3D3D3")
-#' @param zebre Logique. Applique un zébrage alterné sur les lignes du corps
-#'   du tableau (défaut: FALSE, c'est-à-dire absent)
+#' @param zebre Logique. Applique un zébrage alterné sur les lignes du corps (défaut: FALSE)
 #' @param zebre_color Couleur utilisée pour le zébrage (défaut: "#F2F2F2")
+#' @param font_size Taille de police en points (défaut: 11)
+#' @param font_family Nom de la police (défaut: "Times New Roman")
+#' @param compact Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)
 #' @param ... Autres arguments passés à flextable::flextable() si conversion nécessaire
 #'
 #' @return Un objet flextable formaté
 #'
 #' @examples
-#' \dontrun{
-#' # Avec un dataframe
 #' theme_analytique(head(iris))
-#'
-#' # Avec un tibble
-#' theme_analytique(tibble::tibble(x = 1:5, y = letters[1:5]))
-#'
-#' # Avec une flextable existante
-#' ft <- flextable::flextable(head(iris))
-#' theme_analytique(ft)
-#'
-#' # Personnalisation
-#' theme_analytique(head(mtcars), page_width = 14, color = "blue")
-#' }
+#' theme_analytique(head(mtcars), compact = TRUE, font_size = 9)
 #'
 #' @export
 theme_analytique <- function(data, page_width = 16, color = "#D3D3D3",
-                              zebre = FALSE, zebre_color = "#F2F2F2", ...) {
+                               zebre = FALSE, zebre_color = "#F2F2F2",
+                               font_size = 11, font_family = "Times New Roman",
+                               compact = FALSE, ...) {
 
-  # Validation des paramètres
   if (!is.numeric(page_width) || page_width <= 0) {
     stop("page_width doit être un nombre positif")
   }
 
-  # Vérifier si data est déjà une flextable, sinon la convertir
   if (inherits(data, "flextable")) {
     ft <- data
   } else if (is.data.frame(data) || tibble::is_tibble(data)) {
-    # Convertir les données en flextable
     ft <- flextable::flextable(data, ...)
   } else {
     stop("L'argument data doit être une flextable, un dataframe, un tibble ou une structure convertible en flextable")
   }
 
-  # Appliquer le thème booktabs comme base
   ft <- ft %>%
     flextable::theme_booktabs() %>%
     flextable::set_table_properties(
-      layout = "fixed",  # Essentiel pour Word
-      align = "left"
+      layout = "autofit",
+      align = "center"
     ) %>%
-    flextable::color(color = "black", part = "header") %>%  # Couleur du texte pour l'en-tête
-    flextable::bold(part = "header") %>%  # Gras pour l'en-tête
-    flextable::fontsize(size = 11, part = "all") %>%  # Taille de police pour tout le tableau
-    flextable::font(part = "all", fontname = "Times New Roman")  # Police pour tout le tableau
+    flextable::color(color = "black", part = "header") %>%
+    flextable::bold(part = "header") %>%
+    flextable::fontsize(size = font_size, part = "all") %>%
+    flextable::font(part = "all", fontname = font_family)
 
-  # Appliquer la couleur d'en-tête personnalisée
+  if (compact) {
+    ft <- ft %>%
+      flextable::padding(padding.top = 2, padding.bottom = 2,
+                         padding.left = 4, padding.right = 4, part = "all")
+  }
+
   ft <- ft %>% flextable::bg(part = "header", bg = color)
 
-  # Zébrage alterné des lignes du corps (optionnel, absent par défaut)
   if (isTRUE(zebre)) {
     ft <- ft %>%
       flextable::bg(i = seq(1, flextable::nrow_part(ft, "body"), by = 2),
                     bg = zebre_color, part = "body")
   }
 
-  # Alignement à gauche pour la première colonne
   ft <- ft %>% flextable::align(j = 1, align = "left", part = "all")
 
-  # Alignement centre pour colonnes 2+
   n_cols <- flextable::ncol_keys(ft)
   if (n_cols >= 2) {
     ft <- ft %>% flextable::align(j = 2:n_cols, align = "center", part = "all")
   }
 
-  # Répartition proportionnelle de la largeur (en cm)
-  col_widths <- rep(page_width / n_cols, n_cols)
-  ft <- ft %>% flextable::width(width = col_widths, unit = "cm")
+  ft <- ft %>% flextable::fit_to_width(max_width = page_width / 2.54)
 
   return(ft)
 }

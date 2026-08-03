@@ -12,7 +12,8 @@ descr_by_group(
   by_name = NULL,
   digits = 1,
   color = "#D3D3D3",
-  test_stat = TRUE
+  test_stat = TRUE,
+  test_type = c("auto", "parametric", "nonparametric")
 )
 }
 \arguments{
@@ -31,13 +32,16 @@ descr_by_group(
 \item{color}{couleur de l'en-tête}
 
 \item{test_stat}{logique. Afficher le test statistique ? (défaut: TRUE)}
+
+\item{test_type}{type de test pour les variables numériques: "auto", "parametric" (t-test/ANOVA), ou "nonparametric" (Mann-Whitney/Kruskal-Wallis).}
 }
 \value{
 un objet flextable
 }
 \description{
 Tableau de statistiques par catégorie d'une variable de groupe.
-Supporte les variables numériques (moyenne, médiane...) et catégorielles (pourcentages, test Chi²).
+Supporte les variables numériques (moyenne, médiane, écart-type, tests T-test/ANOVA/Mann-Whitney/Kruskal-Wallis)
+et catégorielles (pourcentages, test Chi²).
 }
 \examples{
 # Cas numérique

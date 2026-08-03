@@ -10,6 +10,9 @@ theme_analytique(
   color = "#D3D3D3",
   zebre = FALSE,
   zebre_color = "#F2F2F2",
+  font_size = 11,
+  font_family = "Times New Roman",
+  compact = FALSE,
   ...
 )
 }
@@ -17,14 +20,19 @@ theme_analytique(
 \item{data}{Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable}
 
 \item{page_width}{Largeur de la zone utile de la page en cm.
-Par défaut : 16.5 cm (largeur Word standard A4 avec marges)}
+Par défaut : 16 cm (largeur Word standard A4 avec marges)}
 
 \item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
 
-\item{zebre}{Logique. Applique un zébrage alterné sur les lignes du corps
-du tableau (défaut: FALSE, c'est-à-dire absent)}
+\item{zebre}{Logique. Applique un zébrage alterné sur les lignes du corps (défaut: FALSE)}
 
 \item{zebre_color}{Couleur utilisée pour le zébrage (défaut: "#F2F2F2")}
+
+\item{font_size}{Taille de police en points (défaut: 11)}
+
+\item{font_family}{Nom de la police (défaut: "Times New Roman")}
+
+\item{compact}{Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)}
 
 \item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }
@@ -33,22 +41,10 @@ Un objet flextable formaté
 }
 \description{
 Convertit automatiquement les données en flextable et applique un formatage cohérent.
-Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16.5 cm).
+Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16 cm).
 }
 \examples{
-\dontrun{
-# Avec un dataframe
 theme_analytique(head(iris))
-
-# Avec un tibble
-theme_analytique(tibble::tibble(x = 1:5, y = letters[1:5]))
-
-# Avec une flextable existante
-ft <- flextable::flextable(head(iris))
-theme_analytique(ft)
-
-# Personnalisation
-theme_analytique(head(mtcars), page_width = 14, color = "blue")
-}
+theme_analytique(head(mtcars), compact = TRUE, font_size = 9)
 
 }
