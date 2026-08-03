@@ -50,7 +50,11 @@ plot_likert_divergent <- function(data, cols, n_levels = 5,
 
   # Calcul des proportions par variable et niveau
   rows <- lapply(cols, function(cn) {
-    lab <- if (!is.null(var_labels) && cn %in% names(var_labels)) var_labels[[cn]] else cn
+    lab <- if (!is.null(var_labels) && cn %in% names(var_labels)) {
+      var_labels[[cn]]
+    } else {
+      .get_label(data, cn, cn)
+    }
     vec <- as.numeric(data[[cn]])
     n   <- sum(!is.na(vec))
     sapply(seq_len(n_levels), function(k) {
@@ -128,8 +132,13 @@ plot_missing_map <- function(data, vars = NULL,
                                   names_to = "variable", values_to = "valeur")
   df_long$manquant <- is.na(df_long$valeur)
 
+  # Utiliser les libellés de variables s'ils existent
+  var_labels_map <- sapply(vars, function(v) .get_label(data, v, v))
+  df_long$variable <- var_labels_map[df_long$variable]
+
   # Taux de manquants pour ordonner les variables
   taux_na <- sapply(vars, function(v) mean(is.na(data[[v]])))
+  names(taux_na) <- unname(var_labels_map)
   var_order <- names(sort(taux_na, decreasing = TRUE))
   df_long$variable <- factor(df_long$variable, levels = var_order)
 
@@ -194,13 +203,16 @@ plot_correlation <- function(data, cols = NULL,
   cols <- names(mat_data)
 
   cor_mat <- stats::cor(mat_data, use = "pairwise.complete.obs", method = method)
+  col_labels <- sapply(cols, function(cn) .get_label(data, cn, cn))
+  rownames(cor_mat) <- col_labels
+  colnames(cor_mat) <- col_labels
 
   # Passage en format long
   cor_df <- as.data.frame(as.table(cor_mat))
   names(cor_df) <- c("Var1", "Var2", "correlation")
 
-  cor_df$Var1 <- factor(cor_df$Var1, levels = cols)
-  cor_df$Var2 <- factor(cor_df$Var2, levels = rev(cols))
+  cor_df$Var1 <- factor(cor_df$Var1, levels = col_labels)
+  cor_df$Var2 <- factor(cor_df$Var2, levels = rev(col_labels))
 
   cor_df$label <- ifelse(
     cor_df$Var1 == cor_df$Var2, "",

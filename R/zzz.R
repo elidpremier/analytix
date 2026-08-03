@@ -1,3 +1,15 @@
+# Helper interne : lecture de l'attribut label (haven/labelled)
+# Retourne le label si présent, sinon le fallback (nom de colonne brut).
+# Non exportée — usage interne uniquement.
+.get_label <- function(data, var_nm, fallback = var_nm) {
+  lbl <- attr(data[[var_nm]], "label")
+  if (!is.null(lbl) && nchar(trimws(as.character(lbl))) > 0) {
+    as.character(lbl)
+  } else {
+    fallback
+  }
+}
+
 # Suppression des avertissements "no visible binding for global variable"
 # générés par dplyr, ggplot2 et tidyr dans les fonctions du package.
 # Déclaration de toutes les variables utilisées dans les pipelines NSE.

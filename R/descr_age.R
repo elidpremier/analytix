@@ -19,13 +19,15 @@
 #' descr_age(df, age, var_name = "Âge des participants")
 #'
 #' @export
-descr_age <- function(data, var, var_name = "Age", breaks = NULL,
+descr_age <- function(data, var, var_name = NULL, breaks = NULL,
                       labels = NULL, digits = 1, color = "#D3D3D3") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
   var_enq <- rlang::enquo(var)
-  vec <- dplyr::pull(data, !!var_enq)
+  var_nm  <- rlang::as_name(var_enq)
+  if (is.null(var_name)) var_name <- .get_label(data, var_nm, var_nm)
+  vec       <- dplyr::pull(data, !!var_enq)
   vec_clean <- as.numeric(vec[!is.na(vec)])
   n_val     <- length(vec_clean)
   n_miss    <- sum(is.na(vec))

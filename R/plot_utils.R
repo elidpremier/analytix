@@ -55,6 +55,8 @@ plot_barplot <- function(data, x = NULL, title = NULL, subtitle = NULL,
     )
   } else if (is.data.frame(data)) {
     x_enq <- rlang::enquo(x)
+    x_nm  <- rlang::as_name(x_enq)
+    if (is.null(title)) title <- .get_label(data, x_nm, x_nm)
     vec <- dplyr::pull(data, !!x_enq)
     t_val <- table(vec, useNA = "no")
     df_plot <- data.frame(
@@ -120,7 +122,7 @@ plot_barplot <- function(data, x = NULL, title = NULL, subtitle = NULL,
 #' @rdname plot_utils
 #' @export
 plot_pie_chart <- function(data, x = NULL, title = NULL, palette = NULL,
-                           legend_title = "Modalités", digits = 1,
+                           legend_title = NULL, digits = 1,
                            file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
   
@@ -129,6 +131,9 @@ plot_pie_chart <- function(data, x = NULL, title = NULL, palette = NULL,
     df_plot <- data.frame(modalite = names(t_val), effectif = as.numeric(t_val), stringsAsFactors = FALSE)
   } else if (is.data.frame(data)) {
     x_enq <- rlang::enquo(x)
+    x_nm  <- rlang::as_name(x_enq)
+    if (is.null(title)) title <- .get_label(data, x_nm, x_nm)
+    if (is.null(legend_title)) legend_title <- .get_label(data, x_nm, x_nm)
     vec <- dplyr::pull(data, !!x_enq)
     t_val <- table(vec, useNA = "no")
     df_plot <- data.frame(modalite = names(t_val), effectif = as.numeric(t_val), stringsAsFactors = FALSE)
@@ -185,8 +190,8 @@ plot_stacked_bar_100 <- function(data, x, fill, title = NULL, xlab = NULL,
   x_nm <- rlang::as_name(x_enq)
   fill_nm <- rlang::as_name(fill_enq)
   
-  if (is.null(xlab)) xlab <- x_nm
-  if (is.null(legend_title)) legend_title <- fill_nm
+  if (is.null(xlab)) xlab <- .get_label(data, x_nm, x_nm)
+  if (is.null(legend_title)) legend_title <- .get_label(data, fill_nm, fill_nm)
   
   df_plot <- data %>%
     dplyr::filter(!is.na(!!x_enq) & !is.na(!!fill_enq)) %>%
@@ -230,8 +235,8 @@ plot_grouped_bar <- function(data, x, fill, title = NULL, xlab = NULL,
   x_nm <- rlang::as_name(x_enq)
   fill_nm <- rlang::as_name(fill_enq)
   
-  if (is.null(xlab)) xlab <- x_nm
-  if (is.null(legend_title)) legend_title <- fill_nm
+  if (is.null(xlab)) xlab <- .get_label(data, x_nm, x_nm)
+  if (is.null(legend_title)) legend_title <- .get_label(data, fill_nm, fill_nm)
   
   df_plot <- data %>%
     dplyr::filter(!is.na(!!x_enq) & !is.na(!!fill_enq)) %>%
@@ -286,8 +291,8 @@ plot_boxplot <- function(data, x, y, title = NULL, xlab = NULL, ylab = NULL,
   x_nm <- rlang::as_name(x_enq)
   y_nm <- rlang::as_name(y_enq)
   
-  if (is.null(xlab)) xlab <- x_nm
-  if (is.null(ylab)) ylab <- y_nm
+  if (is.null(xlab)) xlab <- .get_label(data, x_nm, x_nm)
+  if (is.null(ylab)) ylab <- .get_label(data, y_nm, y_nm)
   
   df_plot <- data %>%
     dplyr::filter(!is.na(!!x_enq) & !is.na(!!y_enq))

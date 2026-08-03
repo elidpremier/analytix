@@ -45,9 +45,14 @@ cross_table_uniq_mod <- function(data, target, ...,
   target_enq <- rlang::enquo(target)
   vars_enq <- rlang::enquos(...)
 
-  if (is.null(target_name)) target_name <- rlang::quo_name(target_enq)
+  if (is.null(target_name)) {
+    target_nm   <- rlang::quo_name(target_enq)
+    target_name <- .get_label(data, target_nm, target_nm)
+  } else {
+    target_nm <- target_name
+  }
 
-  y_full <- data[[target_name]]
+  y_full   <- data[[target_nm]]
   y_factor <- as.factor(y_full)
 
   # Détermination de l'issue d'intérêt
@@ -62,8 +67,9 @@ cross_table_uniq_mod <- function(data, target, ...,
   all_results <- list()
 
   for (v_enq in vars_enq) {
-    v_name <- rlang::quo_name(v_enq)
-    x_full <- data[[v_name]]
+    v_name   <- rlang::quo_name(v_enq)
+    v_label  <- .get_label(data, v_name, v_name)
+    x_full   <- data[[v_name]]
 
     # Inclure ou non les NA
     use_na_arg <- if (include_na) "ifany" else "no"
@@ -146,7 +152,7 @@ cross_table_uniq_mod <- function(data, target, ...,
     # Ajout de la p-value
     stats_df <- data.frame(Modalité = names(p_vals), p_value = as.character(p_vals))
     block <- merge(block, stats_df, by = "Modalité", sort = FALSE)
-    block <- cbind(Variable = v_name, block)
+    block <- cbind(Variable = v_label, block)
     all_results[[v_name]] <- block
   }
 

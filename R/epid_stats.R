@@ -127,7 +127,13 @@ multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
       lo <- exp(co[nm, "Estimate"] - z * co[nm, "Std. Error"])
       hi <- exp(co[nm, "Estimate"] + z * co[nm, "Std. Error"])
     }
-    lab <- if (!is.null(var_labels) && nm %in% names(var_labels)) var_labels[[nm]] else nm
+    lab <- if (!is.null(var_labels) && nm %in% names(var_labels)) {
+      var_labels[[nm]]
+    } else if (!is.null(data) && nm %in% names(data)) {
+      .get_label(data, nm, nm)
+    } else {
+      nm
+    }
     p_s <- if (pval < 0.001) "< 0,001" else format(round(pval, 3), decimal.mark = ",")
     data.frame(
       Variable    = lab,
@@ -181,8 +187,8 @@ anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
   var_nm    <- rlang::as_name(var_enq)
   group_nm  <- rlang::as_name(group_enq)
 
-  if (is.null(var_name))   var_name   <- var_nm
-  if (is.null(group_name)) group_name <- group_nm
+  if (is.null(var_name))   var_name   <- .get_label(data, var_nm, var_nm)
+  if (is.null(group_name)) group_name <- .get_label(data, group_nm, group_nm)
 
   formula_obj <- stats::as.formula(paste(var_nm, "~", group_nm))
   fit_aov     <- stats::aov(formula_obj, data = data)

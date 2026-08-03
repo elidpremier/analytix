@@ -139,7 +139,11 @@ multi_likert_table <- function(data, cols, var_labels = NULL,
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
   rows <- lapply(cols, function(cn) {
-    lab <- if (!is.null(var_labels) && cn %in% names(var_labels)) var_labels[[cn]] else cn
+    lab <- if (!is.null(var_labels) && cn %in% names(var_labels)) {
+      var_labels[[cn]]
+    } else {
+      .get_label(data, cn, cn)
+    }
     vec <- as.numeric(data[[cn]])
     vec_clean <- vec[!is.na(vec)]
     n_val  <- length(vec_clean)

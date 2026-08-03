@@ -137,3 +137,25 @@ test_that("plot_correlation fonctionne avec spearman", {
   p <- plot_correlation(iris[, 1:4], method = "spearman")
   expect_s3_class(p, "ggplot")
 })
+
+test_that("les fonctions lisent automatiquement les attributs label", {
+  df <- data.frame(age = c(20, 30, 40), score = c(1, 2, 3), cat = c("A", "B", "A"))
+  df <- label_vars(df, c(age = "Âge en années", score = "Score de satisfaction", cat = "Catégorie"))
+  
+  # descr_age
+  ft_age <- descr_age(df, age)
+  expect_s3_class(ft_age, "flextable")
+  
+  # calc_prevalence
+  prev <- calc_prevalence(df, cat, cases_val = "A")
+  expect_equal(prev$Variable[1], "Catégorie")
+  
+  # detect_outliers
+  out <- detect_outliers(df, age)
+  expect_s3_class(out$summary, "flextable")
+  
+  # plot_barplot
+  p_bar <- plot_barplot(df, cat)
+  expect_equal(p_bar$labels$title, "Catégorie")
+})
+

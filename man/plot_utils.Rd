@@ -28,7 +28,7 @@ plot_pie_chart(
   x = NULL,
   title = NULL,
   palette = NULL,
-  legend_title = "Modalités",
+  legend_title = NULL,
   digits = 1,
   file = NULL,
   width = 8,

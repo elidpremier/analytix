@@ -25,7 +25,7 @@ detect_outliers <- function(data, var, var_name = NULL,
   method  <- match.arg(method)
   var_enq <- rlang::enquo(var)
   var_nm  <- rlang::as_name(var_enq)
-  if (is.null(var_name)) var_name <- var_nm
+  if (is.null(var_name)) var_name <- .get_label(data, var_nm, var_nm)
 
   vec   <- as.numeric(data[[var_nm]])
   n_all <- length(vec)

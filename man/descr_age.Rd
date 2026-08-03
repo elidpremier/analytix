@@ -7,7 +7,7 @@
 descr_age(
   data,
   var,
-  var_name = "Age",
+  var_name = NULL,
   breaks = NULL,
   labels = NULL,
   digits = 1,

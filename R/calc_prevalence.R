@@ -23,10 +23,13 @@ calc_prevalence <- function(data, var = NULL, cases_val = NULL,
   method <- match.arg(method)
   
   if (is.data.frame(data)) {
-    if (missing(var)) stop("Veuillez spécifier la variable à analyser.")
-    var_enq <- rlang::enquo(var)
-    vec <- dplyr::pull(data, !!var_enq)
+    if (missing(var)) stop("Veuillez specifier la variable a analyser.")
+    var_enq  <- rlang::enquo(var)
+    var_nm   <- rlang::as_name(var_enq)
+    var_name <- .get_label(data, var_nm, var_nm)
+    vec      <- dplyr::pull(data, !!var_enq)
   } else {
+    var_name <- "Variable"
     vec <- data
   }
   
@@ -83,13 +86,14 @@ calc_prevalence <- function(data, var = NULL, cases_val = NULL,
   formatted <- paste0(cases, "/", total, " (", str_pct, "% [IC", round(conf_level * 100), "%: ", str_low, " - ", str_upp, "])")
   
   res <- data.frame(
-    Cas = cases,
-    Total = total,
-    Proportion = p,
+    Variable    = var_name,
+    Cas         = cases,
+    Total       = total,
+    Proportion  = p,
     Pourcentage = pct,
-    IC_Inf = pct_lower,
-    IC_Sup = pct_upper,
-    Formate = formatted,
+    IC_Inf      = pct_lower,
+    IC_Sup      = pct_upper,
+    Formate     = formatted,
     stringsAsFactors = FALSE
   )
   
