@@ -78,7 +78,8 @@ clean_names <- function(x, max_length = NULL, prefix = "v_") {
     stop("`x` must be either a character vector or a data.frame")
   }
   
-  res <- sapply(x, function(nm) {
+  res <- vapply(x, function(nm) {
+    if (is.na(nm)) nm <- ""
     # Supprimer les accents
     nm_clean <- iconv(nm, to = "ASCII//TRANSLIT")
     nm_clean <- tolower(nm_clean)
@@ -93,10 +94,12 @@ clean_names <- function(x, max_length = NULL, prefix = "v_") {
     nm_clean <- gsub("^_|_$", "", nm_clean)
     
     # Si commence par un chiffre ou par x/v suivi d'un chiffre
-    if (grepl("^[0-9]", nm_clean)) {
-      nm_clean <- paste0(prefix, nm_clean)
-    } else if (grepl("^[x|v][0-9]", nm_clean)) {
-      nm_clean <- paste0(prefix, substr(nm_clean, 2, nchar(nm_clean)))
+    if (nchar(nm_clean) > 0) {
+      if (grepl("^[0-9]", nm_clean)) {
+        nm_clean <- paste0(prefix, nm_clean)
+      } else if (grepl("^[x|v][0-9]", nm_clean)) {
+        nm_clean <- paste0(prefix, substr(nm_clean, 2, nchar(nm_clean)))
+      }
     }
     
     if (!is.null(max_length) && nchar(nm_clean) > max_length) {
@@ -104,8 +107,9 @@ clean_names <- function(x, max_length = NULL, prefix = "v_") {
       nm_clean <- gsub("_+$", "", nm_clean)
     }
     nm_clean
-  }, USE.NAMES = FALSE)
+  }, FUN.VALUE = character(1), USE.NAMES = FALSE)
   
+  res <- make.unique(res, sep = "_")
   res
 }
 

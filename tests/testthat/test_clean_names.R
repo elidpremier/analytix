@@ -37,3 +37,31 @@ test_that("parameters are passed correctly to data.frame method", {
   result <- clean_names(df, max_length = 10, prefix = "x_")
   expect_equal(names(result), "x_123_long")  # Truncated to 10 chars
 })
+
+test_that("clean_names handles duplicate names correctly", {
+  # Direct identical duplicates
+  expect_equal(
+    clean_names(c("Nom Patient", "Nom Patient", "Nom Patient")),
+    c("nom_patient", "nom_patient_1", "nom_patient_2")
+  )
+
+  # Duplicates created by character cleaning
+  expect_equal(
+    clean_names(c("Nom Patient", "Nom_Patient", "NOM PATIENT")),
+    c("nom_patient", "nom_patient_1", "nom_patient_2")
+  )
+
+  # Duplicates on data.frame with check.names = FALSE
+  df <- data.frame("Age" = 1:3, "Age" = 4:6, check.names = FALSE)
+  res_df <- clean_names(df)
+  expect_equal(names(res_df), c("age", "age_1"))
+  expect_equal(res_df$age, 1:3)
+  expect_equal(res_df$age_1, 4:6)
+
+  # Duplicates caused by max_length truncation
+  expect_equal(
+    clean_names(c("variable_long_1", "variable_long_2"), max_length = 8),
+    c("variable", "variable_1")
+  )
+})
+
