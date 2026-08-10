@@ -2,24 +2,72 @@
 % Please edit documentation in R/impute_mice.R
 \name{impute_mice}
 \alias{impute_mice}
-\title{Imputation multiple par la méthode MICE}
+\title{Imputation multiple robuste par la méthode MICE}
 \usage{
-impute_mice(data, m = 5, maxit = 5, seed = 123, ...)
+impute_mice(
+  data,
+  m = 5,
+  maxit = 5,
+  seed = 123,
+  min_obs_strategy1 = 10,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
-\item{data}{Le dataframe à imputer}
+\item{data}{data.frame à imputer.}
 
-\item{m}{Nombre d'imputations (défaut: 5)}
+\item{m}{Nombre d'imputations (défaut : 5). Réduit automatiquement à 1 en
+mode fallback pour les petits jeux de données.}
 
-\item{maxit}{Nombre d'itérations (défaut: 5)}
+\item{maxit}{Nombre maximum d'itérations de MICE (défaut : 5).}
 
-\item{seed}{Graine aléatoire pour la reproductibilité}
+\item{seed}{Graine aléatoire pour la reproductibilité (défaut : 123).}
 
-\item{...}{Autres arguments passés à mice::mice}
+\item{min_obs_strategy1}{Nombre minimum d'observations pour tenter la
+Stratégie 1 (MICE standard). En dessous de ce seuil, la Stratégie 2
+est directement utilisée (défaut : 10).}
+
+\item{verbose}{Afficher des messages de progression (défaut : TRUE).}
+
+\item{...}{Arguments supplémentaires passés à \code{mice::mice()} en Stratégie 1
+(ex : \code{defaultMethod}, \code{visitSequence}).}
 }
 \value{
-Un dataframe imputé (par défaut, la moyenne des imputations ou une imputation simple complète)
+Un \code{data.frame} imputé, de même structure et avec les mêmes
+attributs \code{label} que \code{data}. Les colonnes 100\% manquantes sont laissées
+intactes (impossible à imputer).
 }
 \description{
-Wrapper simplifié autour de mice pour imputer les données manquantes rapidement.
+Wrapper robuste autour de \code{mice} gérant automatiquement tous les cas
+problématiques courants : colonnes constantes, colonnes 100\% manquantes,
+jeux de données avec peu d'observations (n << p), classes spéciales
+(\code{labelled}, \code{haven_labelled}), facteurs à un seul niveau, et colinéarité
+quasi-parfaite.
+
+La stratégie d'imputation s'adapte selon les données :
+\itemize{
+\item \strong{Stratégie 1} (prioritaire) : \code{mice::mice()} standard sur les colonnes
+imputables, avec méthodes automatiques (pmm / logreg / polyreg).
+\item \strong{Stratégie 2} (fallback robuste) : imputation colonne par colonne avec
+\code{predictorMatrix} épurée, puis fallback sur moyenne/mode si nécessaire.
+}
+}
+\examples{
+# Cas standard
+df <- data.frame(
+  age   = c(25, NA, 30, NA, 28, 32, NA, 22),
+  sexe  = factor(c("M", NA, "F", "M", NA, "F", "M", NA)),
+  score = c(NA, 2.5, 3.1, NA, 4.0, NA, 1.8, 2.2)
+)
+impute_mice(df)
+
+# Cas avec colonne constante et colonne 100\% NA
+df2 <- data.frame(
+  a = c(1, NA, 3, NA),
+  b = c(5, 5, 5, 5),       # constante -> sera ignorée pour l'imputation
+  c = c(NA, NA, NA, NA)    # 100\% NA   -> laissée intacte
+)
+impute_mice(df2)
+
 }

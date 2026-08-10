@@ -71,10 +71,20 @@ analyse_descriptive_multiple <- function(
 
     args <- list(data = data, var = as.name(v), var_name = label, ...)
     
+    target_fn <- if (type == "binary") {
+      descr_binary
+    } else if (type == "numeric") {
+      descr_numeric
+    } else {
+      descr_categorial
+    }
+    
+    # Filtrer les arguments pour ne garder que ceux acceptés par la fonction cible
+    valid_arg_names <- intersect(names(args), names(formals(target_fn)))
+    clean_args <- args[valid_arg_names]
+    
     results[[v]] <- tryCatch({
-      if (type == "binary") do.call(descr_binary, args)
-      else if (type == "numeric") do.call(descr_numeric, args)
-      else do.call(descr_categorial, args)
+      do.call(target_fn, clean_args)
     }, error = function(e) {
       warning("Erreur lors de l'analyse de ", v, " : ", e$message)
       NULL
