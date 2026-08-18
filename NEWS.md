@@ -1,5 +1,37 @@
 # analytix News
 
+## Version 0.4.0 — 2026-08-17
+
+### 🚀 Nouveautés Phase 2 (Survie & ROC)
+
+- **`roc_table()`** : Calcule la courbe ROC, l'AUC (avec IC95% de DeLong) et le seuil optimal (Youden) pour un prédicteur. Retourne une liste contenant un tableau `flextable` formaté et le graphique `ggplot2` (via pROC).
+- **`km_table()` / `km_plot()`** : Analyse de survie Kaplan-Meier. Retourne les médianes de survie, les effectifs et le test du Log-Rank sous forme de tableau formaté et de courbe de survie (via survival et survminer). Intègre automatiquement les covariables.
+- **`analytix_sample_data()`** : Générateur intégré d'un jeu de données cliniques fictives de 200 patients (âge, IMC, statut tabagique, outcome décès, délai de survie). Idéal pour illustrer les fonctions du package.
+- **Rapport pleine page** : Amélioration de `generate_report()`, qui intègre automatiquement l'analyse de survie et ROC (si les variables adéquates sont fournies) et applique dorénavant le thème `theme_analytique()` en *pleine page (fit_to_width)* à tous les tableaux générés pour un rendu Word parfaitement aligné.
+
+---
+
+### 🚀 Nouveautés Phase 1 (Rapport & Détection Auto)
+
+- **`generate_report()`** : Génération automatique d'un rapport Word complet (`.docx`) à partir d'un `data.frame`. En une seule commande, produit un rapport incluant : page de titre, synthèse du jeu de données, données manquantes (tableau + heatmap), statistiques descriptives avec graphiques, analyses bivariées (Odds Ratios), régression logistique multivariée et matrice de corrélations. Paramétrable par sections, digits, outcome et auteur.
+  ```r
+  generate_report(mon_df, output = "rapport.docx",
+                  title = "Étude clinique", author = "Dr. IDO",
+                  outcome = "deces")
+  ```
+
+- **`auto_describe()`** : Détection automatique du type de chaque variable (binaire, catégorielle, numérique continue) et dispatch vers la fonction descriptive appropriée. Retourne une liste nommée de résultats avec l'attribut `var_types` (tableau récapitulatif des types détectés).
+  ```r
+  res <- auto_describe(mon_df, verbose = TRUE)
+  attr(res, "var_types")  # tableau des types
+  ```
+
+### 🛠 Corrections & améliorations — GUI (analytix.gui)
+
+- **Nouveau module `⚡ Rapport Auto`** : Onglet dédié dans l'interface Shiny permettant la génération one-click du rapport Word complet. Inclut : sélection de l'outcome, choix des sections, aperçu des métriques (N, variables, complétude), tableau interactif DT des variables avec types détectés et taux de NA colorés.
+- **Fix export global** : Le module `mod_export_server` accepte maintenant `model_reactive` pour intégrer les résultats du module Modélisation dans le rapport. Logique de fallback vers `bivar_reactive` si la modélisation n'a pas été effectuée.
+- **Version** : 0.4.0
+
 ---
 
 ## Version 0.3.0 — 2026-08-03

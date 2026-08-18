@@ -2,6 +2,7 @@
 % Please edit documentation in R/plot_utils.R
 \name{plot_utils}
 \alias{plot_utils}
+\alias{apply_custom_theme}
 \alias{plot_barplot}
 \alias{plot_pie_chart}
 \alias{plot_stacked_bar_100}
@@ -9,6 +10,15 @@
 \alias{plot_boxplot}
 \title{Fonctions graphiques pour l'analyse descriptive}
 \usage{
+apply_custom_theme(
+  p,
+  theme_name = "minimal",
+  base_size = 11,
+  legend_pos = "right",
+  palette_name = NULL,
+  flip_coord = FALSE
+)
+
 plot_barplot(
   data,
   x = NULL,

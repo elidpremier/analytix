@@ -41,6 +41,53 @@ NULL
 
 #' @rdname plot_utils
 #' @export
+apply_custom_theme <- function(p, theme_name = "minimal", base_size = 11,
+                               legend_pos = "right", palette_name = NULL,
+                               flip_coord = FALSE) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
+  
+  if (is.null(p) || !inherits(p, "ggplot")) return(p)
+  
+  # Application du thème
+  thm <- switch(theme_name,
+                "classic" = ggplot2::theme_classic(base_size = base_size),
+                "bw" = ggplot2::theme_bw(base_size = base_size),
+                "light" = ggplot2::theme_light(base_size = base_size),
+                "dark" = ggplot2::theme_dark(base_size = base_size),
+                ggplot2::theme_minimal(base_size = base_size))
+  
+  p <- p + thm + ggplot2::theme(
+    legend.position = legend_pos,
+    plot.title = ggplot2::element_text(face = "bold", size = base_size + 2, hjust = 0),
+    plot.subtitle = ggplot2::element_text(size = base_size, color = "grey40", hjust = 0)
+  )
+  
+  # Si coord_flip demandée, on essaye de l'appliquer (attention si c'est déjà appliqué)
+  if (flip_coord) {
+    p <- p + ggplot2::coord_flip()
+  }
+  
+  # Application de la palette si fournie
+  if (!is.null(palette_name) && palette_name != "" && palette_name != "Défaut") {
+    # Palettes communes via scale_fill/color_brewer ou viridis
+    if (palette_name %in% c("Set1", "Set2", "Set3", "Pastel1", "Pastel2", "Dark2", "Paired")) {
+      p <- p + ggplot2::scale_fill_brewer(palette = palette_name) +
+               ggplot2::scale_color_brewer(palette = palette_name)
+    } else if (palette_name %in% c("viridis", "magma", "plasma", "inferno", "cividis")) {
+      p <- p + ggplot2::scale_fill_viridis_d(option = palette_name) +
+               ggplot2::scale_color_viridis_d(option = palette_name)
+    } else if (palette_name == "Analytix") {
+      pal <- c("#0284c7", "#dc2626", "#059669", "#d97706", "#7c3aed", "#ec4899", "#06b6d4")
+      p <- p + ggplot2::scale_fill_manual(values = pal) +
+               ggplot2::scale_color_manual(values = pal)
+    }
+  }
+  
+  return(p)
+}
+
+#' @rdname plot_utils
+#' @export
 plot_barplot <- function(data, x = NULL, title = NULL, subtitle = NULL,
                          horiz = FALSE, col = "#2C6E9B", show_labels = TRUE,
                          digits = 1, file = NULL, width = 8, height = 6) {

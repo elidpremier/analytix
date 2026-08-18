@@ -1,6 +1,6 @@
 Package: analytix
 Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: 
     person("IDO", "Esliée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
 Author: IDO Esliée
@@ -33,6 +33,9 @@ Imports:
 Suggests: 
     mice,
     testthat (>= 3.0.0),
+    pROC,
+    survival,
+    survminer,
     knitr,
     rmarkdown
 Config/testthat/edition: 3
