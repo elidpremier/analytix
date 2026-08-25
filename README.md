@@ -7,7 +7,7 @@
 Nettoyage, description, statistiques, visualisation et export Word — entièrement en français
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Version](https://img.shields.io/badge/Version-0.3.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-0.4.0-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-87%20pass-brightgreen.svg)
 ![Fonctions](https://img.shields.io/badge/Fonctions-50-informational.svg)
 
@@ -29,6 +29,21 @@ Nettoyage, description, statistiques, visualisation et export Word — entièrem
 
 ## 📦 Installation
 
+### ⚡ Méthode recommandée — `pak` (toutes plateformes)
+
+```r
+# Installer pak si nécessaire (une seule fois)
+install.packages("pak")
+
+# Installer analytix depuis GitHub
+pak::pak("elidpremier/analytix")
+
+# Charger le package
+library(analytix)
+```
+
+### 🔧 Méthode alternative — `devtools`
+
 ```r
 # Installer devtools si nécessaire
 install.packages("devtools")
@@ -40,7 +55,46 @@ devtools::install_github("elidpremier/analytix")
 library(analytix)
 ```
 
-> 💡 Les dépendances (`dplyr`, `flextable`, `officer`, `ggplot2`, etc.) sont installées automatiquement.
+> 💡 Les dépendances (`dplyr`, `flextable`, `officer`, `ggplot2`, etc.) sont installées **automatiquement**.
+
+---
+
+### 🪟 Utilisateurs Windows — Rtools requis
+
+Sur Windows, R a besoin de **Rtools** pour compiler certains packages depuis les sources.
+
+**Étape 1 — Vérifier si Rtools est installé :**
+
+```r
+pkgbuild::check_build_tools()
+```
+
+**Étape 2 — Si Rtools est absent, le télécharger et l'installer :**
+
+| Version R | Lien Rtools |
+|---|---|
+| R ≥ 4.4 | [Rtools 4.5](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html) |
+| R 4.3 | [Rtools 4.3](https://cran.r-project.org/bin/windows/Rtools/rtools43/rtools.html) |
+| R 4.2 | [Rtools 4.2](https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html) |
+
+> ✅ Cochez **"Add Rtools to PATH"** lors de l'installation, puis **redémarrez RStudio/Positron**.
+
+**Étape 3 — Réinstaller analytix :**
+
+```r
+pak::pak("elidpremier/analytix")
+```
+
+---
+
+### 🔍 Résolution des erreurs courantes
+
+| Erreur | Solution |
+|---|---|
+| `Rtools is required to build R packages` | Installer Rtools (voir ci-dessus) |
+| `cannot open URL` | Vérifier la connexion internet / proxy |
+| `input string is invalid` | Mettre à jour analytix (version corrigée) |
+| `package 'xxx' was built under R version` | Mettre à jour R ou ignorer l'avertissement |
 
 ---
 
@@ -284,11 +338,20 @@ export_all_tables(
 
 ## 📚 Documentation & Ressources
 
-- **[Getting Started](GETTING_STARTED.md)** — Guide rapide pour débuter en 5 minutes
-- **[News & Changelog](NEWS.md)** — Historique des versions
-- **[Contributing Guide](CONTRIBUTING.md)** — Comment contribuer
-- **[Code of Conduct](CODE_OF_CONDUCT.md)** — Normes communautaires
-- **Aide intégrée** : `?descr_likert`, `?correlation_table`, `?export_all_tables`, etc.
+| Document | Contenu |
+|---|---|
+| **[Getting Started](GETTING_STARTED.md)** | Guide d'installation et démarrage en 5 minutes |
+| **[News & Changelog](NEWS.md)** | Historique des versions et nouveautés |
+| **[Contributing Guide](CONTRIBUTING.md)** | Comment contribuer au projet |
+| **[Code of Conduct](CODE_OF_CONDUCT.md)** | Normes communautaires |
+
+**Aide intégrée R :**
+```r
+?descr_likert
+?correlation_table
+?export_all_tables
+?calc_sensitivity_specificity
+```
 
 ---
 
