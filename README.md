@@ -29,74 +29,47 @@ Nettoyage, description, statistiques, visualisation et export Word — entièrem
 
 ## 📦 Installation
 
-### ⚡ Méthode recommandée — `pak` (toutes plateformes)
+### 🪟 Windows (RStudio / Positron) — sans Rtools
+
+analytix est un package **100% R** (sans code C/C++). Sur Windows, utilisez `remotes` avec `build = FALSE` pour installer **sans avoir besoin de Rtools** :
 
 ```r
-# Installer pak si nécessaire (une seule fois)
-install.packages("pak")
+# Installer remotes si nécessaire
+install.packages("remotes")
 
-# Installer analytix depuis GitHub
-pak::pak("elidpremier/analytix")
+# Installer analytix SANS compilation
+remotes::install_github("elidpremier/analytix", build = FALSE)
 
 # Charger le package
 library(analytix)
 ```
 
-### 🔧 Méthode alternative — `devtools`
-
-```r
-# Installer devtools si nécessaire
-install.packages("devtools")
-
-# Installer analytix depuis GitHub
-devtools::install_github("elidpremier/analytix")
-
-# Charger le package
-library(analytix)
-```
-
-> 💡 Les dépendances (`dplyr`, `flextable`, `officer`, `ggplot2`, etc.) sont installées **automatiquement**.
+> ✅ Cette méthode fonctionne **sans Rtools** sur Windows, RStudio et Positron.
 
 ---
 
-### 🪟 Utilisateurs Windows — Rtools requis
-
-Sur Windows, R a besoin de **Rtools** pour compiler certains packages depuis les sources.
-
-**Étape 1 — Vérifier si Rtools est installé :**
+### 🍎🐧 macOS / Linux
 
 ```r
-pkgbuild::check_build_tools()
-```
-
-**Étape 2 — Si Rtools est absent, le télécharger et l'installer :**
-
-| Version R | Lien Rtools |
-|---|---|
-| R ≥ 4.4 | [Rtools 4.5](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html) |
-| R 4.3 | [Rtools 4.3](https://cran.r-project.org/bin/windows/Rtools/rtools43/rtools.html) |
-| R 4.2 | [Rtools 4.2](https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html) |
-
-> ✅ Cochez **"Add Rtools to PATH"** lors de l'installation, puis **redémarrez RStudio/Positron**.
-
-**Étape 3 — Réinstaller analytix :**
-
-```r
+install.packages("pak")
 pak::pak("elidpremier/analytix")
+library(analytix)
 ```
 
 ---
 
 ### 🔍 Résolution des erreurs courantes
 
-| Erreur | Solution |
-|---|---|
-| `Rtools is required to build R packages` | Installer Rtools (voir ci-dessus) |
-| `cannot open URL` | Vérifier la connexion internet / proxy |
-| `input string is invalid` | Mettre à jour analytix (version corrigée) |
-| `package 'xxx' was built under R version` | Mettre à jour R ou ignorer l'avertissement |
+| Message d'erreur | Cause | Solution |
+|---|---|---|
+| `Could not find tools necessary to compile` | Compilation forcée sur Windows | Utiliser `remotes::install_github(..., build = FALSE)` |
+| `Rtools is required to build R packages` | Rtools absent (Windows) | Idem — `build = FALSE` contourne Rtools |
+| `cannot open URL 'https://api.github.com/...'` | Pas d'accès internet | Vérifier la connexion réseau |
+| `input string is invalid` | Ancienne version d'analytix | Réinstaller avec `remotes::install_github("elidpremier/analytix", build = FALSE)` |
+| `package 'xxx' was built under R version` | Avertissement mineur | Ignorer ou mettre à jour R |
 
 ---
+
 
 ## 🗂️ Vue d'ensemble des fonctions
 
