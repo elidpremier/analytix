@@ -8,5 +8,6 @@
 ^CODE_OF_CONDUCT\.md$
 ^NEWS\.md$
 ^README\.md$
-^"R/note d'amélioration du package\.md"$
+^note_amelioration_package\.md$
 ^\.github$
+^vignettes/logistic_regression\.qmd$
