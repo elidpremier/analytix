@@ -61,3 +61,17 @@ run_gui <- function(launch.browser = TRUE, port = NULL) {
 
   do.call(shiny::runApp, args)
 }
+
+#' @title Lancer l'interface graphique (Ancien nom)
+#' @description
+#' Cette fonction est dépréciée. Veuillez utiliser \code{\link{run_gui}} à la place.
+#' @param ... Arguments passés à \code{\link{run_gui}}.
+#' @export
+run_analytix_ui <- function(...) {
+  warning(
+    "run_analytix_ui() est obsolète et sera supprimée dans une future version.\n",
+    "Veuillez utiliser analytix::run_gui() ou le menu Addins de RStudio.",
+    call. = FALSE
+  )
+  run_gui(...)
+}
