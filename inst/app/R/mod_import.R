@@ -18,6 +18,7 @@ mod_import_ui <- function(id) {
         ns("data_source"), "Source des Données :",
         choices = c(
           "📁 Téléverser un fichier" = "file",
+          "💾 Environnement R" = "env",
           "🧪 Données d'exemple (Sondage)" = "example"
         ),
         selected = "file"
@@ -27,6 +28,11 @@ mod_import_ui <- function(id) {
         condition = sprintf("input['%s'] == 'file'", ns("data_source")),
         uiOutput(ns("file_input_container")),
         uiOutput(ns("excel_sheet_ui"))
+      ),
+
+      conditionalPanel(
+        condition = sprintf("input['%s'] == 'env'", ns("data_source")),
+        uiOutput(ns("env_data_container"))
       ),
       
       tags$hr(),
@@ -197,6 +203,29 @@ mod_import_server <- function(id) {
       }
     })
     
+    # 1.5 Env data UI
+    output$env_data_container <- renderUI({
+      req(input$data_source == "env")
+      input$refresh_env # Dependency to trigger re-evaluation
+      
+      # Find all objects in GlobalEnv that are data.frames
+      objs <- ls(envir = .GlobalEnv)
+      df_names <- Filter(function(x) is.data.frame(get(x, envir = .GlobalEnv)), objs)
+      
+      if (length(df_names) > 0) {
+        tagList(
+          selectInput(ns("env_data"), "Sélectionner un jeu de données :", choices = df_names),
+          actionButton(ns("refresh_env"), "Actualiser la liste", icon = icon("sync"), class = "btn-outline-secondary btn-sm w-100 mt-2")
+        )
+      } else {
+        tagList(
+          tags$div(class = "text-danger mb-2 small fw-bold", icon("exclamation-circle"), " Aucun data.frame dans l'environnement."),
+          actionButton(ns("refresh_env"), "Actualiser la liste", icon = icon("sync"), class = "btn-outline-secondary btn-sm w-100")
+        )
+      }
+    })
+
+    
     # 2. Raw Data
     raw_data <- reactive({
       if (input$data_source == "example") {
@@ -217,26 +246,32 @@ mod_import_server <- function(id) {
         df_demo$Age[c(10, 25, 42)] <- NA
         df_demo$Heures_Revisions[c(5, 12, 100, 142)] <- NA
         return(df_demo)
+      } else if (input$data_source == "env") {
+        req(input$env_data)
+        df <- tryCatch(get(input$env_data, envir = .GlobalEnv), error = function(e) NULL)
+        req(is.data.frame(df))
+        return(as.data.frame(df))
+      } else {
+        req(input$file)
+        ext <- tools::file_ext(input$file$name)
+        path <- input$file$datapath
+        
+        df <- switch(
+          ext,
+          csv = read.csv(path, stringsAsFactors = FALSE, check.names = FALSE),
+          xlsx = {
+            sheet <- if (is.null(input$excel_sheet)) 1 else input$excel_sheet
+            readxl::read_excel(path, sheet = sheet)
+          },
+          xls = {
+            sheet <- if (is.null(input$excel_sheet)) 1 else input$excel_sheet
+            readxl::read_excel(path, sheet = sheet)
+          },
+          rds = readRDS(path),
+          stop("Format de fichier non supporté.")
+        )
+        return(as.data.frame(df))
       }
-      req(input$file)
-      ext <- tools::file_ext(input$file$name)
-      path <- input$file$datapath
-      
-      df <- switch(
-        ext,
-        csv = read.csv(path, stringsAsFactors = FALSE, check.names = FALSE),
-        xlsx = {
-          sheet <- if (is.null(input$excel_sheet)) 1 else input$excel_sheet
-          readxl::read_excel(path, sheet = sheet)
-        },
-        xls = {
-          sheet <- if (is.null(input$excel_sheet)) 1 else input$excel_sheet
-          readxl::read_excel(path, sheet = sheet)
-        },
-        rds = readRDS(path),
-        stop("Format de fichier non supporté.")
-      )
-      as.data.frame(df)
     })
     
     # 3. Cleaned Data
