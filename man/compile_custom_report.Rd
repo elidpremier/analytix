@@ -11,15 +11,19 @@ compile_custom_report(
 )
 }
 \arguments{
-\item{blocks}{Une liste de listes, où chaque sous-liste représente un bloc avec \verb{$type} ("text", "heading1", "heading2", "flextable", "plot") et \verb{$content} (le texte, l'objet flextable, ou l'objet ggplot).}
+\item{blocks}{Une liste de listes. Chaque sous-liste doit avoir :
+\describe{
+\item{$type}{Un des types suivants : "heading1", "heading2", "text", "flextable", "plot"}
+\item{$content}{Le contenu : chaîne de caractères pour heading/text, objet flextable, ou objet ggplot}
+}}
 
 \item{output}{Chemin vers le fichier de sortie (.docx).}
 
-\item{template_path}{Chemin optionnel vers un template Word.}
+\item{template_path}{Chemin optionnel vers un template Word (.docx).}
 }
 \value{
-Le chemin du fichier généré.
+Le chemin du fichier généré (invisible).
 }
 \description{
-Génère un document Word (.docx) à partir d'une liste de blocs (texte, titre, flextable, graphique).
+Génère un document Word (.docx) à partir d'une liste de blocs.
 }

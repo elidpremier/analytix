@@ -1,0 +1,4 @@
+Name: Lancer Analytix GUI
+Description: Ouvre l'interface web no-code analytix.gui pour l'analyse et la génération de rapports.
+Binding: run_gui
+Interactive: true
