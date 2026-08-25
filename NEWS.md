@@ -26,11 +26,15 @@
   attr(res, "var_types")  # tableau des types
   ```
 
-### 🛠 Corrections & améliorations — GUI (analytix.gui)
+### 🛠 Intégration complète de l'Interface Graphique (analytix.gui)
 
+- **Embarquement natif** : L'application Web Shiny (`analytix.gui`) est désormais incluse nativement dans le package. Plus besoin de dépôt séparé ni de téléchargements complexes.
+- **Nouvelle commande de lancement** : Utilisation de `analytix::run_gui()` au lieu de l'ancienne fonction `run_analytix_ui()` (qui reste disponible comme alias déprécié pour la rétrocompatibilité).
+- **Addin RStudio** : Ajout d'un Addin RStudio ("Lancer Analytix GUI") permettant d'ouvrir l'interface graphique en 1 seul clic depuis n'importe quel projet, sans taper de code.
 - **Nouveau module `⚡ Rapport Auto`** : Onglet dédié dans l'interface Shiny permettant la génération one-click du rapport Word complet. Inclut : sélection de l'outcome, choix des sections, aperçu des métriques (N, variables, complétude), tableau interactif DT des variables avec types détectés et taux de NA colorés.
 - **Fix export global** : Le module `mod_export_server` accepte maintenant `model_reactive` pour intégrer les résultats du module Modélisation dans le rapport. Logique de fallback vers `bivar_reactive` si la modélisation n'a pas été effectuée.
 - **Version** : 0.4.0
+
 
 ---
 

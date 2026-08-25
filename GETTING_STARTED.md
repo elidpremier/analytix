@@ -230,6 +230,23 @@ export_all_tables(
 
 ---
 
+## 4️⃣ L'Interface Graphique (GUI) Sans Code
+
+Vous préférez ne pas coder du tout ? **analytix** intègre nativement une interface web complète.
+
+Pour l'ouvrir :
+1. Dans RStudio / Positron, cliquez sur **"Addins"** dans la barre d'outils.
+2. Cliquez sur **"Lancer Analytix GUI"**.
+
+Vous pouvez également la lancer depuis la console :
+```r
+analytix::run_gui()
+```
+
+L'interface vous guide pas à pas, de l'importation de vos fichiers jusqu'à la génération automatique du rapport Word !
+
+---
+
 ## 📖 Aide intégrée
 
 ```r

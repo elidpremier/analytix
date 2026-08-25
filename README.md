@@ -252,6 +252,22 @@ export_to_word(tab1, tab2, tab3, path = "rapport.docx")
 
 ---
 
+## 🖥️ Interface Graphique Sans Code (GUI)
+
+Vous préférez ne pas coder du tout ? **analytix** inclut une application web complète intégrée !
+
+1. Cliquez sur **"Addins"** dans la barre d'outils de RStudio ou Positron.
+2. Sélectionnez **"Lancer Analytix GUI"**.
+
+*Ou lancez-la depuis la console :*
+```r
+analytix::run_gui()
+```
+
+L'interface vous permet d'importer vos fichiers, de nettoyer les données, d'explorer les tableaux/graphiques et d'exporter le rapport complet en Word en quelques clics.
+
+---
+
 ## 📚 Dépendances
 
 | Package | Rôle |
