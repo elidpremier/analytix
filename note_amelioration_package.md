@@ -17,13 +17,18 @@
 # Étapes réalisées dans la version récente (Basé sur l'analyse des projets)
 - [x] ~~Créer une vignette (tutoriel complet) illustrant le workflow de A à Z (de l'imputation à l'export Word)~~ (`vignettes/workflow_analytix.Rmd`).
 - [x] ~~Ajouter des tests statistiques de comparaison de moyennes (T-test, ANOVA, Mann-Whitney, Kruskal-Wallis) dans `descr_by_group`~~ (`R/descr_by_group.R`).
-- [x] ~~Créer un module d'utilitaires de nettoyage et d'imputation~~ (`R/clean_utils.R` : `clean_binary`, `clean_numeric`, `clean_text`, `impute_mode`, `impute_mean`).
+- [x] ~~Créer un module d'utilitaires de nettoyage et d'imputation~~ (`R/clean_utils.R` : `clean_binary`, `recode_odk_binary`, `clean_numeric`, `clean_text`, `impute_mode`, `impute_mean`, `impute_mice`).
 - [x] ~~Créer une fonction d'analyse des questions à choix multiples (réponses multiples)~~ (`R/descr_multi_choice.R`).
+- [x] ~~Créer une fonction de description de sous-catégories groupées par thématique~~ (`R/descr_grouped_categories.R`).
 - [x] ~~Créer une fonction de calcul de prévalences et proportions avec IC95% (Wilson/Exact)~~ (`R/calc_prevalence.R`).
 - [x] ~~Créer une fonction de génération de table synthétique d'Odds Ratios bivariés~~ (`R/bivariate_or_table.R`).
 - [x] ~~Créer une fonction de formatage académique `flextable` pour rapports Word~~ (`R/format_flextable.R`).
 - [x] ~~Créer une fonction de génération de Heatmaps ggplot2 pour les prévalences et profils de résistance~~ (`R/plot_heatmap_matrix.R`).
+- [x] ~~Créer la page de documentation globale du package accessible via `?analytix`~~ (`R/analytix-package.R`).
+- [x] ~~Standardiser l'arrière-plan des entêtes de tableaux sur `transparent` par défaut~~ (`theme_analytique.R`).
+- [x] ~~Développer une interface Shiny simple pour utiliser le package sans coder (`run_gui()`)~~ (`analytix.gui`).
 
 # Prochaines étapes recommandées
-- [ ] Développer une interface Shiny simple pour utiliser le package sans coder (mode "Point & Click").
 - [ ] Harmoniser totalement la gestion des données labellisées (attributs `label` et `value.labels`).
+- [ ] Ajouter l'export direct vers PowerPoint (.pptx).
+

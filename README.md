@@ -8,8 +8,8 @@ Nettoyage, description, statistiques, visualisation et export Word — entièrem
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/Version-0.4.0-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-87%20pass-brightgreen.svg)
-![Fonctions](https://img.shields.io/badge/Fonctions-50-informational.svg)
+![Tests](https://img.shields.io/badge/Tests-102%20pass-brightgreen.svg)
+![Fonctions](https://img.shields.io/badge/Fonctions-52-informational.svg)
 
 </div>
 
@@ -17,12 +17,12 @@ Nettoyage, description, statistiques, visualisation et export Word — entièrem
 
 ## 🎯 Caractéristiques principales
 
-- **🧹 Nettoyage & Préparation** : nettoyage de texte, recodage, imputation, import Excel/CSV, labellisation
-- **📊 Analyses univariées** : catégorielles, numériques, âge, Likert, choix multiples, prévalences IC95%
+- **🧹 Nettoyage & Préparation** : nettoyage de texte, recodage ODK/KoboToolbox, imputation MICE, import Excel/CSV, labellisation
+- **📊 Analyses univariées** : catégorielles, sous-catégories groupées par thématiques (molécules/classes), numériques, âge, Likert, choix multiples, prévalences IC95%
 - **🔀 Analyses bivariées** : tableaux croisés, OR bivariés, comparaison par groupes
-- **🔬 Statistiques avancées** : ANOVA + Tukey, régression logistique multivariée, indicateurs diagnostiques, corrélations
+- **🔬 Statistiques avancées** : ANOVA + Tukey, régression logistique multivariée, indicateurs diagnostiques, corrélations, survie (Kaplan-Meier), courbes ROC
 - **📈 Visualisations** : barplots, camemberts, boxplots, Likert divergent, heatmap de corrélations, carte des manquants
-- **📤 Export professionnel** : tableaux flextable, export Word structuré (tableau unique ou liste complète)
+- **📤 Export professionnel** : tableaux flextable, entêtes transparents par défaut, export Word structuré (tableau unique ou liste complète)
 - **🇫🇷 100% francophone** : virgule décimale, libellés métier, format épidémiologiquement rigoureux
 
 ---
@@ -81,6 +81,7 @@ library(analytix)
 | `clean_names()` | Nettoyage des noms de colonnes (accents, espaces, casse) |
 | `clean_text()` | Nettoyage d'une variable textuelle |
 | `clean_binary()` | Standardisation d'une variable binaire (Oui/Non, 0/1) |
+| `recode_odk_binary()` | Recodage binaire spécifique ODK/KoboToolbox/REDCap (NA/vide → "Non") |
 | `clean_numeric()` | Nettoyage d'une variable numérique (virgules, espaces) |
 | `label_vars()` | Attacher des libellés à plusieurs variables en une seule opération |
 | `detect_outliers()` | Détection des valeurs aberrantes (IQR, Z-score) avec rapport |
@@ -89,6 +90,7 @@ library(analytix)
 | `categorize_numeric()` | Conversion numérique → catégorielle par tranches |
 | `impute_mode()` | Imputation par le mode |
 | `impute_mean()` | Imputation par la moyenne |
+| `impute_mice()` | Imputation multiple robuste par la méthode MICE |
 | `missing_report()` | Rapport des taux de valeurs manquantes |
 
 ---
@@ -98,6 +100,7 @@ library(analytix)
 | Fonction | Description |
 |---|---|
 | `descr_categorial()` | Fréquences et pourcentages pour variables catégorielles |
+| `descr_grouped_categories()` | Tableau récapitulatif de sous-catégories groupées par thématique (ex: molécules par classe) |
 | `descr_numeric()` | Statistiques descriptives pour variables numériques |
 | `descr_binary()` | Prévalence et IC95% pour variables binaires |
 | `descr_age()` | Résumé standardisé d'une variable âge (stats + tranches) |

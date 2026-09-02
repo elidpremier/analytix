@@ -1,6 +1,19 @@
 # analytix News
 
-## Version 0.4.0 — 2026-08-17
+## Version 0.4.0 — 2026-09-02 (Mise à jour majeure)
+
+### 🎨 Améliorations Design & Style
+- **Arrière-plan d'entête transparent par défaut** : La couleur par défaut d'arrière-plan des entêtes de tableaux `color` est désormais fixée à `"transparent"` sur **toutes** les fonctions du package (`theme_analytique()`, `format_flextable()`, `descr_numeric()`, `descr_categorial()`, `bivariate_or_table()`, `generate_report()`, etc.).
+- **Page d'aide globale du package (`?analytix`)** : Ajout de la documentation au niveau du package (`man/analytix.Rd`) permettant d'afficher la fiche d'aide officielle complète avec `?analytix` dans R, RStudio, VS Code et Positron.
+
+### 🚀 Nouvelles fonctions
+- **`recode_odk_binary()`** : Recodage automatique des variables binaires issues d'exports ODK / KoboToolbox / REDCap (convertit `NA`, `""` ou `0` en `"Non"` et les valeurs renseignées/textes en `"Oui"`). Disponible également via l'option `na_as_no = TRUE` dans `clean_binary()`.
+- **`descr_grouped_categories()`** : Génération de tableaux récapitulatifs pour des sous-catégories/modalités groupées sous leurs catégories parentes (ex: molécules regroupées par classe thérapeutique). Prend en charge les formats large et long, avec tri automatique et pourcentages calculés sur $N$ total ou par groupe.
+
+### 🧪 Tests & Qualité
+- **102 tests unitaires validés** (`FAIL 0 | WARN 0 | SKIP 0 | PASS 102`).
+
+---
 
 ### 🚀 Nouveautés Phase 2 (Survie & ROC)
 
