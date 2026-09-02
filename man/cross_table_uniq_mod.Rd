@@ -13,7 +13,7 @@ cross_table_uniq_mod(
   pct = c("row", "col", "total"),
   test = c("auto", "chisq", "fisher"),
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   include_na = FALSE
 )
 }
@@ -35,7 +35,7 @@ Si NULL, utilise la première modalité non-NA de \code{target}.}
 
 \item{digits}{Nombre de décimales pour les pourcentages.}
 
-\item{color}{Couleur de fond pour les titres de variables (par défaut : gris clair).}
+\item{color}{Couleur de fond pour les titres de variables (par défaut : transparent).}
 
 \item{include_na}{Inclure les valeurs manquantes ? (\code{TRUE} ou \code{FALSE}).}
 }

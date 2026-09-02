@@ -12,7 +12,7 @@ descr_binary(
   subset = NULL,
   digits = 1,
   include_na = FALSE,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ descr_binary(
 
 \item{include_na}{Inclure les NA dans le dénominateur ?}
 
-\item{color}{Couleur de l'en-tête}
+\item{color}{Couleur de l'en-tête (défaut: "transparent")}
 }
 \value{
 Un objet freq_table simplifié

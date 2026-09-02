@@ -9,7 +9,7 @@ multi_likert_table(
   cols,
   var_labels = NULL,
   digits = 1,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ multi_likert_table(
 
 \item{digits}{Nombre de décimales (défaut: 1).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable}.

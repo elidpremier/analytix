@@ -10,7 +10,7 @@ calc_sensitivity_specificity(
   positive_val = NULL,
   conf_level = 0.95,
   digits = 1,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ calc_sensitivity_specificity(
 
 \item{digits}{Nombre de décimales (défaut: 1).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable} avec les indicateurs diagnostiques.

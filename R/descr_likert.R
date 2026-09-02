@@ -32,7 +32,7 @@ recode_likert <- function(x, mapping) {
 #' @param levels_labels Vecteur nommé de libellés pour chaque niveau numérique.
 #'   Ex: c("1" = "Pas du tout", "5" = "Tout à fait").
 #' @param digits Nombre de décimales (défaut: 1).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #' @param plot Logique. Retourner aussi le graphique ? (défaut: FALSE).
 #'
 #' @return Un objet `flextable` ou une liste contenant `table` et `plot`.
@@ -43,7 +43,7 @@ recode_likert <- function(x, mapping) {
 #'
 #' @export
 descr_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
-                         digits = 1, color = "#D3D3D3", plot = FALSE) {
+                         digits = 1, color = "transparent", plot = FALSE) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
@@ -119,7 +119,7 @@ descr_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
 #' @param cols Vecteur de noms de colonnes Likert (numériques).
 #' @param var_labels Vecteur nommé de libellés pour chaque colonne.
 #' @param digits Nombre de décimales (défaut: 1).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable`.
 #'
@@ -134,7 +134,7 @@ descr_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
 #'
 #' @export
 multi_likert_table <- function(data, cols, var_labels = NULL,
-                               digits = 1, color = "#D3D3D3") {
+                               digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 

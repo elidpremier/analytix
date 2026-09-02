@@ -10,7 +10,7 @@ format_flextable(
   font_size = 9,
   font_family = "Times New Roman",
   compact = TRUE,
-  color = "#D3D3D3",
+  color = "transparent",
   ...
 )
 }
@@ -25,7 +25,7 @@ format_flextable(
 
 \item{compact}{Logique. Si TRUE, applique un espacement resserré (défaut: TRUE).}
 
-\item{color}{Couleur d'en-tête (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête (défaut: "transparent").}
 
 \item{...}{Autres arguments passés à \code{theme_analytique()}.}
 }

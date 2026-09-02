@@ -9,7 +9,7 @@
 #' @param outcome_level La modalité de l'outcome à considérer comme l'événement (ex: "Oui", 1). Si NULL, utilise la 2ème modalité.
 #' @param include_na Logique. Inclure les valeurs manquantes (NA) ? Défaut: \code{FALSE}.
 #' @param digits Entier. Nombre de décimales pour les pourcentages. Défaut: \code{1}.
-#' @param color Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"#D3D3D3"}.
+#' @param color Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"transparent"}.
 #' @param tidy_layout Logique. Si \code{TRUE}, retourne un format "long". Défaut: \code{FALSE}.
 #' @param method Caractère. Méthode : \code{"logistic"} ou \code{"level"}. Défaut: \code{"logistic"}.
 #' @param ref_levels Liste nommée définissant les niveaux de référence.
@@ -29,7 +29,7 @@ cross_multi <- function(data,
                         outcome_level = NULL,
                         include_na = FALSE,
                         digits = 1,
-                        color = "#D3D3D3",
+                        color = "transparent",
                         tidy_layout = FALSE,
                         method = c("logistic", "level"),
                         ref_levels = NULL) {

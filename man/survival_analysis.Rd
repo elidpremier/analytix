@@ -11,7 +11,7 @@ km_table(
   time_var,
   event_var,
   group_var = NULL,
-  color = "#D3D3D3",
+  color = "transparent",
   digits = 1
 )
 
@@ -26,7 +26,7 @@ km_plot(data, time_var, event_var, group_var = NULL)
 
 \item{group_var}{Nom de la variable de stratification (optionnelle, défaut NULL).}
 
-\item{color}{Couleur d'en-tête (défaut "#D3D3D3").}
+\item{color}{Couleur d'en-tête (défaut "transparent").}
 
 \item{digits}{Nombre de décimales.}
 }

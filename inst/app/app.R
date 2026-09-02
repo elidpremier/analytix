@@ -183,16 +183,9 @@ ui <- bslib::page_navbar(
     mod_modeling_ui("modeling_module")
   ),
 
-  # --- Onglet 6 : Rapport Word Global ---
+  # --- Onglet 6 : Rapport Automatique / Export ---
   bslib::nav_panel(
-    title = "6. Rapport Word Global",
-    icon = safe_icon("file-word-fill", fa_fallback = "file-word"),
-    mod_export_ui("export_module")
-  ),
-
-  # --- Onglet 7 : Rapport Automatique ---
-  bslib::nav_panel(
-    title = "⚡ Rapport Auto",
+    title = "6. Rapport & Export Word",
     icon = safe_icon("lightning-fill", fa_fallback = "bolt"),
     mod_report_ui("report_module")
   ),
@@ -242,23 +235,10 @@ server <- function(input, output, session) {
   # 5. Modélisation
   modeling_res <- mod_modeling_server("modeling_module", data_reactive = cleaned_data)
 
-  # 6. Export Word Global
-  mod_export_server(
-    "export_module",
-    data_reactive   = cleaned_data,
-    univar_reactive = univariate_res,
-    bivar_reactive  = bivariate_res,
-    spec_reactive   = specialized_res,
-    model_reactive  = modeling_res
-  )
+  # 6. Rapport & Export
+  mod_report_server("report_module", data_reactive = cleaned_data)
 
-  # 7. Rapport Automatique
-  mod_report_server(
-    "report_module",
-    data_reactive = cleaned_data
-  )
-
-  # 8. Éditeur de Rapport
+  # 7. Éditeur de Rapport
   mod_report_editor_server(
     "report_editor_module",
     data_reactive   = cleaned_data,

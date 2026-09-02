@@ -7,12 +7,12 @@
 #' @param subset Expression de filtrage
 #' @param digits Nombre de décimales
 #' @param include_na Inclure les NA dans le dénominateur ?
-#' @param color Couleur de l'en-tête
+#' @param color Couleur de l'en-tête (défaut: "transparent")
 #'
 #' @return Un objet freq_table simplifié
 #' @export
 descr_binary <- function(data, var, target_level = NULL, var_name = NULL, subset = NULL,
-                         digits = 1, include_na = FALSE, color = "#D3D3D3") {
+                         digits = 1, include_na = FALSE, color = "transparent") {
 
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")

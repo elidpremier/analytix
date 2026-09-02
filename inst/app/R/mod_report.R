@@ -154,8 +154,13 @@ mod_report_ui <- function(id) {
 
       # Boutons d'export
       downloadButton(
+        ns("dl_magic_report_word"),
+        label = tags$span(icon("wand-magic-sparkles", class = "me-2", lib="font-awesome"), "Magic Report en 1-clic !"),
+        class = "btn btn-warning btn-lg w-100 mb-2 fw-bold text-dark"
+      ),
+      downloadButton(
         ns("dl_report_word"),
-        label = tags$span(icon("file-word", class = "me-2"), "Générer le Rapport (.docx)"),
+        label = tags$span(icon("file-word", class = "me-2"), "Générer le Rapport personnalisé (.docx)"),
         class = "btn btn-success btn-lg w-100 mb-2"
       ),
       downloadButton(
@@ -410,6 +415,49 @@ mod_report_server <- function(id, data_reactive) {
             # Créer un document d'erreur minimal
             doc <- officer::read_docx()
             doc <- officer::body_add_par(doc, "Erreur de génération du rapport", style = "heading 1")
+            doc <- officer::body_add_par(doc, as.character(e$message), style = "Normal")
+            print(doc, target = file)
+          })
+        })
+      }
+    )
+    # ====================================================================
+    # DOWNLOAD : Magic Report Word
+    # ====================================================================
+    output$dl_magic_report_word <- downloadHandler(
+      filename = function() {
+        paste0("Magic_Report_Analytix_", format(Sys.Date(), "%Y%m%d"), ".docx")
+      },
+      content = function(file) {
+        df <- data_reactive()
+        req(df, nrow(df) > 0)
+        
+        shiny::withProgress(message = "Génération du Magic Report...", value = 0, {
+          shiny::incProgress(0.2, detail = "Initialisation et nettoyage...")
+          tryCatch({
+            
+            magic_fn_available <- tryCatch({
+              fn <- getFromNamespace("magic_report", "analytix")
+              !is.null(fn)
+            }, error = function(e) FALSE)
+            
+            if (magic_fn_available) {
+               analytix::magic_report(
+                 data = df, 
+                 output = file, 
+                 title = input$rep_title, 
+                 outcome = NULL, 
+                 open_doc = FALSE
+               )
+            } else {
+               stop("La fonction magic_report n'est pas disponible. Rechargez le package.")
+            }
+            shiny::incProgress(1.0, detail = "Terminé !")
+            shiny::showNotification("✨ Magic Report généré avec succès !", type = "message")
+          }, error = function(e) {
+            shiny::showNotification(paste("❌ Erreur :", e$message), type = "error")
+            doc <- officer::read_docx()
+            doc <- officer::body_add_par(doc, "Erreur lors du Magic Report", style = "heading 1")
             doc <- officer::body_add_par(doc, as.character(e$message), style = "Normal")
             print(doc, target = file)
           })

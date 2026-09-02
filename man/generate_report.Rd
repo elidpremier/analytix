@@ -20,7 +20,7 @@ generate_report(
     "correlation"),
   page_width = 16,
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   include_plots = TRUE,
   open_doc = FALSE,
   verbose = TRUE
@@ -62,7 +62,7 @@ Si NULL (défaut), utilise toutes les \code{vars} (sauf l'outcome).}
 
 \item{digits}{Nombre de décimales (défaut: 1).}
 
-\item{color}{Couleur d'en-tête des flextables (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête des flextables (défaut: "transparent").}
 
 \item{include_plots}{Inclure des graphiques dans le rapport (défaut: TRUE).}
 

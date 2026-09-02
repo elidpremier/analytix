@@ -8,7 +8,7 @@
 #' @param time_var Nom de la variable de temps de suivi (numérique).
 #' @param event_var Nom de la variable d'événement (binaire 0/1 ou deux modalités).
 #' @param group_var Nom de la variable de stratification (optionnelle, défaut NULL).
-#' @param color Couleur d'en-tête (défaut "#D3D3D3").
+#' @param color Couleur d'en-tête (défaut "transparent").
 #' @param digits Nombre de décimales.
 #'
 #' @return
@@ -26,7 +26,7 @@ NULL
 #' @rdname survival_analysis
 #' @export
 km_table <- function(data, time_var, event_var, group_var = NULL,
-                     color = "#D3D3D3", digits = 1) {
+                     color = "transparent", digits = 1) {
 
   if (!requireNamespace("survival", quietly = TRUE))
     stop("Package 'survival' requis.")

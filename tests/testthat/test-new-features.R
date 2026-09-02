@@ -30,3 +30,27 @@ test_that("export_to_word handles nested lists", {
   extracted <- .extract_tables_recursive(res_multi)
   expect_equal(length(extracted), 2)
 })
+
+test_that("recode_odk_binary works for ODK/KoboToolbox data", {
+  x <- c("Diabète", NA, "", "1", "0")
+  res <- recode_odk_binary(x)
+  expect_s3_class(res, "factor")
+  expect_equal(as.character(res), c("Oui", "Non", "Non", "Oui", "Non"))
+  expect_equal(levels(res), c("Non", "Oui"))
+})
+
+test_that("descr_grouped_categories works in wide and long mode", {
+  df_wide <- data.frame(
+    diuretique = c("Furosemide", "Indapamide", NA, "Furosemide"),
+    iec        = c("Enalapril", NA, "Ramipril", "Enalapril")
+  )
+  ft_wide <- descr_grouped_categories(df_wide, cols = c("diuretique", "iec"))
+  expect_s3_class(ft_wide, "flextable")
+
+  df_long <- data.frame(
+    classe   = c("Diurétique", "Diurétique", "IEC"),
+    molecule = c("Furosemide", "Indapamide", "Enalapril")
+  )
+  ft_long <- descr_grouped_categories(df_long, group_col = "classe", sub_col = "molecule")
+  expect_s3_class(ft_long, "flextable")
+})

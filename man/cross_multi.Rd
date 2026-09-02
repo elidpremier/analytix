@@ -11,7 +11,7 @@ cross_multi(
   outcome_level = NULL,
   include_na = FALSE,
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   tidy_layout = FALSE,
   method = c("logistic", "level"),
   ref_levels = NULL
@@ -30,7 +30,7 @@ cross_multi(
 
 \item{digits}{Entier. Nombre de décimales pour les pourcentages. Défaut: \code{1}.}
 
-\item{color}{Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"#D3D3D3"}.}
+\item{color}{Caractère. Couleur de fond pour l'en-tête. Défaut: \code{"transparent"}.}
 
 \item{tidy_layout}{Logique. Si \code{TRUE}, retourne un format "long". Défaut: \code{FALSE}.}
 

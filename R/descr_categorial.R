@@ -10,7 +10,7 @@
 #' @param na_label Étiquette pour les valeurs manquantes (défaut: "Manquant")
 #' @param total TRUE pour inclure une ligne de total
 #' @param caption Titre personnalisé du tableau
-#' @param color Couleur de l'en-tête (défaut: "#D3D3D3", (gris))
+#' @param color Couleur de l'en-tête (défaut: "transparent")
 #' @param compact TRUE pour un affichage compact (n et % sur la même ligne)
 #'
 #' @return Une liste contenant le tableau de données et le flextable
@@ -22,7 +22,7 @@
 #' @export
 descr_categorial <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
                        include_na = FALSE, na_label = "Manquant", total = TRUE,
-                       caption = NULL, color = "#D3D3D3", compact = FALSE) {
+                       caption = NULL, color = "transparent", compact = FALSE) {
 
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("Package 'dplyr' requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("Package 'flextable' requis")

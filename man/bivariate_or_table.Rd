@@ -12,7 +12,7 @@ bivariate_or_table(
   conf_level = 0.95,
   var_labels = NULL,
   digits = 2,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ bivariate_or_table(
 
 \item{digits}{Nombre de décimales pour les OR et IC (défaut: 2).}
 
-\item{color}{Couleur d'en-tête pour le tableau flextable.}
+\item{color}{Couleur d'en-tête pour le tableau flextable (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable} prêt pour l'export.

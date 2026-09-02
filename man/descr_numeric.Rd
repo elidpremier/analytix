@@ -14,7 +14,7 @@ descr_numeric(
   show_valid = FALSE,
   show_skewness = FALSE,
   caption = NULL,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ descr_numeric(
 
 \item{caption}{titre du tableau}
 
-\item{color}{couleur de l'en-tête (défaut: "#D3D3D3")}
+\item{color}{couleur de l'en-tête (défaut: "transparent")}
 }
 \value{
 un objet de classe "descr_numeric" contenant les données et le flextable

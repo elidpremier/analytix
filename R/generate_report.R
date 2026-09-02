@@ -25,7 +25,7 @@
 #'   "roc", "survival", "correlation".
 #' @param page_width Largeur utile de la page en cm (défaut: 16 — A4 standard avec marges).
 #' @param digits Nombre de décimales (défaut: 1).
-#' @param color Couleur d'en-tête des flextables (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête des flextables (défaut: "transparent").
 #' @param include_plots Inclure des graphiques dans le rapport (défaut: TRUE).
 #' @param open_doc Ouvrir le document après génération (défaut: FALSE).
 #' @param verbose Afficher les messages de progression (défaut: TRUE).
@@ -66,7 +66,7 @@ generate_report <- function(data,
                                              "bivariate", "regression", "correlation"),
                              page_width  = 16,
                              digits      = 1,
-                             color       = "#D3D3D3",
+                             color       = "transparent",
                              include_plots = TRUE,
                              open_doc    = FALSE,
                              verbose     = TRUE) {
@@ -340,6 +340,32 @@ generate_report <- function(data,
         ft_reg <- multivariable_logistic_table(mod, data = df_reg, digits = digits, color = color)
         doc <- .add_ft(doc, ft_reg)
         doc <- officer::body_add_par(doc, "", style = "Normal")
+        
+        # --- NLG : Interprétation automatique ---
+        if (exists("interpret_pvalue", where = asNamespace("analytix"))) {
+          co <- summary(mod)$coefficients
+          # Trouver la variable la plus significative (hors Intercept)
+          if (nrow(co) > 1) {
+             co_vars <- co[-1, , drop = FALSE]
+             best_idx <- which.min(co_vars[, "Pr(>|z|)"])
+             if (length(best_idx) > 0) {
+                best_var <- rownames(co_vars)[best_idx]
+                best_p <- co_vars[best_idx, "Pr(>|z|)"]
+                best_or <- exp(co_vars[best_idx, "Estimate"])
+                
+                phrase_p <- interpret_pvalue(best_p)
+                phrase_or <- interpret_or(best_or, best_p)
+                
+                doc <- officer::body_add_par(doc, "Interprétation automatique :", style = "heading 3")
+                doc <- officer::body_add_par(doc, 
+                  paste0("Pour le prédicteur '", best_var, "' : ", phrase_p, " ", phrase_or), 
+                  style = "Normal")
+                doc <- officer::body_add_par(doc, "", style = "Normal")
+             }
+          }
+        }
+        # ----------------------------------------
+        
         doc <- officer::body_add_par(doc,
           paste0("Note : Régression logistique binaire (outcome = '", outcome, "'). ",
                  "N = ", stats::nobs(mod), " | AIC = ", round(stats::AIC(mod), 1)),

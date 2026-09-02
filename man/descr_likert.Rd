@@ -10,7 +10,7 @@ descr_likert(
   var_name = NULL,
   levels_labels = NULL,
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   plot = FALSE
 )
 }
@@ -26,7 +26,7 @@ Ex: c("1" = "Pas du tout", "5" = "Tout à fait").}
 
 \item{digits}{Nombre de décimales (défaut: 1).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 
 \item{plot}{Logique. Retourner aussi le graphique ? (défaut: FALSE).}
 }

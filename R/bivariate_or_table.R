@@ -9,7 +9,7 @@
 #' @param conf_level Niveau de confiance (défaut: 0.95).
 #' @param var_labels Vecteur nommé des libellés pour chaque variable explicative.
 #' @param digits Nombre de décimales pour les OR et IC (défaut: 2).
-#' @param color Couleur d'en-tête pour le tableau flextable.
+#' @param color Couleur d'en-tête pour le tableau flextable (défaut: "transparent").
 #' 
 #' @return Un objet `flextable` prêt pour l'export.
 #' 
@@ -27,7 +27,7 @@ bivariate_or_table <- function(data, outcome, exposures,
                                conf_level = 0.95,
                                var_labels = NULL,
                                digits = 2,
-                               color = "#D3D3D3") {
+                               color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("stats", quietly = TRUE)) stop("stats requis")

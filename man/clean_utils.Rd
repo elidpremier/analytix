@@ -4,6 +4,7 @@
 \alias{clean_utils}
 \alias{clean_text}
 \alias{clean_binary}
+\alias{recode_odk_binary}
 \alias{clean_numeric}
 \alias{clean_names}
 \alias{clean_column_names}
@@ -13,7 +14,9 @@
 \usage{
 clean_text(x)
 
-clean_binary(x, yes_label = "Oui", no_label = "Non")
+clean_binary(x, yes_label = "Oui", no_label = "Non", na_as_no = FALSE)
+
+recode_odk_binary(x, yes_label = "Oui", no_label = "Non")
 
 clean_numeric(x)
 
@@ -31,6 +34,8 @@ impute_mean(x, type = c("mean", "median"))
 \item{yes_label}{Libellé pour la valeur positive des variables binaires (défaut: "Oui").}
 
 \item{no_label}{Libellé pour la valeur négative des variables binaires (défaut: "Non").}
+
+\item{na_as_no}{Logique. Si TRUE, traite les valeurs NA ou vides comme la valeur négative (défaut: FALSE).}
 
 \item{max_length}{Longueur maximale optionnelle pour les noms de colonnes.}
 

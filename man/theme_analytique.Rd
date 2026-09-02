@@ -7,7 +7,7 @@
 theme_analytique(
   data,
   page_width = 16,
-  color = "#D3D3D3",
+  color = "transparent",
   zebre = FALSE,
   zebre_color = "#F2F2F2",
   font_size = 11,
@@ -20,9 +20,9 @@ theme_analytique(
 \item{data}{Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable}
 
 \item{page_width}{Largeur de la zone utile de la page en cm.
-Par défaut : 16 cm (largeur Word standard A4 avec marges)}
+Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)}
 
-\item{color}{Couleur de l'en-tête (défaut: "#D3D3D3")}
+\item{color}{Couleur de l'en-tête (défaut: "transparent")}
 
 \item{zebre}{Logique. Applique un zébrage alterné sur les lignes du corps (défaut: FALSE)}
 
@@ -37,11 +37,12 @@ Par défaut : 16 cm (largeur Word standard A4 avec marges)}
 \item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }
 \value{
-Un objet flextable formaté
+Un objet flextable formaté, pleine largeur de page
 }
 \description{
 Convertit automatiquement les données en flextable et applique un formatage cohérent.
-Par défaut, le tableau s'ajuste à la largeur d'une page Word standard (16 cm).
+Les colonnes sont redimensionnées proportionnellement pour que le tableau occupe
+exactement la largeur utile de la page Word (layout "fixed" — garantit le pleine largeur).
 }
 \examples{
 theme_analytique(head(iris))

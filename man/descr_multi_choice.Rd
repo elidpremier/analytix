@@ -11,7 +11,7 @@ descr_multi_choice(
   title = "Question à choix multiples",
   pct_type = c("respondents", "choices"),
   digits = 1,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ ou "choices" (par rapport au nombre total de choix cochés).}
 
 \item{digits}{Nombre de décimales pour l'affichage du pourcentage (défaut: 1).}
 
-\item{color}{Couleur d'en-tête pour le thème analytique (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête pour le thème analytique (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable} formaté.

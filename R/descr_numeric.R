@@ -9,7 +9,7 @@
 #' @param show_valid afficher la ligne "Valeurs valides" ? (défaut: FALSE)
 #' @param show_skewness afficher l'asymétrie (skewness) ? (défaut: FALSE)
 #' @param caption titre du tableau
-#' @param color couleur de l'en-tête (défaut: "#D3D3D3")
+#' @param color couleur de l'en-tête (défaut: "transparent")
 #'
 #' @return un objet de classe "descr_numeric" contenant les données et le flextable
 #' @examples
@@ -22,7 +22,7 @@ descr_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
                           show_valid = FALSE,
                           show_skewness = FALSE,
                           caption = NULL,
-                          color = "#D3D3D3") {
+                          color = "transparent") {
 
   # Vérifications
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("Package 'dplyr' requis")

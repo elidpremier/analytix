@@ -11,7 +11,7 @@ detect_outliers(
   method = c("iqr", "zscore", "both"),
   iqr_factor = 1.5,
   z_threshold = 3,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ detect_outliers(
 
 \item{z_threshold}{Seuil du Z-score pour les valeurs aberrantes (défaut: 3).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 }
 \value{
 Une liste contenant \code{summary} (flextable) et \code{outlier_rows} (indices).

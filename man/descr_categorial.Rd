@@ -15,7 +15,7 @@ descr_categorial(
   na_label = "Manquant",
   total = TRUE,
   caption = NULL,
-  color = "#D3D3D3",
+  color = "transparent",
   compact = FALSE
 )
 }
@@ -40,7 +40,7 @@ descr_categorial(
 
 \item{caption}{Titre personnalisé du tableau}
 
-\item{color}{Couleur de l'en-tête (défaut: "#D3D3D3", (gris))}
+\item{color}{Couleur de l'en-tête (défaut: "transparent")}
 
 \item{compact}{TRUE pour un affichage compact (n et \% sur la même ligne)}
 }

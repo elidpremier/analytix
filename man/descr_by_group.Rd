@@ -11,7 +11,7 @@ descr_by_group(
   var_name = NULL,
   by_name = NULL,
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   test_stat = TRUE,
   test_type = c("auto", "parametric", "nonparametric")
 )
@@ -29,7 +29,7 @@ descr_by_group(
 
 \item{digits}{nombre de décimales}
 
-\item{color}{couleur de l'en-tête}
+\item{color}{couleur de l'en-tête (défaut: "transparent")}
 
 \item{test_stat}{logique. Afficher le test statistique ? (défaut: TRUE)}
 

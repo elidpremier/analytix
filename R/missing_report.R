@@ -3,10 +3,10 @@
 #' @param data data.frame
 #' @param vars vecteur de noms de variables (par défaut : toutes)
 #' @param digits nombre de décimales
-#' @param color couleur de l'en-tête
+#' @param color couleur de l'en-tête (défaut: "transparent")
 #' @return un objet de classe "missing_report"
 #' @export
-missing_report <- function(data, vars = base::names(data), digits = 1, color = "#D3D3D3") {
+missing_report <- function(data, vars = base::names(data), digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("tibble", quietly = TRUE)) stop("tibble requis")

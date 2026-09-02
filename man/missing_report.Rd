@@ -4,7 +4,12 @@
 \alias{missing_report}
 \title{Rapport des valeurs manquantes}
 \usage{
-missing_report(data, vars = base::names(data), digits = 1, color = "#D3D3D3")
+missing_report(
+  data,
+  vars = base::names(data),
+  digits = 1,
+  color = "transparent"
+)
 }
 \arguments{
 \item{data}{data.frame}
@@ -13,7 +18,7 @@ missing_report(data, vars = base::names(data), digits = 1, color = "#D3D3D3")
 
 \item{digits}{nombre de décimales}
 
-\item{color}{couleur de l'en-tête}
+\item{color}{couleur de l'en-tête (défaut: "transparent")}
 }
 \value{
 un objet de classe "missing_report"

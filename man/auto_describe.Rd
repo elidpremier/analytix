@@ -8,7 +8,7 @@ auto_describe(
   data,
   vars = NULL,
   digits = 1,
-  color = "#D3D3D3",
+  color = "transparent",
   binary_threshold = 2,
   cat_threshold = 10,
   verbose = FALSE
@@ -22,7 +22,7 @@ colonnes sont analysées.}
 
 \item{digits}{Nombre de décimales pour les statistiques (défaut: 1).}
 
-\item{color}{Couleur d'en-tête des flextables (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête des flextables (défaut: "transparent").}
 
 \item{binary_threshold}{Nombre maximum de valeurs uniques pour qu'une variable
 soit considérée binaire (défaut: 2).}

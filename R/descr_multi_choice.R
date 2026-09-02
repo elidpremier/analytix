@@ -9,7 +9,7 @@
 #' @param pct_type Type de pourcentage: "respondents" (par rapport au nombre total de personnes N)
 #' ou "choices" (par rapport au nombre total de choix cochés).
 #' @param digits Nombre de décimales pour l'affichage du pourcentage (défaut: 1).
-#' @param color Couleur d'en-tête pour le thème analytique (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête pour le thème analytique (défaut: "transparent").
 #' 
 #' @return Un objet `flextable` formaté.
 #' 
@@ -27,7 +27,7 @@ descr_multi_choice <- function(data, cols, var_labels = NULL,
                                title = "Question à choix multiples",
                                pct_type = c("respondents", "choices"),
                                digits = 1,
-                               color = "#D3D3D3") {
+                               color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   

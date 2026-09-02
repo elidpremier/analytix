@@ -10,7 +10,7 @@ correlation_table(
   method = c("pearson", "spearman"),
   digits = 2,
   sig_level = 0.05,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ numériques du data.frame sont utilisées.}
 
 \item{sig_level}{Seuil de significativité pour la mise en gras (défaut: 0.05).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable} avec la matrice de corrélations.

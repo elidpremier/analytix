@@ -10,7 +10,7 @@
 #'   Si NULL, utilise des tranches automatiques de 10 ans.
 #' @param labels Vecteur de libellés pour les tranches.
 #' @param digits Nombre de décimales (défaut: 1).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable` avec les statistiques et les tranches d'âge.
 #'
@@ -20,7 +20,7 @@
 #'
 #' @export
 descr_age <- function(data, var, var_name = NULL, breaks = NULL,
-                      labels = NULL, digits = 1, color = "#D3D3D3") {
+                      labels = NULL, digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 

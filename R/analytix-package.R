@@ -1,0 +1,87 @@
+#' analytix: Outils d'Analyse Descriptive et Statistique pour Tableaux Professionnels
+#'
+#' Package R d'automatisation de l'analyse de données et de génération de rapports
+#' francophones professionnels. Il offre des outils complets pour le nettoyage des données,
+#' l'analyse descriptive univariée et bivariée, les statistiques épidémiologiques avancées,
+#' la visualisation de données avec \code{ggplot2} et l'exportation de tableaux sous Word
+#' via \code{flextable} et \code{officer}.
+#'
+#' @details
+#' Le package \code{analytix} est structuré autour des grands axes suivants :
+#'
+#' \bold{1. Nettoyage et Préparation des Données}
+#' \itemize{
+#'   \item \code{\link{import_clean}} : Importation et nettoyage initial des données.
+#'   \item \code{\link{label_vars}} : Définition et gestion des étiquettes de variables.
+#'   \item \code{\link{clean_column_names}}, \code{\link{clean_text}}, \code{\link{clean_numeric}}, \code{\link{clean_binary}}, \code{\link{recode_odk_binary}} : Fonctions utilitaires de nettoyage.
+#'   \item \code{\link{detect_outliers}} : Détection des valeurs aberrantes.
+#'   \item \code{\link{categorize_numeric}} : Discrétisation des variables numériques en classes.
+#'   \item \code{\link{collapse_categories}} : Regroupement des modalités rares.
+#'   \item \code{\link{impute_mice}} : Imputation des valeurs manquantes.
+#' }
+#'
+#' \bold{2. Analyses Descriptives (Univariées et Bivariées)}
+#' \itemize{
+#'   \item \code{\link{auto_describe}} : Génération automatique de descriptions adaptées au type de variable.
+#'   \item \code{\link{descr_numeric}} : Description des variables numériques (moyenne, écart-type, médiane, IQR).
+#'   \item \code{\link{descr_categorial}} : Description des variables catégorielles (effectifs et pourcentages).
+#'   \item \code{\link{descr_grouped_categories}} : Description des sous-catégories groupées par thématique (ex: molécules par classe).
+#'   \item \code{\link{descr_binary}} : Description des variables binaires.
+#'   \item \code{\link{descr_by_group}} : Analyse croisée d'une variable par un groupe.
+#'   \item \code{\link{descr_likert}} & \code{\link{multi_likert_table}} : Analyse des échelles de Likert.
+#'   \item \code{\link{descr_multi_choice}} : Analyse des questions à choix multiples.
+#'   \item \code{\link{descr_age}} : Analyse spécifique de l'âge et découpage en tranches.
+#' }
+#'
+#' \bold{3. Statistiques Avancées et Épidémiologiques}
+#' \itemize{
+#'   \item \code{\link{bivariate_or_table}} : Analyse bivariée avec calcul d'Odds Ratios (OR) et p-values.
+#'   \item \code{\link{multivariable_logistic_table}} : Modélisation par régression logistique multivariée.
+#'   \item \code{\link{anova_table}} : Analyse de variance (ANOVA).
+#'   \item \code{\link{correlation_table}} : Matrice de corrélations (Pearson/Spearman).
+#'   \item \code{\link{roc_table}} : Analyse des courbes ROC et aire sous la courbe (AUC).
+#'   \item \code{\link{survival_analysis}} : Analyse de survie (Kaplan-Meier & Cox).
+#'   \item \code{\link{calc_sensitivity_specificity}} & \code{\link{calc_prevalence}} : Indicateurs diagnostiques et épidémiologiques.
+#'   \item \code{\link{interpret_stats}} : Interprétation textuelle automatique des p-values et des tests.
+#' }
+#'
+#' \bold{4. Visualisation de Données}
+#' \itemize{
+#'   \item \code{\link{plot_distribution}} : Graphique de distribution des variables.
+#'   \item \code{\link{plot_likert_divergent}} : Graphique en barres divergentes pour échelles Likert.
+#'   \item \code{\link{plot_correlation}} & \code{\link{plot_heatmap_matrix}} : Visualisation des corrélations.
+#'   \item \code{\link{plot_missing_map}} : Carte visuelle des valeurs manquantes.
+#'   \item \code{\link{theme_analytique}} : Thème ggplot2 personnalisé et épuré.
+#' }
+#'
+#' \bold{5. Génération de Rapports et Exports Word}
+#' \itemize{
+#'   \item \code{\link{generate_report}} & \code{\link{magic_report}} : Génération automatique de rapports d'analyse complets.
+#'   \item \code{\link{compile_custom_report}} : Compilation sur-mesure de rapports.
+#'   \item \code{\link{export_to_word}} & \code{\link{export_all_tables}} : Exportation des tableaux au format Word (.docx).
+#'   \item \code{\link{format_flextable}} : Formate un tableau flextable aux normes de publication.
+#' }
+#'
+#' \bold{6. Interface Graphique (GUI)}
+#' \itemize{
+#'   \item \code{\link{run_gui}} ou \code{\link{run_analytix_ui}} : Lancement de l'application interactive Shiny no-code.
+#' }
+#'
+#' @docType package
+#' @name analytix
+#' @aliases analytix analytix-package
+#' @keywords package
+#' @examples
+#' \dontrun{
+#' library(analytix)
+#'
+#' # Charger des données d'exemple
+#' data("analytix_sample_data")
+#'
+#' # Description automatique d'une variable numérique
+#' descr_numeric(analytix_sample_data, "age")
+#'
+#' # Lancer l'interface graphique
+#' run_gui()
+#' }
+"_PACKAGE"

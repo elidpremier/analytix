@@ -11,7 +11,7 @@ roc_table(
   positive_val = NULL,
   conf_level = 0.95,
   digits = 3,
-  color = "#D3D3D3",
+  color = "transparent",
   return_plot = TRUE
 )
 }
@@ -29,7 +29,7 @@ Si NULL, un modèle logistique est ajusté sur toutes les variables numériques.
 
 \item{digits}{Nombre de décimales (défaut: 3).}
 
-\item{color}{Couleur d'en-tête (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête (défaut: "transparent").}
 
 \item{return_plot}{Retourner également le graphique ggplot2 (défaut: TRUE).}
 }

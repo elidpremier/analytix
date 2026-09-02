@@ -7,7 +7,7 @@
 #' @param vars Vecteur de noms de colonnes à analyser. Si NULL (défaut), toutes les
 #'   colonnes sont analysées.
 #' @param digits Nombre de décimales pour les statistiques (défaut: 1).
-#' @param color Couleur d'en-tête des flextables (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête des flextables (défaut: "transparent").
 #' @param binary_threshold Nombre maximum de valeurs uniques pour qu'une variable
 #'   soit considérée binaire (défaut: 2).
 #' @param cat_threshold Nombre maximum de valeurs uniques pour qu'une variable
@@ -30,7 +30,7 @@
 #' res2 <- auto_describe(iris, vars = c("Sepal.Length", "Species"))
 #'
 #' @export
-auto_describe <- function(data, vars = NULL, digits = 1, color = "#D3D3D3",
+auto_describe <- function(data, vars = NULL, digits = 1, color = "transparent",
                            binary_threshold = 2, cat_threshold = 10,
                            verbose = FALSE) {
 

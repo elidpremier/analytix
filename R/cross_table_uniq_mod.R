@@ -15,7 +15,7 @@
 #' @param pct Type de pourcentage à afficher : \code{"row"}, \code{"col"}, \code{"total"}.
 #' @param test Choix du test statistique : \code{"auto"}, \code{"chisq"}, \code{"fisher"}.
 #' @param digits Nombre de décimales pour les pourcentages.
-#' @param color Couleur de fond pour les titres de variables (par défaut : gris clair).
+#' @param color Couleur de fond pour les titres de variables (par défaut : transparent).
 #' @param include_na Inclure les valeurs manquantes ? (\code{TRUE} ou \code{FALSE}).
 #'
 #' @importFrom dplyr %>%
@@ -29,7 +29,7 @@ cross_table_uniq_mod <- function(data, target, ...,
                                  pct = c("row", "col", "total"),
                                  test = c("auto", "chisq", "fisher"),
                                  digits = 1,
-                                 color = "#D3D3D3",
+                                 color = "transparent",
                                  include_na = FALSE) {
 
   # --- Dépendances ---

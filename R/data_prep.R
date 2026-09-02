@@ -8,7 +8,7 @@
 #' @param method Méthode: "iqr" (Tukey, défaut), "zscore", ou "both".
 #' @param iqr_factor Multiplicateur de l'IQR pour Tukey (défaut: 1.5).
 #' @param z_threshold Seuil du Z-score pour les valeurs aberrantes (défaut: 3).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Une liste contenant `summary` (flextable) et `outlier_rows` (indices).
 #'
@@ -20,7 +20,7 @@
 detect_outliers <- function(data, var, var_name = NULL,
                              method = c("iqr", "zscore", "both"),
                              iqr_factor = 1.5, z_threshold = 3,
-                             color = "#D3D3D3") {
+                             color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   method  <- match.arg(method)
   var_enq <- rlang::enquo(var)

@@ -10,7 +10,7 @@
 #' @param positive_val Valeur positive de l'outcome (auto-détection si NULL).
 #' @param conf_level Niveau de confiance pour l'IC de l'AUC (défaut: 0.95).
 #' @param digits Nombre de décimales (défaut: 3).
-#' @param color Couleur d'en-tête (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête (défaut: "transparent").
 #' @param return_plot Retourner également le graphique ggplot2 (défaut: TRUE).
 #'
 #' @return Une liste avec :
@@ -35,7 +35,7 @@
 #'
 #' @export
 roc_table <- function(data, outcome, predictor = NULL, positive_val = NULL,
-                       conf_level = 0.95, digits = 3, color = "#D3D3D3",
+                       conf_level = 0.95, digits = 3, color = "transparent",
                        return_plot = TRUE) {
 
   if (!requireNamespace("pROC", quietly = TRUE))

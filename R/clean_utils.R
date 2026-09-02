@@ -38,8 +38,20 @@ clean_text <- function(x) {
 }
 
 #' @rdname clean_utils
+#' @param na_as_no Logique. Si TRUE, traite les valeurs NA ou vides comme la valeur négative (défaut: FALSE).
 #' @export
-clean_binary <- function(x, yes_label = "Oui", no_label = "Non") {
+clean_binary <- function(x, yes_label = "Oui", no_label = "Non", na_as_no = FALSE) {
+  if (isTRUE(na_as_no)) {
+    if (is.numeric(x)) {
+      res <- dplyr::if_else(is.na(x) | x == 0, no_label, yes_label)
+    } else {
+      x_str <- if (is.factor(x)) as.character(x) else as.character(x)
+      x_trim <- stringr::str_trim(x_str)
+      res <- dplyr::if_else(is.na(x_trim) | x_trim == "" | tolower(x_trim) %in% c("non", "no", "false", "0"), no_label, yes_label)
+    }
+    return(factor(res, levels = c(no_label, yes_label)))
+  }
+  
   x_clean <- clean_text(x)
   
   yes_vals <- c("oui", "yes", "true", "vrai", "1", "1.0", "y", "o", "positive", "positif", "+")
@@ -52,6 +64,12 @@ clean_binary <- function(x, yes_label = "Oui", no_label = "Non") {
   )
   
   factor(res, levels = c(yes_label, no_label))
+}
+
+#' @rdname clean_utils
+#' @export
+recode_odk_binary <- function(x, yes_label = "Oui", no_label = "Non") {
+  clean_binary(x, yes_label = yes_label, no_label = no_label, na_as_no = TRUE)
 }
 
 #' @rdname clean_utils

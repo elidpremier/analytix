@@ -9,7 +9,7 @@
 #' @param var_name libellé de la variable
 #' @param by_name libellé de la variable de groupe
 #' @param digits nombre de décimales
-#' @param color couleur de l'en-tête
+#' @param color couleur de l'en-tête (défaut: "transparent")
 #' @param test_stat logique. Afficher le test statistique ? (défaut: TRUE)
 #' @param test_type type de test pour les variables numériques: "auto", "parametric" (t-test/ANOVA), ou "nonparametric" (Mann-Whitney/Kruskal-Wallis).
 #' 
@@ -23,7 +23,7 @@
 #'
 #' @export
 descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
-                           digits = 1, color = "#D3D3D3", test_stat = TRUE,
+                           digits = 1, color = "transparent", test_stat = TRUE,
                            test_type = c("auto", "parametric", "nonparametric")) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")

@@ -7,7 +7,7 @@
 #' @param font_size Taille de police en points (défaut: 9).
 #' @param font_family Nom de la police de caractères (défaut: "Times New Roman").
 #' @param compact Logique. Si TRUE, applique un espacement resserré (défaut: TRUE).
-#' @param color Couleur d'en-tête (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête (défaut: "transparent").
 #' @param ... Autres arguments passés à `theme_analytique()`.
 #' 
 #' @return L'objet `flextable` mis en forme.
@@ -19,7 +19,7 @@
 #' @export
 format_flextable <- function(ft, max_width = 6.3, font_size = 9,
                              font_family = "Times New Roman",
-                             compact = TRUE, color = "#D3D3D3", ...) {
+                             compact = TRUE, color = "transparent", ...) {
   page_width_cm <- max_width * 2.54
   theme_analytique(
     data = ft,

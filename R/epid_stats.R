@@ -8,7 +8,7 @@
 #' @param positive_val Valeur représentant le cas positif (défaut: auto-détection).
 #' @param conf_level Niveau de confiance pour les IC (défaut: 0.95).
 #' @param digits Nombre de décimales (défaut: 1).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable` avec les indicateurs diagnostiques.
 #'
@@ -22,7 +22,7 @@ calc_sensitivity_specificity <- function(actual, predicted,
                                          positive_val = NULL,
                                          conf_level = 0.95,
                                          digits = 1,
-                                         color = "#D3D3D3") {
+                                         color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
   if (is.null(positive_val)) {
@@ -94,7 +94,7 @@ calc_sensitivity_specificity <- function(actual, predicted,
 #' @param var_labels Vecteur nommé de libellés pour les variables explicatives.
 #' @param conf_level Niveau de confiance (défaut: 0.95).
 #' @param digits Nombre de décimales pour les OR (défaut: 2).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable`.
 #'
@@ -105,7 +105,7 @@ calc_sensitivity_specificity <- function(actual, predicted,
 #' @export
 multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
                                           conf_level = 0.95, digits = 2,
-                                          color = "#D3D3D3") {
+                                          color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
   if (inherits(model, "formula")) {
@@ -169,7 +169,7 @@ multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
 #' @param var_name Libellé de la variable dépendante.
 #' @param group_name Libellé de la variable de groupe.
 #' @param digits Nombre de décimales (défaut: 3).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable`.
 #'
@@ -179,7 +179,7 @@ multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
 #'
 #' @export
 anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
-                        digits = 3, color = "#D3D3D3") {
+                        digits = 3, color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
   var_enq   <- rlang::enquo(var)
@@ -250,7 +250,7 @@ anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
 #' @param method Méthode de corrélation: "pearson" (défaut) ou "spearman".
 #' @param digits Nombre de décimales (défaut: 2).
 #' @param sig_level Seuil de significativité pour la mise en gras (défaut: 0.05).
-#' @param color Couleur d'en-tête du flextable (défaut: "#D3D3D3").
+#' @param color Couleur d'en-tête du flextable (défaut: "transparent").
 #'
 #' @return Un objet `flextable` avec la matrice de corrélations.
 #'
@@ -259,7 +259,7 @@ anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
 #'
 #' @export
 correlation_table <- function(data, cols = NULL, method = c("pearson", "spearman"),
-                               digits = 2, sig_level = 0.05, color = "#D3D3D3") {
+                               digits = 2, sig_level = 0.05, color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   method <- match.arg(method)
 

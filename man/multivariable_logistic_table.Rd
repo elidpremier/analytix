@@ -10,7 +10,7 @@ multivariable_logistic_table(
   var_labels = NULL,
   conf_level = 0.95,
   digits = 2,
-  color = "#D3D3D3"
+  color = "transparent"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ multivariable_logistic_table(
 
 \item{digits}{Nombre de décimales pour les OR (défaut: 2).}
 
-\item{color}{Couleur d'en-tête du flextable (défaut: "#D3D3D3").}
+\item{color}{Couleur d'en-tête du flextable (défaut: "transparent").}
 }
 \value{
 Un objet \code{flextable}.
