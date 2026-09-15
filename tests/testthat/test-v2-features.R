@@ -18,7 +18,7 @@ test_that("descr_multi_choice generates a valid flextable", {
   )
   ft <- descr_multi_choice(df, cols = c("q1_a", "q1_b", "q1_c"),
                            var_labels = c(q1_a = "Opt A", q1_b = "Opt B", q1_c = "Opt C"))
-  expect_s3_class(ft, "flextable")
+  expect_s3_class(ft, "analytix_table")
 })
 
 test_that("calc_prevalence calculates correct proportions and IC95%", {
@@ -37,7 +37,7 @@ test_that("bivariate_or_table builds logistic OR table flextable", {
     sexe = c("F", "M", "F", "M", "F", "M", "F", "F")
   )
   ft <- bivariate_or_table(df, outcome = "reussite", exposures = c("bourse", "sexe"), outcome_positive_val = "Oui")
-  expect_s3_class(ft, "flextable")
+  expect_s3_class(ft, "analytix_table")
 })
 
 test_that("format_flextable formats flextable", {

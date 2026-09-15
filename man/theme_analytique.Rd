@@ -13,11 +13,12 @@ theme_analytique(
   font_size = 11,
   font_family = "Times New Roman",
   compact = FALSE,
+  caption = NULL,
   ...
 )
 }
 \arguments{
-\item{data}{Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable}
+\item{data}{Un objet flextable, analytix_table, dataframe, tibble, ou structure convertible en flextable}
 
 \item{page_width}{Largeur de la zone utile de la page en cm.
 Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)}
@@ -34,6 +35,8 @@ Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)}
 
 \item{compact}{Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)}
 
+\item{caption}{Titre / Légende personnalisé du tableau (optionnel)}
+
 \item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }
 \value{
@@ -42,7 +45,7 @@ Un objet flextable formaté, pleine largeur de page
 \description{
 Convertit automatiquement les données en flextable et applique un formatage cohérent.
 Les colonnes sont redimensionnées proportionnellement pour que le tableau occupe
-exactement la largeur utile de la page Word (layout "fixed" — garantit le pleine largeur).
+exactement la largeur utile de la page Word (layout "fixed" — garantit la pleine largeur).
 }
 \examples{
 theme_analytique(head(iris))

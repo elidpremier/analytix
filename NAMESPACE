@@ -34,6 +34,7 @@ export(desc_multi_choice)
 export(desc_multiple)
 export(desc_numeric)
 export(desc_prevalence)
+export(desc_score)
 
 # Tbl family
 export(tbl_anova)
@@ -82,6 +83,7 @@ export(export_word)
 
 # Package GUI & Utilities
 export(analytix_sample_data)
+export(as_analytix_table)
 export(run_analytix_ui)
 export(run_gui)
 export(theme_analytique)
@@ -141,6 +143,10 @@ export(quick_code)
 export(recode_likert)
 export(recode_odk_binary)
 export(roc_table)
+
+# S3 methods
+S3method(print, analytix_table)
+S3method(as_flextable, analytix_table)
 
 # Package Imports
 importFrom(dplyr,"%>%")

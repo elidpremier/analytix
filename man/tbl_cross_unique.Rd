@@ -2,7 +2,7 @@
 % Please edit documentation in R/cross_table_uniq_mod.R
 \name{tbl_cross_unique}
 \alias{tbl_cross_unique}
-\title{Tableau croisé multi-variables avec p-values par modalité (sans référence)}
+\title{Tableau croisé multi-variables avec p-values par modalité (sans référence) et p global}
 \usage{
 tbl_cross_unique(
   data,
@@ -24,7 +24,7 @@ tbl_cross_unique(
 
 \item{...}{variables en LIGNES (ex: \code{var1, var2, var3}).}
 
-\item{target_name}{Nom/libellé de la variable cible.}
+\item{target_name}{Nom/libellé de la variable cible pour l'affichage.}
 
 \item{outcome_of_interest}{(optionnel) Modalité de la variable cible à considérer comme événement d'intérêt.
 Si NULL, utilise la première modalité non-NA de \code{target}.}
@@ -39,12 +39,16 @@ Si NULL, utilise la première modalité non-NA de \code{target}.}
 
 \item{include_na}{Inclure les valeurs manquantes ? (\code{TRUE} ou \code{FALSE}).}
 }
+\value{
+Un objet \code{analytix_table} contenant \code{$data} et \code{$flextable}.
+}
 \description{
 Génère un tableau croisé comparant plusieurs variables (en lignes) contre une variable cible (en colonne),
 en calculant pour chaque modalité :
 \itemize{
 \item l'effectif et le pourcentage (ligne/colonne/total),
-\item la p-value du test d'indépendance (Fisher ou χ²) entre cette modalité (vs le reste) et l'issue d'intérêt.
+\item la p-value du test d'indépendance (Fisher ou χ²) entre cette modalité (vs le reste) et l'issue d'intérêt,
+\item la p-value globale du test d'indépendance de la variable (en colonne dédiée à droite).
 }
 
 Aucune modalité de référence n'est utilisée. Chaque modalité est testée indépendamment.

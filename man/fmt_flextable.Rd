@@ -2,7 +2,7 @@
 % Please edit documentation in R/format_flextable.R
 \name{fmt_flextable}
 \alias{fmt_flextable}
-\title{Mise en forme académique pour objets flextable (Rapports Word)}
+\title{Mise en forme académique pour objets flextable (Déprécié)}
 \usage{
 fmt_flextable(
   ft,
@@ -11,33 +11,30 @@ fmt_flextable(
   font_family = "Times New Roman",
   compact = TRUE,
   color = "transparent",
+  caption = NULL,
   ...
 )
 }
 \arguments{
-\item{ft}{Objet \code{flextable} ou dataframe.}
+\item{ft}{Objet \code{flextable}, \code{analytix_table} ou dataframe.}
 
-\item{max_width}{Largeur maximale de la table en pouces (défaut: 6.3 pouces = ~16 cm).}
+\item{max_width}{Largeur maximale de la table en pouces (défaut: 6.3 pouces).}
 
 \item{font_size}{Taille de police en points (défaut: 9).}
 
-\item{font_family}{Nom de la police de caractères (défaut: "Times New Roman").}
+\item{font_family}{Nom de la police (défaut: "Times New Roman").}
 
-\item{compact}{Logique. Si TRUE, applique un espacement resserré (défaut: TRUE).}
+\item{compact}{Logique (défaut: TRUE).}
 
 \item{color}{Couleur d'en-tête (défaut: "transparent").}
 
-\item{...}{Autres arguments passés à \code{theme_analytique()}.}
+\item{caption}{Titre / Légende du tableau.}
+
+\item{...}{Autres arguments transmis à \code{theme_analytique()}.}
 }
 \value{
 L'objet \code{flextable} mis en forme.
 }
 \description{
-Alias / Wrapper autour de \code{theme_analytique()} qui applique un formatage compact
-et adapté aux normes de publication Word (Times New Roman 9pt, marges réduites, largeur max).
-}
-\examples{
-ft <- flextable::flextable(head(mtcars))
-format_flextable(ft)
-
+\code{fmt_flextable()} est déprécié. Utilisez directement \code{\link{theme_analytique}} à la place.
 }

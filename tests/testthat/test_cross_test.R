@@ -5,7 +5,7 @@ test_that("cross_table_uniq_mod fonctionne avec un jeu de données minimal", {
   )
   expect_error({
     ft <- cross_table_uniq_mod(data, target, var1, outcome_of_interest = "Oui")
-    expect_s3_class(ft, "flextable")
+    expect_s3_class(ft, "analytix_table")
   }, NA)
 })
 
@@ -17,9 +17,9 @@ test_that("cross_table_uniq_mod gère les paramètres pct", {
 
   # Test avec pourcentages en ligne
   result_row <- cross_table_uniq_mod(data, target, var1, pct = "row")
-  expect_s3_class(result_row, "flextable")
+  expect_s3_class(result_row, "analytix_table")
 
   # Test avec pourcentages en colonne
   result_col <- cross_table_uniq_mod(data, target, var1, pct = "col")
-  expect_s3_class(result_col, "flextable")
+  expect_s3_class(result_col, "analytix_table")
 })

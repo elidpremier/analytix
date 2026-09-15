@@ -1,7 +1,7 @@
 #' @title Calcul de fréquences universel avec flextable
 #' @description Calcule les fréquences et pourcentages d'une variable et génère un flextable professionnel
 #' @param data Le dataframe contenant les données
-#' @param var La variable à analyser (peut être character, factor, numeric, logical, etc.)
+#' @param var La variable à analyser (symbole ou chaîne de caractères)
 #' @param var_name Nom personnalisé pour la variable (optionnel)
 #' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param sort TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel
@@ -13,11 +13,11 @@
 #' @param color Couleur de l'en-tête (défaut: "transparent")
 #' @param compact TRUE pour un affichage compact (n et % sur la même ligne)
 #'
-#' @return Une liste contenant le tableau de données et le flextable
+#' @return Un objet \code{analytix_table} (de classe \code{freq_table}) contenant \code{$data} et \code{$flextable}
 #'
 #' @examples
 #' desc_categorical(iris, Species)
-#' desc_categorical(iris, Species, subset = Sepal.Length > 5)
+#' desc_categorical(iris, "Species", subset = Sepal.Length > 5)
 #'
 #' @export
 desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
@@ -36,21 +36,21 @@ desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = T
   }
 
   var_enq <- rlang::enquo(var)
-  var_name_auto <- rlang::as_name(var_enq)
-  
+  var_expr <- rlang::quo_get_expr(var_enq)
+  var_name_auto <- if (is.character(var_expr)) var_expr else rlang::as_name(var_enq)
+
+  if (!var_name_auto %in% names(data)) {
+    stop("La variable '", var_name_auto, "' n'existe pas dans le dataframe.")
+  }
+
   # Récupération du label si var_name est NULL
   if (is.null(var_name)) {
-    # Tenter de récupérer l'attribut label
     attr_label <- attr(data[[var_name_auto]], "label")
     if (!is.null(attr_label)) {
       var_name <- attr_label
     } else {
       var_name <- var_name_auto
     }
-  }
-
-  if (!var_name_auto %in% names(data)) {
-    stop("La variable '", var_name_auto, "' n'existe pas dans le dataframe.")
   }
 
   x <- data[[var_name_auto]]
@@ -139,25 +139,19 @@ desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = T
 
   # Mise en forme du Total
   if (total) {
-    # Utiliser l'index de la ligne Total
     total_idx <- which(freq_data$variable == "Total")
-    ft <- ft %>%
-      flextable::bold(i = total_idx)
+    ft <- ft %>% flextable::bold(i = total_idx)
   }
 
-  # Meta-données de retour
   n_total_final <- if (total) sum(freq_data$n[freq_data$variable != "Total"]) else sum(freq_data$n)
 
-  structure(
-    list(
-      data = freq_data,
-      flextable = ft,
-      variable_name = var_name,
-      n_total = n_total_final,
-      raw_data = x
-    ),
-    class = "freq_table"
+  res <- list(
+    data = freq_data,
+    flextable = ft,
+    variable_name = var_name,
+    n_total = n_total_final,
+    raw_data = x
   )
+  class(res) <- c("freq_table", "analytix_table", "list")
+  res
 }
-
-

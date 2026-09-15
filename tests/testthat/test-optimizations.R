@@ -1,0 +1,82 @@
+test_that("tbl_cross_unique fonctionne avec target_name et inclut p_global", {
+  df <- data.frame(
+    sexe = c("M", "F", "M", "F", "M", "F", "M", "F"),
+    gueri = c("Oui", "Non", "Oui", "Oui", "Non", "Non", "Oui", "Non"),
+    age_grp = c("Jeune", "Vieux", "Jeune", "Jeune", "Vieux", "Vieux", "Jeune", "Jeune")
+  )
+
+  # Ne doit plus crasher quand target_name est passé
+  res <- tbl_cross_unique(df, target = gueri, sexe, age_grp, target_name = "Statut de Guérison")
+
+  expect_s3_class(res, "analytix_table")
+  expect_true(inherits(res$flextable, "flextable"))
+  expect_true("p_global" %in% names(res$data))
+  expect_true("p_value" %in% names(res$data))
+})
+
+test_that("export_tables extrait correctement les objets analytix_table et listes mixtes", {
+  df <- data.frame(a = 1:5, b = c("Oui", "Non", "Oui", "Oui", "Non"))
+  t1 <- desc_numeric(df, a)
+  t2 <- desc_categorical(df, b)
+
+  tmp_file <- tempfile(fileext = ".docx")
+  expect_silent({
+    export_tables(
+      tables = list("Numerique" = t1, "Categoriel" = t2),
+      file = tmp_file,
+      title = "Test Rapport"
+    )
+  })
+  expect_true(file.exists(tmp_file))
+  unlink(tmp_file)
+})
+
+test_that("theme_analytique gère l'argument caption sans planter", {
+  df <- data.frame(x = 1:3, y = 4:6)
+  ft <- flextable::flextable(df)
+
+  ft_themed <- theme_analytique(ft, caption = "Tableau de Test")
+  expect_true(inherits(ft_themed, "flextable"))
+})
+
+test_that("desc_multi_choice accepte des chaines et l'argument positive", {
+  df <- data.frame(
+    item1 = c("Oui", "Non", "Oui", "Non"),
+    item2 = c("Non", "Oui", "Oui", "Oui")
+  )
+
+  res <- desc_multi_choice(df, cols = c("item1", "item2"), positive = "Oui")
+  expect_s3_class(res, "analytix_table")
+  expect_equal(nrow(res$data), 2)
+  expect_true("Option" %in% names(res$data))
+})
+
+test_that("desc_score calcule correctement le score et les tranches", {
+  df <- data.frame(
+    q1 = c(1, 1, 0, 1),
+    q2 = c(1, 0, 1, 1),
+    q3 = c(0, 1, 1, 1)
+  )
+
+  res <- desc_score(df, cols = c(q1, q2, q3), breaks = c(-Inf, 1, 3), labels = c("Faible", "Élevé"))
+  expect_s3_class(res, "analytix_table")
+  expect_equal(res$data$max_score, 3)
+  expect_equal(length(res$data$scores), 4)
+})
+
+test_that("desc_grouped retourne un data.frame plat propre dans $data", {
+  df <- data.frame(
+    classe = c("A", "A", "B", "B"),
+    element = c("e1", "e2", "e3", "e4")
+  )
+
+  res <- desc_grouped(df, group_col = classe, sub_col = element)
+  expect_s3_class(res, "analytix_table")
+  expect_false(any(is.na(res$data$Classe)))
+})
+
+test_that("interp_pvalue utilise des formulations non causales", {
+  txt <- interp_pvalue(0.004)
+  expect_false(grepl("lien réel", txt))
+  expect_true(grepl("statistiquement significative", txt))
+})

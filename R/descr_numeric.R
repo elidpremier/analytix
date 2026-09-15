@@ -1,7 +1,7 @@
 #' @title Analyse descriptive pour variables numériques
 #' @description Génère un tableau récapitulatif des statistiques descriptives d'une variable numérique
 #' @param data data.frame
-#' @param var variable numérique à analyser (sans guillemets)
+#' @param var variable numérique à analyser (symbole ou chaîne)
 #' @param var_name nom personnalisé (optionnel)
 #' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param digits nombre de décimales (défaut: 2)
@@ -11,10 +11,10 @@
 #' @param caption titre du tableau
 #' @param color couleur de l'en-tête (défaut: "transparent")
 #'
-#' @return un objet de classe "descr_numeric" contenant les données et le flextable
+#' @return Un objet \code{analytix_table} (de classe \code{descr_numeric}) contenant les données et le flextable
 #' @examples
 #' desc_numeric(mtcars, mpg)
-#' desc_numeric(mtcars, mpg, subset = cyl == 4)
+#' desc_numeric(mtcars, "mpg", subset = cyl == 4)
 #'
 #' @export
 desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
@@ -38,8 +38,13 @@ desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
   }
 
   var_enq <- rlang::enquo(var)
-  var_name_auto <- rlang::as_name(var_enq)
-  
+  var_expr <- rlang::quo_get_expr(var_enq)
+  var_name_auto <- if (is.character(var_expr)) var_expr else rlang::as_name(var_enq)
+
+  if (!var_name_auto %in% names(data)) {
+    stop("La variable '", var_name_auto, "' n'existe pas.")
+  }
+
   # Récupération du label si var_name est NULL
   if (is.null(var_name)) {
     attr_label <- attr(data[[var_name_auto]], "label")
@@ -48,10 +53,6 @@ desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
     } else {
       var_name <- var_name_auto
     }
-  }
-
-  if (!var_name_auto %in% names(data)) {
-    stop("La variable '", var_name_auto, "' n'existe pas.")
   }
 
   x <- data[[var_name_auto]]
@@ -127,16 +128,14 @@ desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
     flextable::set_caption(caption) %>%
     theme_analytique(color = color)
 
-  # Retour
-  structure(
-    list(
-      data = stats,
-      flextable = ft,
-      variable_name = var_name,
-      n_valid = n_valid,
-      n_missing = n_missing,
-      raw_data = x
-    ),
-    class = "descr_numeric"
+  res <- list(
+    data = stats,
+    flextable = ft,
+    variable_name = var_name,
+    n_valid = n_valid,
+    n_missing = n_missing,
+    raw_data = x
   )
+  class(res) <- c("descr_numeric", "analytix_table", "list")
+  res
 }

@@ -22,7 +22,7 @@ desc_categorical(
 \arguments{
 \item{data}{Le dataframe contenant les données}
 
-\item{var}{La variable à analyser (peut être character, factor, numeric, logical, etc.)}
+\item{var}{La variable à analyser (symbole ou chaîne de caractères)}
 
 \item{var_name}{Nom personnalisé pour la variable (optionnel)}
 
@@ -45,13 +45,13 @@ desc_categorical(
 \item{compact}{TRUE pour un affichage compact (n et \% sur la même ligne)}
 }
 \value{
-Une liste contenant le tableau de données et le flextable
+Un objet \code{analytix_table} (de classe \code{freq_table}) contenant \code{$data} et \code{$flextable}
 }
 \description{
 Calcule les fréquences et pourcentages d'une variable et génère un flextable professionnel
 }
 \examples{
 desc_categorical(iris, Species)
-desc_categorical(iris, Species, subset = Sepal.Length > 5)
+desc_categorical(iris, "Species", subset = Sepal.Length > 5)
 
 }

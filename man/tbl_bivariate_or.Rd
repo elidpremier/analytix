@@ -18,9 +18,9 @@ tbl_bivariate_or(
 \arguments{
 \item{data}{data.frame}
 
-\item{outcome}{Variable dépendante binaire.}
+\item{outcome}{Variable dépendante binaire (symbole ou chaîne de caractères).}
 
-\item{exposures}{Liste/vecteur des noms des variables explicatives (catégorielles ou binaires).}
+\item{exposures}{Liste/vecteur des noms des variables explicatives (symboles non quotés ou caractères).}
 
 \item{outcome_positive_val}{Valeur représentant l'événement positif dans la variable dépendant (ex: "Oui", 1).}
 
@@ -33,7 +33,7 @@ tbl_bivariate_or(
 \item{color}{Couleur d'en-tête pour le tableau flextable (défaut: "transparent").}
 }
 \value{
-Un objet \code{flextable} prêt pour l'export.
+Un objet \code{analytix_table} contenant \code{$data} et \code{$flextable}.
 }
 \description{
 Génère un tableau synthétique contenant les effectifs, pourcentages, Odds Ratios (OR bruts),
@@ -45,6 +45,6 @@ df <- data.frame(
   bourse = c("Oui", "Oui", "Non", "Oui", "Non", "Non", "Non", "Oui"),
   sexe = c("F", "M", "F", "M", "F", "M", "F", "F")
 )
-bivariate_or_table(df, outcome = "reussite", exposures = c("bourse", "sexe"), outcome_positive_val = "Oui")
+tbl_bivariate_or(df, outcome = reussite, exposures = c(bourse, sexe), outcome_positive_val = "Oui")
 
 }

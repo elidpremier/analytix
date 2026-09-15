@@ -19,8 +19,7 @@ desc_grouped(
 \arguments{
 \item{data}{data.frame contenant les données.}
 
-\item{cols}{Vecteur de noms de colonnes représentant chaque groupe en format large (ex: \code{c("diuretique", "iec", "ara2")}).
-Chaque colonne contient les éléments/modalités (ex: "Amlodipine").}
+\item{cols}{Vecteur de noms de colonnes représentant chaque groupe en format large (ex: \code{c("diuretique", "iec", "ara2")}).}
 
 \item{group_col}{Nom de la colonne contenant la catégorie parente en format long (ex: \code{"classe"}).}
 
@@ -38,10 +37,10 @@ ou \code{"group"} (par rapport au total des éléments valides du groupe).}
 \item{color}{Couleur d'en-tête pour le thème analytique (défaut: \code{"transparent"}).}
 }
 \value{
-Un objet \code{flextable} formaté avec lignes de groupes.
+Un objet \code{analytix_table} contenant le data.frame tidy ($data) et le flextable ($flextable).
 }
 \description{
-Génère un tableau récapitulatif (\code{flextable}) regroupant des sous-catégories/modalités
+Génère un tableau récapitulatif (\code{analytix_table}) regroupant des sous-catégories/modalités
 (ex: molécules) sous leurs catégories ou classes thématiques parentes (ex: classes thérapeutiques).
 Supporte à la fois le format large (plusieurs colonnes) et le format long (deux colonnes groupe/élément).
 }

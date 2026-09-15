@@ -45,12 +45,12 @@ test_that("descr_grouped_categories works in wide and long mode", {
     iec        = c("Enalapril", NA, "Ramipril", "Enalapril")
   )
   ft_wide <- descr_grouped_categories(df_wide, cols = c("diuretique", "iec"))
-  expect_s3_class(ft_wide, "flextable")
+  expect_s3_class(ft_wide, "analytix_table")
 
   df_long <- data.frame(
     classe   = c("Diurétique", "Diurétique", "IEC"),
     molecule = c("Furosemide", "Indapamide", "Enalapril")
   )
   ft_long <- descr_grouped_categories(df_long, group_col = "classe", sub_col = "molecule")
-  expect_s3_class(ft_long, "flextable")
+  expect_s3_class(ft_long, "analytix_table")
 })

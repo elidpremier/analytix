@@ -3,7 +3,7 @@
 #' en phrases claires et compréhensibles par des non-statisticiens.
 #'
 #' @name interpret_stats
-NULL
+#' NULL
 
 #' @describeIn interpret_stats Interprétation générique d'une p-value
 #' @param p_val Valeur de la p-value
@@ -12,11 +12,11 @@ NULL
 #' @export
 interp_pvalue <- function(p_val, alpha = 0.05) {
   if (is.na(p_val) || !is.numeric(p_val)) return("")
-  
+
   if (p_val < 0.001) {
-    return("La différence observée est hautement significative sur le plan statistique (p < 0.001). Il est extrêmement improbable que ce résultat soit dû au hasard.")
+    return("La différence observée est hautement significative sur le plan statistique (p < 0.001). Il est extrêmement improbable que ce résultat soit dû aux simples fluctuations d'échantillonnage.")
   } else if (p_val < alpha) {
-    return(paste0("La différence observée est statistiquement significative (p = ", formatC(p_val, format = "f", digits = 3), "). On peut conclure qu'il existe un lien réel."))
+    return(paste0("La différence observée est statistiquement significative (p = ", formatC(p_val, format = "f", digits = 3), "). On observe une association statistiquement significative."))
   } else if (p_val < 0.1) {
     return(paste0("La différence n'est pas tout à fait significative au seuil strict de 5% (p = ", formatC(p_val, format = "f", digits = 3), "), mais on observe une tendance qui mériterait d'être explorée sur un plus grand échantillon."))
   } else {
@@ -31,7 +31,7 @@ interp_pvalue <- function(p_val, alpha = 0.05) {
 #' @export
 interp_or <- function(or_val, p_val = NULL) {
   if (is.na(or_val) || !is.numeric(or_val)) return("")
-  
+
   signif_text <- ""
   if (!is.null(p_val) && is.numeric(p_val)) {
     if (p_val < 0.05) {
@@ -40,25 +40,25 @@ interp_or <- function(or_val, p_val = NULL) {
       signif_text <- " Attention, cette association n'est pas statistiquement significative."
     }
   }
-  
+
   if (abs(or_val - 1) < 0.05) {
     return(paste0("L'Odds Ratio étant très proche de 1 (OR = ", formatC(or_val, format="f", digits=2), "), il n'y a pas d'association notable entre ces facteurs.", signif_text))
   }
-  
+
   if (or_val > 1) {
     pct_increase <- round((or_val - 1) * 100)
     if (or_val > 2) {
-      return(paste0("La probabilité est multipliée par ", formatC(or_val, format="f", digits=1), ".", signif_text))
+      return(paste0("Les cotes (odds) sont multipliées par ", formatC(or_val, format="f", digits=1), ".", signif_text))
     } else {
-      return(paste0("La probabilité est augmentée de ", pct_increase, "%.", signif_text))
+      return(paste0("Les cotes (odds) sont augmentées de ", pct_increase, "%.", signif_text))
     }
   } else {
     pct_decrease <- round((1 - or_val) * 100)
     if (or_val < 0.5) {
       div_factor <- 1 / or_val
-      return(paste0("La probabilité est divisée par ", formatC(div_factor, format="f", digits=1), " (effet protecteur).", signif_text))
+      return(paste0("Les cotes (odds) sont divisées par ", formatC(div_factor, format="f", digits=1), " (association inverse).", signif_text))
     } else {
-      return(paste0("La probabilité est diminuée de ", pct_decrease, "% (effet protecteur).", signif_text))
+      return(paste0("Les cotes (odds) sont diminuées de ", pct_decrease, "% (association inverse).", signif_text))
     }
   }
 }

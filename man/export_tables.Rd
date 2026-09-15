@@ -15,7 +15,7 @@ export_tables(
 )
 }
 \arguments{
-\item{tables}{Liste nommée d'objets \code{flextable}. Les noms servent de titres de section.}
+\item{tables}{Liste nommée d'objets \code{flextable} ou \code{analytix_table}. Les noms servent de titres de section.}
 
 \item{file}{Chemin du fichier Word de sortie (défaut: "rapport_tableaux.docx").}
 
@@ -33,17 +33,15 @@ export_tables(
 Chemin vers le fichier Word créé (invisible).
 }
 \description{
-Exporte une liste nommée d'objets \code{flextable} dans un document
-Word unique, avec chaque tableau précédé d'un titre de section. Idéal pour
-générer des rapports complets en une seule commande.
+Exporte une liste nommée d'objets \code{flextable} ou de résultats d'analyse \code{analytix_table}
+dans un document Word unique, avec chaque tableau précédé d'un titre de section.
 }
 \examples{
 \dontrun{
-  library(flextable)
-  t1 <- as_flextable(head(iris))
-  t2 <- as_flextable(head(mtcars))
+  t1 <- desc_numeric(mtcars, mpg)
+  t2 <- desc_categorical(iris, Species)
   export_tables(
-    tables = list("Description de l'iris" = t1, "Description des voitures" = t2),
+    tables = list("Description de MPG" = t1, "Description de Species" = t2),
     file   = "mon_rapport.docx",
     title  = "Rapport de tests"
   )

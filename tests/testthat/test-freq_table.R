@@ -11,7 +11,7 @@ test_that("desc_categorical et descr_categorial fonctionnent avec des données c
   expect_true("data" %in% names(result))
 
   # Test avec alias déprécié (avertissement)
-  expect_warning(descr_categorial(data, categorie), "dépréciée")
+  expect_warning(descr_categorial(data, categorie), "obsolète")
 
   # Test avec variable numérique discrète
   result_num <- desc_categorical(data, valeur)

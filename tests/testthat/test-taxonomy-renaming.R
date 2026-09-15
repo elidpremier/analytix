@@ -27,14 +27,14 @@ test_that("Toutes les nouvelles fonctions avec préfixes et leurs alias dépréc
   expect_no_error(stat_sens_spec(df$gueri, df$gueri))
 
   # Interp & Fmt & Report & Export family
-  expect_equal(interp_pvalue(0.01), "La différence observée est statistiquement significative (p = 0.010). On peut conclure qu'il existe un lien réel.")
-  expect_no_error(fmt_flextable(flextable::flextable(head(df))))
+  expect_equal(interp_pvalue(0.01), "La différence observée est statistiquement significative (p = 0.010). On observe une association statistiquement significative.")
+  expect_no_error(theme_analytique(flextable::flextable(head(df))))
   expect_no_error(report_missing(df))
 
   # Deprecated aliases issue warnings
-  expect_warning(impute_mode(df$sexe), "dépréciée")
-  expect_warning(impute_mean(df$age), "dépréciée")
-  expect_warning(descr_numeric(df, age), "dépréciée")
-  expect_warning(descr_binary(df, gueri), "dépréciée")
-  expect_warning(calc_prevalence(df, gueri), "dépréciée")
+  expect_warning(impute_mode(df$sexe), "obsolète")
+  expect_warning(impute_mean(df$age), "obsolète")
+  expect_warning(descr_numeric(df, age), "obsolète")
+  expect_warning(descr_binary(df, gueri), "obsolète")
+  expect_warning(calc_prevalence(df, gueri), "obsolète")
 })

@@ -20,7 +20,7 @@ desc_numeric(
 \arguments{
 \item{data}{data.frame}
 
-\item{var}{variable numérique à analyser (sans guillemets)}
+\item{var}{variable numérique à analyser (symbole ou chaîne)}
 
 \item{var_name}{nom personnalisé (optionnel)}
 
@@ -39,13 +39,13 @@ desc_numeric(
 \item{color}{couleur de l'en-tête (défaut: "transparent")}
 }
 \value{
-un objet de classe "descr_numeric" contenant les données et le flextable
+Un objet \code{analytix_table} (de classe \code{descr_numeric}) contenant les données et le flextable
 }
 \description{
 Génère un tableau récapitulatif des statistiques descriptives d'une variable numérique
 }
 \examples{
 desc_numeric(mtcars, mpg)
-desc_numeric(mtcars, mpg, subset = cyl == 4)
+desc_numeric(mtcars, "mpg", subset = cyl == 4)
 
 }

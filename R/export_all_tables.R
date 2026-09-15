@@ -1,9 +1,8 @@
 #' @title Export d'une liste de tableaux vers un document Word structuré
-#' @description Exporte une liste nommée d'objets `flextable` dans un document
-#' Word unique, avec chaque tableau précédé d'un titre de section. Idéal pour
-#' générer des rapports complets en une seule commande.
+#' @description Exporte une liste nommée d'objets `flextable` ou de résultats d'analyse `analytix_table`
+#' dans un document Word unique, avec chaque tableau précédé d'un titre de section.
 #'
-#' @param tables Liste nommée d'objets `flextable`. Les noms servent de titres de section.
+#' @param tables Liste nommée d'objets `flextable` ou `analytix_table`. Les noms servent de titres de section.
 #' @param file Chemin du fichier Word de sortie (défaut: "rapport_tableaux.docx").
 #' @param title Titre principal du document Word (défaut: "Rapport d'analyse").
 #' @param subtitle Sous-titre du document (défaut: NULL).
@@ -15,11 +14,10 @@
 #'
 #' @examples
 #' \dontrun{
-#'   library(flextable)
-#'   t1 <- as_flextable(head(iris))
-#'   t2 <- as_flextable(head(mtcars))
+#'   t1 <- desc_numeric(mtcars, mpg)
+#'   t2 <- desc_categorical(iris, Species)
 #'   export_tables(
-#'     tables = list("Description de l'iris" = t1, "Description des voitures" = t2),
+#'     tables = list("Description de MPG" = t1, "Description de Species" = t2),
 #'     file   = "mon_rapport.docx",
 #'     title  = "Rapport de tests"
 #'   )
@@ -35,7 +33,7 @@ export_tables <- function(tables, file = "rapport_tableaux.docx",
   if (!requireNamespace("officer", quietly = TRUE))   stop("officer requis")
 
   if (!is.list(tables) || length(tables) == 0) {
-    stop("`tables` doit être une liste non vide d'objets flextable.")
+    stop("`tables` doit être une liste non vide d'objets flextable ou analytix_table.")
   }
 
   doc <- officer::read_docx()
@@ -51,34 +49,52 @@ export_tables <- function(tables, file = "rapport_tableaux.docx",
   doc <- officer::body_add_par(doc, paste0("Date : ", date), style = "Normal")
   doc <- officer::body_add_par(doc, "", style = "Normal")
 
+  # Fonction d'extraction récursive
+  extract_fts <- function(item) {
+    if (inherits(item, "flextable")) {
+      return(list(item))
+    }
+    if (is.list(item)) {
+      if ("flextable" %in% names(item) && inherits(item$flextable, "flextable")) {
+        return(list(item$flextable))
+      }
+      res <- list()
+      for (sub in item) {
+        sub_extracted <- extract_fts(sub)
+        if (length(sub_extracted) > 0) {
+          res <- c(res, sub_extracted)
+        }
+      }
+      return(res)
+    }
+    return(list())
+  }
+
   # Ajout des tableaux
   section_names <- names(tables)
   if (is.null(section_names)) {
     section_names <- paste0("Tableau ", seq_along(tables))
   }
 
+  count_rendered <- 0
+
   for (i in seq_along(tables)) {
     nm  <- if (nchar(section_names[i]) > 0) section_names[i] else paste0("Tableau ", i)
     tbl <- tables[[i]]
 
-    doc <- officer::body_add_par(doc, nm, style = section_style)
+    fts <- extract_fts(tbl)
 
-    if (inherits(tbl, "flextable")) {
-      doc <- flextable::body_add_flextable(doc, tbl)
-    } else if (inherits(tbl, c("list"))) {
-      # Si c'est une liste (ex: output de anova_table)
-      for (sub_tbl in tbl) {
-        if (inherits(sub_tbl, "flextable")) {
-          doc <- flextable::body_add_flextable(doc, sub_tbl)
-          doc <- officer::body_add_par(doc, "", style = "Normal")
-        }
-      }
-    } else {
-      warning(paste0("L'objet '", nm, "' n'est pas un flextable valide et a été ignoré."))
+    if (length(fts) == 0) {
+      warning(paste0("L'objet '", nm, "' n'est pas ou ne contient pas un flextable valide et a été ignoré."))
+      next
     }
 
-    # Saut de ligne entre les sections
-    doc <- officer::body_add_par(doc, "", style = "Normal")
+    doc <- officer::body_add_par(doc, nm, style = section_style)
+    for (ft in fts) {
+      doc <- flextable::body_add_flextable(doc, ft)
+      doc <- officer::body_add_par(doc, "", style = "Normal")
+      count_rendered <- count_rendered + 1
+    }
   }
 
   print(doc, target = file)

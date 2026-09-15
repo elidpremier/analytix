@@ -1,6 +1,6 @@
 Package: analytix
 Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
-Version: 0.4.0
+Version: 0.5.0
 Authors@R: 
     person("IDO", "Esliée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
 Author: IDO Esliée
@@ -8,9 +8,9 @@ Maintainer: IDO Esliée <elidopremier@gmail.com>
 Description: Package complet d'automatisation de l'analyse de données pour des rapports
     francophones professionnels. Couvre le nettoyage des données (import, labellisation,
     détection d'outliers), l'analyse descriptive univariée et bivariée (catégorielle,
-    numérique, Likert, choix multiples, âge), les statistiques avancées (ANOVA, régression
-    logistique multivariée, corrélations, indicateurs diagnostiques), la visualisation
-    (ggplot2 : barplots, Likert divergent, heatmap de corrélations, carte des manquants)
+    numérique, Likert, choix multiples, score de complétude, âge), les statistiques avancées
+    (ANOVA, régression logistique multivariée, corrélations, indicateurs diagnostiques),
+    la visualisation (ggplot2 : barplots, Likert divergent, heatmap de corrélations, carte des manquants)
     et l'export Word structuré via flextable et officer.
 License: MIT + file LICENSE
 Encoding: UTF-8

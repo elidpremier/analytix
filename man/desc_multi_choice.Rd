@@ -7,6 +7,7 @@
 desc_multi_choice(
   data,
   cols,
+  positive = c(1, TRUE, "Oui", "Yes", "true", "vrai", "coché"),
   var_labels = NULL,
   title = "Question à choix multiples",
   pct_type = c("respondents", "choices"),
@@ -17,7 +18,9 @@ desc_multi_choice(
 \arguments{
 \item{data}{data.frame contenant les colonnes de la question.}
 
-\item{cols}{Vecteur de noms de colonnes ou sélection de colonnes (caractères ou symboles).}
+\item{cols}{Vecteur de noms de colonnes ou sélection de colonnes (caractères ou symboles non quotés).}
+
+\item{positive}{Valeur(s) considérée(s) comme réponse positive / cochée (défaut: 1, TRUE, "Oui", "Yes", "vrai", "coché").}
 
 \item{var_labels}{Vecteur nommé de libellés pour chaque option/colonne. Si NULL, les noms de colonnes sont utilisés.}
 
@@ -31,19 +34,18 @@ ou "choices" (par rapport au nombre total de choix cochés).}
 \item{color}{Couleur d'en-tête pour le thème analytique (défaut: "transparent").}
 }
 \value{
-Un objet \code{flextable} formaté.
+Un objet \code{analytix_table} contenant \code{$data} et \code{$flextable}.
 }
 \description{
-Génère un tableau descriptif et un objet \code{flextable} pour des séries de variables binaires
+Génère un tableau descriptif et un objet \code{analytix_table} pour des séries de variables
 représentant une question à choix multiples ("Cochez tout ce qui s'applique").
 }
 \examples{
 df <- data.frame(
-  q1_a = c(1, 1, 0, 0, 1),
-  q1_b = c(1, 0, 1, 0, 0),
-  q1_c = c(0, 0, 1, 1, 1)
+  q1_a = c("Oui", "Oui", "Non", "Non", "Oui"),
+  q1_b = c("Oui", "Non", "Oui", "Non", "Non"),
+  q1_c = c("Non", "Non", "Oui", "Oui", "Oui")
 )
-desc_multi_choice(df, cols = c("q1_a", "q1_b", "q1_c"),
-                   var_labels = c(q1_a = "Option A", q1_b = "Option B", q1_c = "Option C"))
+desc_multi_choice(df, cols = c(q1_a, q1_b, q1_c), positive = "Oui")
 
 }

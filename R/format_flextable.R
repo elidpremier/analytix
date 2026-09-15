@@ -1,25 +1,22 @@
-#' @title Mise en forme académique pour objets flextable (Rapports Word)
-#' @description Alias / Wrapper autour de `theme_analytique()` qui applique un formatage compact
-#' et adapté aux normes de publication Word (Times New Roman 9pt, marges réduites, largeur max).
-#' 
-#' @param ft Objet `flextable` ou dataframe.
-#' @param max_width Largeur maximale de la table en pouces (défaut: 6.3 pouces = ~16 cm).
+#' @title Mise en forme académique pour objets flextable (Déprécié)
+#' @description \code{fmt_flextable()} est déprécié. Utilisez directement \code{\link{theme_analytique}} à la place.
+#'
+#' @param ft Objet `flextable`, `analytix_table` ou dataframe.
+#' @param max_width Largeur maximale de la table en pouces (défaut: 6.3 pouces).
 #' @param font_size Taille de police en points (défaut: 9).
-#' @param font_family Nom de la police de caractères (défaut: "Times New Roman").
-#' @param compact Logique. Si TRUE, applique un espacement resserré (défaut: TRUE).
+#' @param font_family Nom de la police (défaut: "Times New Roman").
+#' @param compact Logique (défaut: TRUE).
 #' @param color Couleur d'en-tête (défaut: "transparent").
-#' @param ... Autres arguments passés à `theme_analytique()`.
-#' 
+#' @param caption Titre / Légende du tableau.
+#' @param ... Autres arguments transmis à \code{theme_analytique()}.
+#'
 #' @return L'objet `flextable` mis en forme.
-#' 
-#' @examples
-#' ft <- flextable::flextable(head(mtcars))
-#' format_flextable(ft)
-#' 
 #' @export
 fmt_flextable <- function(ft, max_width = 6.3, font_size = 9,
                              font_family = "Times New Roman",
-                             compact = TRUE, color = "transparent", ...) {
+                             compact = TRUE, color = "transparent",
+                             caption = NULL, ...) {
+  warning("`fmt_flextable()` est déprécié. Utilisez `theme_analytique()` à la place.")
   page_width_cm <- max_width * 2.54
   theme_analytique(
     data = ft,
@@ -28,6 +25,7 @@ fmt_flextable <- function(ft, max_width = 6.3, font_size = 9,
     font_family = font_family,
     compact = compact,
     color = color,
+    caption = caption,
     ...
   )
 }

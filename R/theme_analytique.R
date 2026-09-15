@@ -3,9 +3,9 @@
 #' @description
 #' Convertit automatiquement les données en flextable et applique un formatage cohérent.
 #' Les colonnes sont redimensionnées proportionnellement pour que le tableau occupe
-#' exactement la largeur utile de la page Word (layout "fixed" — garantit le pleine largeur).
+#' exactement la largeur utile de la page Word (layout "fixed" — garantit la pleine largeur).
 #'
-#' @param data Un objet flextable, dataframe, tibble, ou toute structure convertible en flextable
+#' @param data Un objet flextable, analytix_table, dataframe, tibble, ou structure convertible en flextable
 #' @param page_width Largeur de la zone utile de la page en cm.
 #'   Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)
 #' @param color Couleur de l'en-tête (défaut: "transparent")
@@ -14,6 +14,7 @@
 #' @param font_size Taille de police en points (défaut: 11)
 #' @param font_family Nom de la police (défaut: "Times New Roman")
 #' @param compact Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)
+#' @param caption Titre / Légende personnalisé du tableau (optionnel)
 #' @param ... Autres arguments passés à flextable::flextable() si conversion nécessaire
 #'
 #' @return Un objet flextable formaté, pleine largeur de page
@@ -26,18 +27,30 @@
 theme_analytique <- function(data, page_width = 16, color = "transparent",
                                zebre = FALSE, zebre_color = "#F2F2F2",
                                font_size = 11, font_family = "Times New Roman",
-                               compact = FALSE, ...) {
+                               compact = FALSE, caption = NULL, ...) {
 
   if (!is.numeric(page_width) || page_width <= 0) {
     stop("page_width doit être un nombre positif")
   }
 
-  if (inherits(data, "flextable")) {
+  dots <- list(...)
+  if ("caption" %in% names(dots)) {
+    if (is.null(caption)) caption <- dots$caption
+    dots$caption <- NULL
+  }
+
+  if (inherits(data, "analytix_table") || (is.list(data) && "flextable" %in% names(data) && inherits(data$flextable, "flextable"))) {
+    ft <- data$flextable
+  } else if (inherits(data, "flextable")) {
     ft <- data
   } else if (is.data.frame(data) || tibble::is_tibble(data)) {
-    ft <- flextable::flextable(data, ...)
+    ft <- do.call(flextable::flextable, c(list(data = data), dots))
   } else {
-    stop("L'argument data doit être une flextable, un dataframe, un tibble ou une structure convertible en flextable")
+    stop("L'argument data doit être un objet flextable, analytix_table, dataframe ou tibble.")
+  }
+
+  if (!is.null(caption)) {
+    ft <- flextable::set_caption(ft, caption)
   }
 
   # --- Étape 1 : Thème et formatage de base ---
@@ -70,16 +83,13 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
   }
 
   # --- Étape 2 : Forcer la pleine largeur de page (layout "fixed") ---
-  # La conversion cm -> inches est : 1 cm = 1/2.54 inches
   page_width_in <- page_width / 2.54
 
-  # Récupérer les largeurs actuelles depuis le slot interne (plus fiable que flextable::dim)
   col_widths <- ft$body$colwidths
   if (is.null(col_widths) || length(col_widths) == 0) {
-    col_widths <- rep(0.75, n_cols)  # fallback : 0.75 inch par colonne (défaut flextable)
+    col_widths <- rep(0.75, n_cols)
   }
 
-  # Redistribuer proportionnellement pour atteindre exactement page_width_in
   total_natural <- sum(col_widths)
   if (total_natural > 0) {
     col_widths_scaled <- col_widths * (page_width_in / total_natural)
@@ -87,7 +97,6 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
     col_widths_scaled <- rep(page_width_in / n_cols, n_cols)
   }
 
-  # Appliquer layout fixed + largeurs forcées
   ft <- ft %>%
     flextable::set_table_properties(layout = "fixed", align = "center") %>%
     flextable::width(j = seq_len(n_cols), width = col_widths_scaled)

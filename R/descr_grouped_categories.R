@@ -1,13 +1,12 @@
 #' @title Description des catégories groupées (ex: molécules par classe thérapeutique)
-#' @description Génère un tableau récapitulatif (`flextable`) regroupant des sous-catégories/modalités
+#' @description Génère un tableau récapitulatif (`analytix_table`) regroupant des sous-catégories/modalités
 #' (ex: molécules) sous leurs catégories ou classes thématiques parentes (ex: classes thérapeutiques).
 #' Supporte à la fois le format large (plusieurs colonnes) et le format long (deux colonnes groupe/élément).
 #'
 #' @param data data.frame contenant les données.
 #' @param cols Vecteur de noms de colonnes représentant chaque groupe en format large (ex: `c("diuretique", "iec", "ara2")`).
-#'   Chaque colonne contient les éléments/modalités (ex: "Amlodipine").
-#' @param group_col Nom de la colonne contenant la catégorie parente en format long (ex: `"classe"`).
-#' @param sub_col Nom de la colonne contenant le sous-élément en format long (ex: `"molecule"`).
+#' @param group_col Nom de la colonne contenant la catégorie parente en format long (ex: `"classe"` ou `classe`).
+#' @param sub_col Nom de la colonne contenant le sous-élément en format long (ex: `"molecule"` ou `molecule`).
 #' @param var_labels Vecteur nommé de libellés pour remplacer les noms des colonnes/groupes.
 #' @param pct_type Type de pourcentage: `"total"` (par rapport au N total du jeu de données, défaut)
 #'   ou `"group"` (par rapport au total des éléments valides du groupe).
@@ -15,7 +14,7 @@
 #' @param digits Nombre de décimales pour l'affichage des pourcentages (défaut: 1).
 #' @param color Couleur d'en-tête pour le thème analytique (défaut: `"transparent"`).
 #'
-#' @return Un objet `flextable` formaté avec lignes de groupes.
+#' @return Un objet \code{analytix_table} contenant le data.frame tidy ($data) et le flextable ($flextable).
 #'
 #' @examples
 #' df <- data.frame(
@@ -46,6 +45,14 @@ desc_grouped <- function(data,
   pct_type <- match.arg(pct_type)
   n_total <- nrow(data)
 
+  grp_enq <- rlang::enquo(group_col)
+  grp_expr <- rlang::quo_get_expr(grp_enq)
+  grp_nm <- if (is.character(grp_expr)) grp_expr else if (!rlang::quo_is_null(grp_enq)) rlang::as_name(grp_enq) else NULL
+
+  sub_enq <- rlang::enquo(sub_col)
+  sub_expr <- rlang::quo_get_expr(sub_enq)
+  sub_nm <- if (is.character(sub_expr)) sub_expr else if (!rlang::quo_is_null(sub_enq)) rlang::as_name(sub_enq) else NULL
+
   if (!is.null(cols)) {
     if (is.character(cols)) {
       cols_nms <- cols
@@ -71,10 +78,7 @@ desc_grouped <- function(data,
       df_long$Classe <- vapply(df_long$Classe, function(cn) .get_label(data, cn, cn), character(1))
     }
 
-  } else if (!is.null(group_col) && !is.null(sub_col)) {
-    grp_nm <- if (is.character(group_col)) group_col else rlang::as_name(rlang::enquo(group_col))
-    sub_nm <- if (is.character(sub_col)) sub_col else rlang::as_name(rlang::enquo(sub_col))
-
+  } else if (!is.null(grp_nm) && !is.null(sub_nm)) {
     if (!grp_nm %in% names(data) || !sub_nm %in% names(data)) {
       stop("`group_col` et `sub_col` doivent correspondre à des colonnes existantes dans `data`.")
     }
@@ -113,12 +117,12 @@ desc_grouped <- function(data,
   df_sum <- df_sum %>%
     dplyr::mutate(is_autre = stringr::str_detect(tolower(as.character(.data$Element)), "^autre")) %>%
     dplyr::arrange(.data$Classe, .data$is_autre, dplyr::desc(.data$Effectif)) %>%
-    dplyr::select(-.data$is_autre)
+    dplyr::select(-"is_autre")
 
   df_sum$pct_fmt <- sprintf(paste0("%.", digits, "f%%"), df_sum$Pourcentage)
 
   final_df <- df_sum %>%
-    dplyr::select(Classe = .data$Classe, Modalite = .data$Element, Effectif = .data$Effectif, `Pourcentage (%)` = .data$pct_fmt)
+    dplyr::select(Classe = "Classe", Modalite = "Element", Effectif = "Effectif", `Pourcentage (%)` = "pct_fmt")
 
   grp_data <- flextable::as_grouped_data(final_df, groups = "Classe")
   ft <- flextable::as_flextable(grp_data) %>%
@@ -134,5 +138,5 @@ desc_grouped <- function(data,
   }
 
   ft <- theme_analytique(ft, color = color)
-  return(ft)
+  as_analytix_table(data = final_df, flextable = ft)
 }
