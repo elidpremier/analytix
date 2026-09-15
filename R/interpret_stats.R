@@ -1,14 +1,17 @@
-#' @title Génération de langage naturel pour l'interprétation statistique
-#' @description Fonctions heuristiques pour traduire les résultats statistiques complexes
+#' Génération de langage naturel pour l'interprétation statistique
+#'
+#' Fonctions heuristiques pour traduire les résultats statistiques complexes
 #' en phrases claires et compréhensibles par des non-statisticiens.
 #'
 #' @name interpret_stats
-#' NULL
+#' @rdname interpret_stats
+NULL
 
-#' @describeIn interpret_stats Interprétation générique d'une p-value
+#' Interprétation générique d'une p-value
 #' @param p_val Valeur de la p-value
 #' @param alpha Seuil de significativité (défaut: 0.05)
 #' @return Une chaîne de caractères explicative.
+#' @rdname interpret_stats
 #' @export
 interp_pvalue <- function(p_val, alpha = 0.05) {
   if (is.na(p_val) || !is.numeric(p_val)) return("")
@@ -24,10 +27,11 @@ interp_pvalue <- function(p_val, alpha = 0.05) {
   }
 }
 
-#' @describeIn interpret_stats Interprétation d'un Odds Ratio (OR)
+#' Interprétation d'un Odds Ratio (OR)
 #' @param or_val Valeur de l'Odds Ratio
 #' @param p_val Valeur de la p-value
 #' @return Une chaîne de caractères explicative.
+#' @rdname interpret_stats
 #' @export
 interp_or <- function(or_val, p_val = NULL) {
   if (is.na(or_val) || !is.numeric(or_val)) return("")
@@ -63,11 +67,12 @@ interp_or <- function(or_val, p_val = NULL) {
   }
 }
 
-#' @describeIn interpret_stats Interprétation globale d'une comparaison de groupes (Chi2 / ANOVA)
+#' Interprétation globale d'une comparaison de groupes (Chi2 / ANOVA)
 #' @param var_x Nom de la variable explicative
 #' @param var_y Nom de la variable expliquée
 #' @param p_val p-value du test global
 #' @return Une chaîne de caractères explicative.
+#' @rdname interpret_stats
 #' @export
 interp_association <- function(var_x, var_y, p_val) {
     if (is.na(p_val) || !is.numeric(p_val)) return("")

@@ -21,9 +21,9 @@ desc_grouped(
 
 \item{cols}{Vecteur de noms de colonnes représentant chaque groupe en format large (ex: \code{c("diuretique", "iec", "ara2")}).}
 
-\item{group_col}{Nom de la colonne contenant la catégorie parente en format long (ex: \code{"classe"}).}
+\item{group_col}{Nom de la colonne contenant la catégorie parente en format long (ex: \code{"classe"} ou \code{classe}).}
 
-\item{sub_col}{Nom de la colonne contenant le sous-élément en format long (ex: \code{"molecule"}).}
+\item{sub_col}{Nom de la colonne contenant le sous-élément en format long (ex: \code{"molecule"} ou \code{molecule}).}
 
 \item{var_labels}{Vecteur nommé de libellés pour remplacer les noms des colonnes/groupes.}
 
