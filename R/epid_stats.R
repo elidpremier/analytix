@@ -15,10 +15,10 @@
 #' @examples
 #' actual    <- c(1,1,1,0,0,0,1,0,1,0)
 #' predicted <- c(1,1,0,0,0,1,1,0,0,0)
-#' calc_sensitivity_specificity(actual, predicted)
+#' stat_sens_spec(actual, predicted)
 #'
 #' @export
-calc_sensitivity_specificity <- function(actual, predicted,
+stat_sens_spec <- function(actual, predicted,
                                          positive_val = NULL,
                                          conf_level = 0.95,
                                          digits = 1,
@@ -100,10 +100,10 @@ calc_sensitivity_specificity <- function(actual, predicted,
 #'
 #' @examples
 #' mod <- glm(am ~ cyl + wt + hp, data = mtcars, family = binomial())
-#' multivariable_logistic_table(mod)
+#' tbl_logistic(mod)
 #'
 #' @export
-multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
+tbl_logistic <- function(model, data = NULL, var_labels = NULL,
                                           conf_level = 0.95, digits = 2,
                                           color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
@@ -174,11 +174,11 @@ multivariable_logistic_table <- function(model, data = NULL, var_labels = NULL,
 #' @return Un objet `flextable`.
 #'
 #' @examples
-#' anova_table(iris, Sepal.Length, Species,
+#' tbl_anova(iris, Sepal.Length, Species,
 #'   var_name = "Longueur sépale", group_name = "Espèce")
 #'
 #' @export
-anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
+tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
                         digits = 3, color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
 
@@ -255,10 +255,10 @@ anova_table <- function(data, var, group, var_name = NULL, group_name = NULL,
 #' @return Un objet `flextable` avec la matrice de corrélations.
 #'
 #' @examples
-#' correlation_table(mtcars, cols = c("mpg", "cyl", "hp", "wt"))
+#' tbl_correlation(mtcars, cols = c("mpg", "cyl", "hp", "wt"))
 #'
 #' @export
-correlation_table <- function(data, cols = NULL, method = c("pearson", "spearman"),
+tbl_correlation <- function(data, cols = NULL, method = c("pearson", "spearman"),
                                digits = 2, sig_level = 0.05, color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   method <- match.arg(method)

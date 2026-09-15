@@ -4,7 +4,7 @@
 #' @param digits Nombre de décimales pour les OR et IC
 #' @return Un objet gtsummary modifié
 #' @export
-fmt_regression_fr <- function(x, digits = 2) {
+fmt_regression <- function(x, digits = 2) {
   if (!requireNamespace("gtsummary", quietly = TRUE)) stop("gtsummary requis")
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
 

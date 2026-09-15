@@ -270,18 +270,17 @@ mod_bivariate_server <- function(id, data_reactive) {
       if (is.null(header_color) || nchar(trimws(header_color)) == 0) header_color <- "#0284c7"
 
       outcome_pos <- input$outcome_pos_val
-
       tryCatch({
         # --- cross_multi Method ---
         if (method == "cross_multi") {
           req(outcome_pos)
           cross_method <- input$cross_multi_method
           cross_include_na <- isTRUE(input$cross_include_na)
-          
-          if (exists("cross_multi", where = asNamespace("analytix"))) {
+          cross_fn <- if (exists("tbl_cross_multi", where = asNamespace("analytix"))) analytix::tbl_cross_multi else if (exists("cross_multi", where = asNamespace("analytix"))) analytix::cross_multi else NULL
+          if (!is.null(cross_fn)) {
             target_sym <- rlang::sym(target)
             res <- tryCatch({
-              analytix::cross_multi(
+              cross_fn(
                 df,
                 outcome = !!target_sym,
                 predictors = preds,
@@ -294,7 +293,7 @@ mod_bivariate_server <- function(id, data_reactive) {
             }, error = function(e) {
               # Retry without color/digits if signature differs
               tryCatch(
-                analytix::cross_multi(df, outcome = !!target_sym, predictors = preds, outcome_level = outcome_pos),
+                cross_fn(df, outcome = !!target_sym, predictors = preds, outcome_level = outcome_pos),
                 error = function(e2) NULL
               )
             })
@@ -305,22 +304,25 @@ mod_bivariate_server <- function(id, data_reactive) {
           # Fallback simple crosstab
           res_df <- data.frame(
             Predictor = preds,
-            Note = "Fonction cross_multi non disponible dans le package analytix chargé."
+            Note = "Fonction tbl_cross_multi non disponible dans le package analytix chargé."
           )
           return(list(method = "cross_multi", type = "df", target = target, results = res_df))
 
         # --- group_comparison Method ---
         } else if (method == "group_comparison") {
-          if (exists("descr_by_group", where = asNamespace("analytix"))) {
+          by_group_fn <- if (exists("desc_by_group", where = asNamespace("analytix"))) analytix::desc_by_group else if (exists("descr_by_group", where = asNamespace("analytix"))) analytix::descr_by_group else NULL
+          anova_fn <- if (exists("tbl_anova", where = asNamespace("analytix"))) analytix::tbl_anova else if (exists("anova_table", where = asNamespace("analytix"))) analytix::anova_table else NULL
+          
+          if (!is.null(by_group_fn)) {
             target_sym <- rlang::sym(target)
             
             ft_list <- lapply(preds, function(p) {
               p_sym <- rlang::sym(p)
               res <- tryCatch(
-                analytix::descr_by_group(df, var = !!p_sym, by = !!target_sym, digits = digits, color = header_color),
+                by_group_fn(df, var = !!p_sym, by = !!target_sym, digits = digits, color = header_color),
                 error = function(e) {
                   tryCatch(
-                    analytix::descr_by_group(df, var = !!p_sym, by = !!target_sym),
+                    by_group_fn(df, var = !!p_sym, by = !!target_sym),
                     error = function(e2) NULL
                   )
                 }
@@ -330,54 +332,37 @@ mod_bivariate_server <- function(id, data_reactive) {
               assumptions_msg <- ""
               interp_msg <- ""
               
-              if (is.numeric(df[[p]])) {
-                p_vec <- df[[p]]
-                t_vec <- df[[target]]
+              p_vec <- df[[p]]
+              t_vec <- df[[target]]
+              
+              if (is.numeric(p_vec) && length(unique(na.omit(t_vec))) >= 2) {
+                # Tests d'hypothèses
+                sh_p <- tryCatch(stats::shapiro.test(p_vec[1:min(length(p_vec), 5000)])$p.value, error = function(e) NULL)
+                bt <- tryCatch(stats::bartlett.test(p_vec ~ as.factor(t_vec)), error = function(e) NULL)
                 
-                # Vérification de normalité (Shapiro-Wilk)
-                p_vec_clean <- na.omit(p_vec)
-                if (length(p_vec_clean) >= 3 && length(p_vec_clean) <= 5000) {
-                  sw <- tryCatch(shapiro.test(p_vec_clean), error = function(e) NULL)
-                  if (!is.null(sw) && sw$p.value < 0.05) {
-                    assumptions_msg <- paste0(assumptions_msg, "⚠️ <b>Normalité :</b> Les données ne suivent pas une loi normale (Shapiro p < 0.05). L'utilisation d'un test non-paramétrique est recommandée.<br>")
-                  }
+                if (!is.null(sh_p) && sh_p < 0.05) {
+                  assumptions_msg <- paste0(assumptions_msg, "⚠️ <b>Normalité :</b> La distribution de '", p, "' s'écarte de la normale (Shapiro-Wilk p < 0.05). Un test non paramétrique (Kruskal-Wallis) peut être préférable.<br>")
+                }
+                if (!is.null(bt) && bt$p.value < 0.05) {
+                  assumptions_msg <- paste0(assumptions_msg, "⚠️ <b>Homoscédasticité :</b> Les variances ne sont pas homogènes (Bartlett p < 0.05). L'ANOVA classique n'est pas recommandée.<br>")
                 }
                 
-                # Test de comparaison
-                n_groups <- length(unique(na.omit(t_vec)))
-                if (n_groups == 2) {
-                  tt <- tryCatch(t.test(p_vec ~ as.factor(t_vec)), error = function(e) NULL)
-                  if (!is.null(tt)) {
-                    if (tt$p.value < 0.05) {
-                      interp_msg <- "💡 La différence de moyennes entre les groupes est <b>statistiquement significative</b> (p < 0.05)."
-                    } else {
-                      interp_msg <- "💡 La différence de moyennes n'est pas statistiquement significative (p &ge; 0.05)."
+                if (!is.null(anova_fn)) {
+                  anova_res <- tryCatch(
+                    anova_fn(df, var = !!p_sym, group = !!target_sym, digits = digits, color = header_color),
+                    error = function(e) {
+                      tryCatch(anova_fn(df, var = !!p_sym, group = !!target_sym), error = function(e2) NULL)
                     }
-                  }
-                } else if (n_groups >= 3) {
-                  # Test de Levene (Bartlett)
-                  bt <- tryCatch(bartlett.test(p_vec ~ as.factor(t_vec)), error = function(e) NULL)
-                  if (!is.null(bt) && bt$p.value < 0.05) {
-                    assumptions_msg <- paste0(assumptions_msg, "⚠️ <b>Homoscédasticité :</b> Les variances ne sont pas homogènes (Bartlett p < 0.05). L'ANOVA classique n'est pas recommandée.<br>")
-                  }
-                  
-                  if (exists("anova_table", where = asNamespace("analytix"))) {
-                    anova_res <- tryCatch(
-                      analytix::anova_table(df, var = !!p_sym, group = !!target_sym, digits = digits, color = header_color),
-                      error = function(e) {
-                        tryCatch(analytix::anova_table(df, var = !!p_sym, group = !!target_sym), error = function(e2) NULL)
-                      }
-                    )
-                  }
-                  
-                  av <- tryCatch(summary(aov(p_vec ~ as.factor(t_vec))), error = function(e) NULL)
-                  if (!is.null(av)) {
-                    pv <- av[[1]][["Pr(>F)"]][1]
-                    if (!is.na(pv) && pv < 0.05) {
-                      interp_msg <- "💡 Il existe une différence significative d'au moins un groupe par rapport aux autres (ANOVA p < 0.05)."
-                    } else {
-                      interp_msg <- "💡 Aucune différence significative entre les groupes (ANOVA p &ge; 0.05)."
-                    }
+                  )
+                }
+                
+                av <- tryCatch(summary(aov(p_vec ~ as.factor(t_vec))), error = function(e) NULL)
+                if (!is.null(av)) {
+                  pv <- av[[1]][["Pr(>F)"]][1]
+                  if (!is.na(pv) && pv < 0.05) {
+                    interp_msg <- "💡 Il existe une différence significative d'au moins un groupe par rapport aux autres (ANOVA p < 0.05)."
+                  } else {
+                    interp_msg <- "💡 Aucune différence significative entre les groupes (ANOVA p &ge; 0.05)."
                   }
                 }
               } else {
@@ -426,9 +411,10 @@ mod_bivariate_server <- function(id, data_reactive) {
         } else if (method == "or_table") {
           req(outcome_pos)
 
-          if (exists("bivariate_or_table", where = asNamespace("analytix"))) {
+          biv_or_fn <- if (exists("tbl_bivariate_or", where = asNamespace("analytix"))) analytix::tbl_bivariate_or else if (exists("bivariate_or_table", where = asNamespace("analytix"))) analytix::bivariate_or_table else NULL
+          if (!is.null(biv_or_fn)) {
             res <- tryCatch(
-              analytix::bivariate_or_table(
+              biv_or_fn(
                 df,
                 outcome = target,
                 exposures = preds,
@@ -438,7 +424,7 @@ mod_bivariate_server <- function(id, data_reactive) {
                 color = header_color
               ),
               error = function(e) {
-                analytix::bivariate_or_table(df, outcome = target, exposures = preds, outcome_positive_val = outcome_pos)
+                biv_or_fn(df, outcome = target, exposures = preds, outcome_positive_val = outcome_pos)
               }
             )
             if (!is.null(res)) {
@@ -533,7 +519,8 @@ mod_bivariate_server <- function(id, data_reactive) {
 
         # --- multivariate_or Method ---
         } else if (method == "multivariate_or") {
-          if (exists("multivariable_logistic_table", where = asNamespace("analytix"))) {
+          log_fn <- if (exists("tbl_logistic", where = asNamespace("analytix"))) analytix::tbl_logistic else if (exists("multivariable_logistic_table", where = asNamespace("analytix"))) analytix::multivariable_logistic_table else NULL
+          if (!is.null(log_fn)) {
             form <- stats::as.formula(paste(target, "~", paste(preds, collapse = " + ")))
             fit_multi <- tryCatch({
               df_multi <- df
@@ -545,12 +532,12 @@ mod_bivariate_server <- function(id, data_reactive) {
 
             if (!is.null(fit_multi)) {
               res <- tryCatch({
-                analytix::multivariable_logistic_table(fit_multi, digits = digits, color = header_color)
+                log_fn(fit_multi, digits = digits, color = header_color)
               }, error = function(e) {
                 tryCatch({
-                  analytix::multivariable_logistic_table(fit_multi)
+                  log_fn(fit_multi)
                 }, error = function(e2) {
-                  analytix::multivariable_logistic_table(form, data = df)
+                  log_fn(form, data = df)
                 })
               })
               return(list(method = "multivariate_or", type = "flextable", target = target, results = res))
@@ -675,9 +662,9 @@ mod_bivariate_server <- function(id, data_reactive) {
     # --- Graphique Bivarié Logic ---
     output$biv_plot_badge_ui <- renderUI({
       switch(input$bivar_plot_type,
-        "grouped_bar"  = tags$span("analytix::plot_grouped_bar"),
-        "stacked_100"  = tags$span("analytix::plot_stacked_bar_100"),
-        "boxplot"      = tags$span("analytix::plot_boxplot"),
+        "grouped_bar"  = tags$span("analytix::plot_bar_grouped"),
+        "stacked_100"  = tags$span("analytix::plot_bar_stacked"),
+        "boxplot"      = tags$span("analytix::plot_box"),
         tags$span("analytix")
       )
     })
@@ -705,8 +692,9 @@ mod_bivariate_server <- function(id, data_reactive) {
 
       tryCatch({
         if (plot_type == "grouped_bar") {
-          if (exists("plot_grouped_bar", where = asNamespace("analytix"))) {
-            p <- analytix::plot_grouped_bar(
+          bar_grp_fn <- if (exists("plot_bar_grouped", where = asNamespace("analytix"))) analytix::plot_bar_grouped else if (exists("plot_grouped_bar", where = asNamespace("analytix"))) analytix::plot_grouped_bar else NULL
+          if (!is.null(bar_grp_fn)) {
+            p <- bar_grp_fn(
               df,
               x    = !!x_sym,
               fill = !!fill_sym,
@@ -728,8 +716,9 @@ mod_bivariate_server <- function(id, data_reactive) {
           }
 
         } else if (plot_type == "stacked_100") {
-          if (exists("plot_stacked_bar_100", where = asNamespace("analytix"))) {
-            p <- analytix::plot_stacked_bar_100(
+          bar_stk_fn <- if (exists("plot_bar_stacked", where = asNamespace("analytix"))) analytix::plot_bar_stacked else if (exists("plot_stacked_bar_100", where = asNamespace("analytix"))) analytix::plot_stacked_bar_100 else NULL
+          if (!is.null(bar_stk_fn)) {
+            p <- bar_stk_fn(
               df,
               x    = !!x_sym,
               fill = !!fill_sym,
@@ -753,8 +742,9 @@ mod_bivariate_server <- function(id, data_reactive) {
           shiny::validate(
             shiny::need(isTruthy(input$plot_y_var), "Veuillez sélectionner une variable Y numérique pour le boxplot.")
           )
-          if (exists("plot_boxplot", where = asNamespace("analytix"))) {
-            p <- analytix::plot_boxplot(
+          box_fn <- if (exists("plot_box", where = asNamespace("analytix"))) analytix::plot_box else if (exists("plot_boxplot", where = asNamespace("analytix"))) analytix::plot_boxplot else NULL
+          if (!is.null(box_fn)) {
+            p <- box_fn(
               df,
               x = !!x_sym,
               y = !!y_sym,
@@ -773,9 +763,10 @@ mod_bivariate_server <- function(id, data_reactive) {
         }
         
         # Application du Custom Theme
-        if (!is.null(p) && exists("apply_custom_theme", where = asNamespace("analytix"))) {
+        fmt_theme_fn <- if (exists("fmt_apply_theme", where = asNamespace("analytix"))) analytix::fmt_apply_theme else if (exists("apply_custom_theme", where = asNamespace("analytix"))) analytix::apply_custom_theme else NULL
+        if (!is.null(p) && !is.null(fmt_theme_fn)) {
           p <- tryCatch({
-            analytix::apply_custom_theme(
+            fmt_theme_fn(
               p,
               theme_name = input$plot_theme,
               base_size = input$plot_base_size,

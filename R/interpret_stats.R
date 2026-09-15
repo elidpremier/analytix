@@ -10,7 +10,7 @@ NULL
 #' @param alpha Seuil de significativité (défaut: 0.05)
 #' @return Une chaîne de caractères explicative.
 #' @export
-interpret_pvalue <- function(p_val, alpha = 0.05) {
+interp_pvalue <- function(p_val, alpha = 0.05) {
   if (is.na(p_val) || !is.numeric(p_val)) return("")
   
   if (p_val < 0.001) {
@@ -29,7 +29,7 @@ interpret_pvalue <- function(p_val, alpha = 0.05) {
 #' @param p_val Valeur de la p-value
 #' @return Une chaîne de caractères explicative.
 #' @export
-interpret_or <- function(or_val, p_val = NULL) {
+interp_or <- function(or_val, p_val = NULL) {
   if (is.na(or_val) || !is.numeric(or_val)) return("")
   
   signif_text <- ""
@@ -69,7 +69,7 @@ interpret_or <- function(or_val, p_val = NULL) {
 #' @param p_val p-value du test global
 #' @return Une chaîne de caractères explicative.
 #' @export
-interpret_association <- function(var_x, var_y, p_val) {
+interp_association <- function(var_x, var_y, p_val) {
     if (is.na(p_val) || !is.numeric(p_val)) return("")
     if (p_val < 0.05) {
         return(paste0("L'analyse révèle une association statistiquement significative entre '", var_x, "' et '", var_y, "' (p = ", formatC(p_val, format="f", digits=3), "). Cela indique que la distribution de '", var_y, "' varie de façon probante selon les différentes modalités de '", var_x, "'."))

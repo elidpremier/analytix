@@ -22,7 +22,7 @@
 #' bivariate_or_table(df, outcome = "reussite", exposures = c("bourse", "sexe"), outcome_positive_val = "Oui")
 #' 
 #' @export
-bivariate_or_table <- function(data, outcome, exposures,
+tbl_bivariate_or <- function(data, outcome, exposures,
                                outcome_positive_val = NULL,
                                conf_level = 0.95,
                                var_labels = NULL,

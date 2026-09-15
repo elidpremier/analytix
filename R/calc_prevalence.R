@@ -13,10 +13,10 @@
 #' 
 #' @examples
 #' df <- data.frame(blse = c(1, 0, 1, 1, 0, 0, 1, 0, 1, 1))
-#' calc_prevalence(df, blse, cases_val = 1)
+#' desc_prevalence(df, blse, cases_val = 1)
 #' 
 #' @export
-calc_prevalence <- function(data, var = NULL, cases_val = NULL,
+desc_prevalence <- function(data, var = NULL, cases_val = NULL,
                             conf_level = 0.95,
                             method = c("wilson", "exact", "asymptotic"),
                             digits = 1) {

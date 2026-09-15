@@ -365,15 +365,12 @@ mod_report_server <- function(id, data_reactive) {
           shiny::incProgress(0.1, detail = "Initialisation...")
 
           tryCatch({
-            # Essayer analytix::generate_report si disponible
-            gen_fn_available <- tryCatch({
-              fn <- getFromNamespace("generate_report", "analytix")
-              !is.null(fn)
-            }, error = function(e) FALSE)
+            # Essayer analytix::report_generate / generate_report si disponible
+            gen_fn <- if (exists("report_generate", where = asNamespace("analytix"))) analytix::report_generate else if (exists("generate_report", where = asNamespace("analytix"))) analytix::generate_report else NULL
 
-            if (gen_fn_available) {
-              shiny::incProgress(0.3, detail = "Appel de generate_report()...")
-              analytix::generate_report(
+            if (!is.null(gen_fn)) {
+              shiny::incProgress(0.3, detail = "Génération du rapport...")
+              gen_fn(
                 data          = df,
                 output        = file,
                 title         = input$rep_title,
@@ -436,13 +433,10 @@ mod_report_server <- function(id, data_reactive) {
           shiny::incProgress(0.2, detail = "Initialisation et nettoyage...")
           tryCatch({
             
-            magic_fn_available <- tryCatch({
-              fn <- getFromNamespace("magic_report", "analytix")
-              !is.null(fn)
-            }, error = function(e) FALSE)
+            magic_fn <- if (exists("report_magic", where = asNamespace("analytix"))) analytix::report_magic else if (exists("magic_report", where = asNamespace("analytix"))) analytix::magic_report else NULL
             
-            if (magic_fn_available) {
-               analytix::magic_report(
+            if (!is.null(magic_fn)) {
+               magic_fn(
                  data = df, 
                  output = file, 
                  title = input$rep_title, 
@@ -450,7 +444,7 @@ mod_report_server <- function(id, data_reactive) {
                  open_doc = FALSE
                )
             } else {
-               stop("La fonction magic_report n'est pas disponible. Rechargez le package.")
+               stop("La fonction report_magic n'est pas disponible. Rechargez le package.")
             }
             shiny::incProgress(1.0, detail = "Terminé !")
             shiny::showNotification("✨ Magic Report généré avec succès !", type = "message")

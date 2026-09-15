@@ -11,12 +11,12 @@
 #'
 #' @return Le chemin du fichier Word généré (invisible).
 #' @export
-magic_report <- function(data, output = "magic_report.docx", title = "Rapport Magique Analytix", outcome = NULL, open_doc = TRUE) {
+report_magic <- function(data, output = "magic_report.docx", title = "Rapport Magique Analytix", outcome = NULL, open_doc = TRUE) {
   
   if (is.character(data)) {
     message("Importation des données depuis ", data)
     if (grepl("\\.xlsx?$", data)) {
-      data <- import_clean(data)
+      data <- prep_import(data)
     } else if (grepl("\\.csv$", data)) {
       data <- read.csv(data, stringsAsFactors = FALSE)
       data <- clean_names(data)
@@ -61,25 +61,20 @@ magic_report <- function(data, output = "magic_report.docx", title = "Rapport Ma
   for (var in names(data)) {
     if (any(is.na(data[[var]]))) {
        if (is.numeric(data[[var]])) {
-          data[[var]] <- impute_mean(data[[var]])
+          data[[var]] <- prep_impute_mean(data[[var]])
        } else {
-          data[[var]] <- impute_mode(data[[var]])
+          data[[var]] <- prep_impute_mode(data[[var]])
        }
     }
   }
 
-  # 3. Génération via generate_report avec interprétations activées
-  message("Génération du rapport Word via generate_report...")
+  # 3. Génération via report_generate avec interprétations activées
+  message("Génération du rapport Word via report_generate...")
   
-  # On délègue à generate_report, mais il faudra l'adapter pour qu'il
-  # intègre les phrases NLG de `interpret_stats.R`.
-  # Pour l'instant, on utilise generate_report existant.
-  # Dans l'idéal, une option `add_interpretation = TRUE` serait ajoutée à generate_report
-  
-  doc_path <- generate_report(data, 
+  doc_path <- report_generate(data, 
                               output = output, 
                               title = title, 
-                              subtitle = "Généré automatiquement par analytix::magic_report()",
+                              subtitle = "Généré automatiquement par analytix::report_magic()",
                               outcome = outcome,
                               open_doc = open_doc,
                               verbose = FALSE)

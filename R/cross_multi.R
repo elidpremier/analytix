@@ -23,7 +23,7 @@
 #' cross_multi(mtcars, am_f, c("cyl", "vs"), outcome_level = "Manuelle")
 #'
 #' @export
-cross_multi <- function(data,
+tbl_cross_multi <- function(data,
                         outcome,
                         predictors,
                         outcome_level = NULL,

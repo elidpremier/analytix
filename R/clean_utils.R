@@ -68,7 +68,7 @@ clean_binary <- function(x, yes_label = "Oui", no_label = "Non", na_as_no = FALS
 
 #' @rdname clean_utils
 #' @export
-recode_odk_binary <- function(x, yes_label = "Oui", no_label = "Non") {
+prep_recode_odk <- function(x, yes_label = "Oui", no_label = "Non") {
   clean_binary(x, yes_label = yes_label, no_label = no_label, na_as_no = TRUE)
 }
 
@@ -133,13 +133,13 @@ clean_names <- function(x, max_length = NULL, prefix = "v_") {
 
 #' @rdname clean_utils
 #' @export
-clean_column_names <- function(x, ...) {
+clean_colnames <- function(x, ...) {
   clean_names(x, ...)
 }
 
 #' @rdname clean_utils
 #' @export
-impute_mode <- function(x) {
+prep_impute_mode <- function(x) {
   clean_x <- x[!is.na(x)]
   if (length(clean_x) == 0) return(x)
   
@@ -152,7 +152,7 @@ impute_mode <- function(x) {
 
 #' @rdname clean_utils
 #' @export
-impute_mean <- function(x, type = c("mean", "median")) {
+prep_impute_mean <- function(x, type = c("mean", "median")) {
   type <- match.arg(type)
   if (!is.numeric(x)) {
     stop("`x` doit être un vecteur numérique.")

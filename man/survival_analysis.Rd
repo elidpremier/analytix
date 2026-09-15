@@ -2,11 +2,11 @@
 % Please edit documentation in R/survival_analysis.R
 \name{survival_analysis}
 \alias{survival_analysis}
-\alias{km_table}
-\alias{km_plot}
+\alias{tbl_km}
+\alias{plot_km}
 \title{Tableaux et courbes de survie Kaplan-Meier}
 \usage{
-km_table(
+tbl_km(
   data,
   time_var,
   event_var,
@@ -15,7 +15,7 @@ km_table(
   digits = 1
 )
 
-km_plot(data, time_var, event_var, group_var = NULL)
+plot_km(data, time_var, event_var, group_var = NULL)
 }
 \arguments{
 \item{data}{data.frame.}

@@ -13,11 +13,11 @@
 #'
 #' @return un objet de classe "descr_numeric" contenant les données et le flextable
 #' @examples
-#' descr_numeric(mtcars, mpg)
-#' descr_numeric(mtcars, mpg, subset = cyl == 4)
+#' desc_numeric(mtcars, mpg)
+#' desc_numeric(mtcars, mpg, subset = cyl == 4)
 #'
 #' @export
-descr_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
+desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
                           na_rm = TRUE,
                           show_valid = FALSE,
                           show_skewness = FALSE,

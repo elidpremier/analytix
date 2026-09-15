@@ -53,7 +53,7 @@
 #' )
 #'
 #' @export
-collapse_categories <- function(data, var, groups,
+prep_collapse <- function(data, var, groups,
                                 keep_na = TRUE,
                                 as_factor = TRUE,
                                 other_label = NULL) {

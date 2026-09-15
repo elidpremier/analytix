@@ -11,7 +11,7 @@
 #'
 #' @return Un objet freq_table simplifié
 #' @export
-descr_binary <- function(data, var, target_level = NULL, var_name = NULL, subset = NULL,
+desc_binary <- function(data, var, target_level = NULL, var_name = NULL, subset = NULL,
                          digits = 1, include_na = FALSE, color = "transparent") {
 
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")

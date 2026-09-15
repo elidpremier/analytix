@@ -3,16 +3,16 @@
 #'
 #' @param path Chemin du fichier Word de sortie (défaut: "rapport.docx").
 #' @param ...
-#'   - Un ou plusieurs objets : \code{export_to_word(tab1, tab2)}.
-#'   - Une liste : \code{export_to_word(resultats)}.
-#'   - Mélange : \code{export_to_word(tab1, resultats)}.
+#'   - Un ou plusieurs objets : \code{export_word(tab1, tab2)}.
+#'   - Une liste : \code{export_word(resultats)}.
+#'   - Mélange : \code{export_word(tab1, resultats)}.
 #' @param env Si \code{TRUE}, inclut aussi les tableaux de l'environnement global.
 #' @param add_page_breaks Ajouter des sauts de page entre les tableaux ? (défaut: TRUE)
 #'
 #' @return NULL (crée un fichier Word)
 #'
 #' @export
-export_to_word <- function(path = "rapport.docx", ..., env = FALSE, add_page_breaks = TRUE) {
+export_word <- function(path = "rapport.docx", ..., env = FALSE, add_page_breaks = TRUE) {
   if (!requireNamespace("flextable", quietly = TRUE)) {
     stop("Package 'flextable' requis pour l'export Word.")
   }

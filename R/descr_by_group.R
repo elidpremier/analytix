@@ -16,13 +16,13 @@
 #' @return un objet flextable
 #' @examples
 #' # Cas numérique
-#' descr_by_group(mtcars, mpg, cyl, var_name = "Consommation", by_name = "Cylindres")
+#' desc_by_group(mtcars, mpg, cyl, var_name = "Consommation", by_name = "Cylindres")
 #' 
 #' # Cas catégoriel
-#' descr_by_group(mtcars, am, vs, var_name = "Transmission", by_name = "Moteur")
+#' desc_by_group(mtcars, am, vs, var_name = "Transmission", by_name = "Moteur")
 #'
 #' @export
-descr_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
+desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
                            digits = 1, color = "transparent", test_stat = TRUE,
                            test_type = c("auto", "parametric", "nonparametric")) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")

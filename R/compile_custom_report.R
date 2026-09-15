@@ -11,7 +11,7 @@
 #' @importFrom officer read_docx body_add_par body_add_img
 #' @importFrom flextable body_add_flextable
 #' @export
-compile_custom_report <- function(blocks,
+report_compile <- function(blocks,
                                    output        = "rapport_personnalise.docx",
                                    template_path = NULL) {
 

@@ -63,10 +63,10 @@ data_clean <- data_clean %>%
 
 ```r
 # Analyse d'une variable catégorielle
-descr_categorial(data_clean, statut_vaccinal, var_name = "Statut vaccinal")
+desc_categorical(data_clean, statut_vaccinal, var_name = "Statut vaccinal")
 
 # Analyse d'une variable numérique
-descr_numeric(data_clean, age, var_name = "Âge (années)", digits = 1)
+desc_numeric(data_clean, age, var_name = "Âge (années)", digits = 1)
 ```
 
 ## Questions à Réponses Multiples
@@ -80,7 +80,7 @@ df_multi <- data.frame(
   symptome_fatigue = c(0, 0, 1, 1, 1)
 )
 
-descr_multi_choice(
+desc_multi_choice(
   df_multi,
   cols = c("symptome_fievre", "symptome_toux", "symptome_fatigue"),
   var_labels = c(
@@ -101,7 +101,7 @@ Pour les données épidémiologiques ou biologiques (ex: taux de résistance ant
 ```r
 df_bio <- data.frame(blse = c(1, 0, 1, 1, 0, 0, 1, 0, 1, 1))
 
-prev_res <- calc_prevalence(df_bio, blse, cases_val = 1, method = "wilson")
+prev_res <- desc_prevalence(df_bio, blse, cases_val = 1, method = "wilson")
 print(prev_res$Formate)
 # Exemple de sortie : "7/10 (70,0% [IC95%: 39,7 - 89,2])"
 ```
@@ -112,7 +112,7 @@ print(prev_res$Formate)
 
 ```r
 # Comparaison de l'âge par groupe avec test de comparaison automatique (Student / Mann-Whitney)
-ft_by_group <- descr_by_group(
+ft_by_group <- desc_by_group(
   mtcars, mpg, am,
   var_name = "Consommation (mpg)",
   by_name = "Transmission",
@@ -129,7 +129,7 @@ ft_by_group
 Calcul automatique des Odds Ratios bruts (OR), de leurs IC95% et des p-values pour plusieurs variables explicatives face à une variable dépendante binaire :
 
 ```r
-ft_or <- bivariate_or_table(
+ft_or <- tbl_bivariate_or(
   data = mtcars,
   outcome = "am",
   exposures = c("cyl", "vs"),
@@ -148,14 +148,14 @@ Tous les tableaux générés avec `analytix` peuvent être formatés aux normes 
 
 ```r
 # Formatage personnalisé d'un flextable
-ft_formatted <- format_flextable(ft_or, max_width = 6.5, font_family = "Times New Roman")
+ft_formatted <- fmt_flextable(ft_or, max_width = 6.5, font_family = "Times New Roman")
 
 # Exportation de plusieurs tableaux vers un rapport Word
-export_to_word(
+export_word(
   list(
     "Tableau 1 : Description par groupe" = ft_by_group,
     "Tableau 2 : Odds Ratios bivariés" = ft_formatted
   ),
-  file_path = "Rapport_Analytique.docx"
+  file = "Rapport_Analytique.docx"
 )
 ```

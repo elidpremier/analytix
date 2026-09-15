@@ -20,11 +20,11 @@
 #'   q2 = sample(1:5, 40, replace = TRUE),
 #'   q3 = sample(1:5, 40, replace = TRUE)
 #' )
-#' plot_likert_divergent(df, cols = c("q1", "q2", "q3"),
+#' plot_likert(df, cols = c("q1", "q2", "q3"),
 #'   var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Satisfaction"))
 #'
 #' @export
-plot_likert_divergent <- function(data, cols, n_levels = 5,
+plot_likert <- function(data, cols, n_levels = 5,
                                   var_labels = NULL, level_labels = NULL,
                                   title = "Répartition des réponses (Likert)",
                                   neutral = ceiling(n_levels / 2),
@@ -111,10 +111,10 @@ plot_likert_divergent <- function(data, cols, n_levels = 5,
 #'   sexe = c("H", "F", NA, "F", "H"),
 #'   note = c(NA, 15, 12, NA, 18)
 #' )
-#' plot_missing_map(df)
+#' plot_missing(df)
 #'
 #' @export
-plot_missing_map <- function(data, vars = NULL,
+plot_missing <- function(data, vars = NULL,
                               color_missing = "#D32F2F",
                               title = "Carte des données manquantes",
                               max_obs = 200) {

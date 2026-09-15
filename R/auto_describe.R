@@ -22,15 +22,15 @@
 #'
 #' @examples
 #' # Analyser toutes les variables d'iris
-#' res <- auto_describe(iris)
+#' res <- desc_auto(iris)
 #' names(res)  # variables détectées
 #' attr(res, "var_types")  # tableau des types détectés
 #'
 #' # Analyser seulement certaines variables
-#' res2 <- auto_describe(iris, vars = c("Sepal.Length", "Species"))
+#' res2 <- desc_auto(iris, vars = c("Sepal.Length", "Species"))
 #'
 #' @export
-auto_describe <- function(data, vars = NULL, digits = 1, color = "transparent",
+desc_auto <- function(data, vars = NULL, digits = 1, color = "transparent",
                            binary_threshold = 2, cat_threshold = 10,
                            verbose = FALSE) {
 
@@ -96,17 +96,17 @@ auto_describe <- function(data, vars = NULL, digits = 1, color = "transparent",
     res_var <- tryCatch({
       switch(type_det,
         "binaire" = {
-          if (exists("descr_binary", where = asNamespace("analytix"))) {
-            descr_binary(data, !!rlang::sym(var_nm), digits = digits, color = color)
+          if (exists("desc_binary", where = asNamespace("analytix"))) {
+            desc_binary(data, !!rlang::sym(var_nm), digits = digits, color = color)
           } else {
-            descr_categorial(data, !!rlang::sym(var_nm), digits = digits, color = color)
+            desc_categorical(data, !!rlang::sym(var_nm), digits = digits, color = color)
           }
         },
         "categorielle" = {
-          descr_categorial(data, !!rlang::sym(var_nm), digits = digits, color = color)
+          desc_categorical(data, !!rlang::sym(var_nm), digits = digits, color = color)
         },
         "numerique" = {
-          descr_numeric(data, !!rlang::sym(var_nm), digits = digits, color = color)
+          desc_numeric(data, !!rlang::sym(var_nm), digits = digits, color = color)
         },
         NULL  # types "date" et "autre" ignorés
       )

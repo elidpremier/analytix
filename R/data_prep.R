@@ -17,7 +17,7 @@
 #' detect_outliers(df, age, var_name = "Age")
 #'
 #' @export
-detect_outliers <- function(data, var, var_name = NULL,
+prep_outliers <- function(data, var, var_name = NULL,
                              method = c("iqr", "zscore", "both"),
                              iqr_factor = 1.5, z_threshold = 3,
                              color = "transparent") {
@@ -100,7 +100,7 @@ detect_outliers <- function(data, var, var_name = NULL,
 #' attr(df$age, "label")
 #'
 #' @export
-label_vars <- function(data, labels) {
+prep_labels <- function(data, labels) {
   if (!is.data.frame(data)) stop("`data` doit être un data.frame.")
   if (!is.character(labels) || is.null(names(labels))) {
     stop("`labels` doit être un vecteur de caractères nommé.")
@@ -131,12 +131,12 @@ label_vars <- function(data, labels) {
 #'
 #' @examples
 #' \dontrun{
-#'   df <- import_clean("data/enquete.xlsx", sheet = 1)
-#'   df <- import_clean("data/donnees.csv", sep = ",")
+#'   df <- prep_import("data/enquete.xlsx", sheet = 1)
+#'   df <- prep_import("data/donnees.csv", sep = ",")
 #' }
 #'
 #' @export
-import_clean <- function(path, sheet = 1, skip = 0, sep = ";", clean = TRUE, ...) {
+prep_import <- function(path, sheet = 1, skip = 0, sep = ";", clean = TRUE, ...) {
   ext <- tolower(tools::file_ext(path))
 
   if (ext %in% c("xlsx", "xls")) {

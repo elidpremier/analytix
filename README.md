@@ -73,94 +73,104 @@ library(analytix)
 
 ## 🗂️ Vue d'ensemble des fonctions
 
-### 🧹 Nettoyage & Préparation des données
+### 🧹 Nettoyage & Préparation des données (`clean_*`, `prep_*`)
 
 | Fonction | Description |
 |---|---|
-| `import_clean()` | Import Excel/CSV + nettoyage automatique des noms |
+| `prep_import()` | Import Excel/CSV + nettoyage automatique des noms |
 | `clean_names()` | Nettoyage des noms de colonnes (accents, espaces, casse) |
+| `clean_colnames()` | Nettoyage des noms de colonnes d'un data.frame |
 | `clean_text()` | Nettoyage d'une variable textuelle |
 | `clean_binary()` | Standardisation d'une variable binaire (Oui/Non, 0/1) |
-| `recode_odk_binary()` | Recodage binaire spécifique ODK/KoboToolbox/REDCap (NA/vide → "Non") |
 | `clean_numeric()` | Nettoyage d'une variable numérique (virgules, espaces) |
-| `label_vars()` | Attacher des libellés à plusieurs variables en une seule opération |
-| `detect_outliers()` | Détection des valeurs aberrantes (IQR, Z-score) avec rapport |
-| `quick_code()` | Recodage rapide d'une variable catégorielle |
-| `collapse_categories()` | Regroupement de modalités |
-| `categorize_numeric()` | Conversion numérique → catégorielle par tranches |
-| `impute_mode()` | Imputation par le mode |
-| `impute_mean()` | Imputation par la moyenne |
-| `impute_mice()` | Imputation multiple robuste par la méthode MICE |
-| `missing_report()` | Rapport des taux de valeurs manquantes |
+| `prep_recode_odk()` | Recodage binaire spécifique ODK/KoboToolbox/REDCap (NA/vide → "Non") |
+| `prep_labels()` | Attacher des libellés à plusieurs variables en une seule opération |
+| `prep_outliers()` | Détection des valeurs aberrantes (IQR, Z-score) avec rapport |
+| `prep_quick_code()` | Recodage rapide d'une variable catégorielle |
+| `prep_collapse()` | Regroupement de modalités |
+| `prep_categorize()` | Conversion numérique → catégorielle par tranches |
+| `prep_impute_mode()` | Imputation par le mode |
+| `prep_impute_mean()` | Imputation par la moyenne ou médiane |
+| `prep_impute_mice()` | Imputation multiple robuste par la méthode MICE |
+| `report_missing()` | Rapport des taux de valeurs manquantes |
 
 ---
 
-### 📊 Analyse univariée
+### 📊 Analyse univariée (`desc_*`)
 
 | Fonction | Description |
 |---|---|
-| `descr_categorial()` | Fréquences et pourcentages pour variables catégorielles |
-| `descr_grouped_categories()` | Tableau récapitulatif de sous-catégories groupées par thématique (ex: molécules par classe) |
-| `descr_numeric()` | Statistiques descriptives pour variables numériques |
-| `descr_binary()` | Prévalence et IC95% pour variables binaires |
-| `descr_age()` | Résumé standardisé d'une variable âge (stats + tranches) |
-| `descr_likert()` | Tableau + graphique pour une variable Likert |
-| `recode_likert()` | Recodage texte → numérique selon un mapping Likert |
-| `multi_likert_table()` | Tableau récapitulatif de plusieurs variables Likert |
-| `descr_multi_choice()` | Analyse des questions à choix multiples |
-| `calc_prevalence()` | Calcul de prévalence avec IC95% (Wilson) |
-| `analyse_descriptive_multiple()` | Analyse automatisée de plusieurs variables mixtes |
+| `desc_categorical()` | Fréquences et pourcentages pour variables catégorielles |
+| `desc_grouped()` | Tableau récapitulatif de sous-catégories groupées par thématique |
+| `desc_numeric()` | Statistiques descriptives pour variables numériques |
+| `desc_binary()` | Prévalence et IC95% pour variables binaires |
+| `desc_age()` | Résumé standardisé d'une variable âge (stats + tranches) |
+| `desc_likert()` | Tableau + graphique pour une variable Likert |
+| `prep_recode_likert()` | Recodage texte → numérique selon un mapping Likert |
+| `tbl_likert_multi()` | Tableau récapitulatif de plusieurs variables Likert |
+| `desc_multi_choice()` | Analyse des questions à choix multiples |
+| `desc_prevalence()` | Calcul de prévalence avec IC95% (Wilson) |
+| `desc_auto()` | Analyse descriptive automatique de toutes les variables d'un jeu |
+| `desc_multiple()` | Analyse automatisée de plusieurs variables mixtes |
 
 ---
 
-### 🔀 Analyse bivariée
+### 🔀 Analyse bivariée & Tableaux (`tbl_*`)
 
 | Fonction | Description |
 |---|---|
-| `cross_table_uniq_mod()` | Tableau croisé avec test χ² ou Fisher |
-| `cross_multi()` | Tableau croisé multi-variables (outcome vs plusieurs prédicteurs) |
-| `descr_by_group()` | Statistiques descriptives numériques par groupe + tests |
-| `bivariate_or_table()` | Tableau d'Odds Ratios bivariés (régression logistique) |
+| `tbl_cross_unique()` | Tableau croisé avec test χ² ou Fisher |
+| `tbl_cross_multi()` | Tableau croisé multi-variables (outcome vs plusieurs prédicteurs) |
+| `desc_by_group()` | Statistiques descriptives numériques par groupe + tests |
+| `tbl_bivariate_or()` | Tableau d'Odds Ratios bivariés (régression logistique) |
 
 ---
 
-### 🔬 Statistiques avancées
+### 🔬 Statistiques avancées (`tbl_*`, `stat_*`, `interp_*`)
 
 | Fonction | Description |
 |---|---|
-| `multivariable_logistic_table()` | Tableau de régression logistique multivariée (ORa, IC95%, p) |
-| `anova_table()` | ANOVA à un facteur + post-hoc Tukey |
-| `correlation_table()` | Matrice de corrélations (Pearson/Spearman) formatée |
-| `calc_sensitivity_specificity()` | Se, Sp, VPP, VPN, LR+/- avec IC95% |
+| `tbl_logistic()` | Tableau de régression logistique multivariée (ORa, IC95%, p) |
+| `tbl_anova()` | ANOVA à un facteur + post-hoc Tukey |
+| `tbl_correlation()` | Matrice de corrélations (Pearson/Spearman) formatée |
+| `stat_sens_spec()` | Se, Sp, VPP, VPN, LR+/- avec IC95% |
+| `interp_pvalue()` | Interprétation en français d'une p-value |
+| `interp_or()` | Interprétation en français d'un Odds Ratio |
+| `interp_association()` | Interprétation d'un test d'association |
 
 ---
 
-### 📈 Visualisations
+### 📈 Visualisations (`plot_*`)
 
 | Fonction | Description |
 |---|---|
-| `plot_barplot()` | Graphique en barres pour variables catégorielles |
-| `plot_pie_chart()` | Camembert pour variables catégorielles |
-| `plot_boxplot()` | Boxplot d'une variable numérique par groupe |
-| `plot_grouped_bar()` | Barres groupées pour variables bivariées |
-| `plot_stacked_bar_100()` | Barres empilées à 100% |
+| `plot_bar()` | Graphique en barres pour variables catégorielles |
+| `plot_pie()` | Camembert pour variables catégorielles |
+| `plot_box()` | Boxplot d'une variable numérique par groupe |
+| `plot_bar_grouped()` | Barres groupées pour variables bivariées |
+| `plot_bar_stacked()` | Barres empilées à 100% |
 | `plot_distribution()` | Histogramme/densité adaptatif |
-| `plot_likert_divergent()` | Graphique divergent pour échelles de Likert |
+| `plot_likert()` | Graphique divergent pour échelles de Likert |
 | `plot_correlation()` | Heatmap de corrélations (ggplot2) |
-| `plot_missing_map()` | Carte visuelle des données manquantes |
-| `plot_heatmap_matrix()` | Heatmap d'une matrice de données |
+| `plot_missing()` | Carte visuelle des données manquantes |
+| `plot_heatmap()` | Heatmap d'une matrice de données |
 
 ---
 
-### 📤 Mise en forme & Export
+### 📤 Mise en forme & Export (`fmt_*`, `report_*`, `export_*`)
 
 | Fonction | Description |
 |---|---|
 | `theme_analytique()` | Thème flextable professionnel (en-têtes, bordures, police) |
-| `format_flextable()` | Formatage avancé d'un flextable existant |
-| `export_to_word()` | Export Word d'objets individuels ou de l'environnement global |
-| `export_all_tables()` | Export Word structuré d'une liste nommée de tableaux |
-| `fmt_regression_fr()` | Formatage francophone des résultats de régression |
+| `fmt_flextable()` | Formatage avancé d'un flextable existant |
+| `fmt_regression()` | Formatage francophone des résultats de régression |
+| `fmt_apply_theme()` | Application d'un thème ggplot2 uniforme |
+| `report_generate()` | Rapport Word automatique complet |
+| `report_magic()` | Rapport magique 1-clic |
+| `report_missing()` | Rapport sur les données manquantes |
+| `report_compile()` | Compilation de rapport modulaire |
+| `export_word()` | Export Word d'objets individuels ou de l'environnement global |
+| `export_tables()` | Export Word structuré d'une liste nommée de tableaux |
 
 ---
 
@@ -172,17 +182,17 @@ library(analytix)
 library(analytix)
 
 # Import Excel + nettoyage automatique
-df <- import_clean("data/enquete.xlsx", sheet = 1)
+df <- prep_import("data/enquete.xlsx", sheet = 1)
 
 # Attacher des libellés
-df <- label_vars(df, c(
+df <- prep_labels(df, c(
   age   = "Âge en années",
   sexe  = "Sexe du participant",
   score = "Score de satisfaction (1-5)"
 ))
 
 # Vérifier les valeurs aberrantes
-res <- detect_outliers(df, age, var_name = "Âge")
+res <- prep_outliers(df, age, var_name = "Âge")
 res$summary  # flextable
 ```
 
@@ -190,17 +200,17 @@ res$summary  # flextable
 
 ```r
 # Variable catégorielle
-descr_categorial(df, sexe, var_name = "Sexe")
+desc_categorical(df, sexe, var_name = "Sexe")
 
 # Variable âge avec tranches
-descr_age(df, age, var_name = "Âge des participants")
+desc_age(df, age, var_name = "Âge des participants")
 
 # Variable Likert (avec graphique)
-descr_likert(df, score, var_name = "Satisfaction globale",
+desc_likert(df, score, var_name = "Satisfaction globale",
              plot = TRUE)$plot
 
 # Plusieurs variables Likert en un tableau
-multi_likert_table(df,
+tbl_likert_multi(df,
   cols = c("q1", "q2", "q3"),
   var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Délai"))
 ```
@@ -210,25 +220,25 @@ multi_likert_table(df,
 ```r
 # Régression logistique multivariée
 mod <- glm(issue ~ age + sexe + groupe, data = df, family = binomial())
-multivariable_logistic_table(mod)
+tbl_logistic(mod)
 
 # ANOVA + Tukey
-res <- anova_table(df, score, groupe, var_name = "Score", group_name = "Groupe")
+res <- tbl_anova(df, score, groupe, var_name = "Score", group_name = "Groupe")
 res$anova   # tableau ANOVA
 res$tukey   # comparaisons par paires
 
 # Matrice de corrélations
-correlation_table(df, cols = c("age", "score", "poids"))
+tbl_correlation(df, cols = c("age", "score", "poids"))
 plot_correlation(df, cols = c("age", "score", "poids"))
 
 # Indicateurs diagnostiques
-calc_sensitivity_specificity(actual = df$reference, predicted = df$test)
+stat_sens_spec(actual = df$reference, predicted = df$test)
 ```
 
 ### Visualisation Likert divergente
 
 ```r
-plot_likert_divergent(df,
+plot_likert(df,
   cols = c("q1", "q2", "q3"),
   var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Délai"),
   title = "Satisfaction des bénéficiaires")

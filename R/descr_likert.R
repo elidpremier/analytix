@@ -12,10 +12,10 @@
 #' x <- c("Pas du tout", "Assez", "Tout à fait", NA)
 #' map <- c("pas du tout" = 1, "peu" = 2, "moyennement" = 3,
 #'          "assez" = 4, "tout à fait" = 5)
-#' recode_likert(x, map)
+#' prep_recode_likert(x, map)
 #'
 #' @export
-recode_likert <- function(x, mapping) {
+prep_recode_likert <- function(x, mapping) {
   x_trim <- stringr::str_trim(tolower(as.character(x)))
   result <- mapping[x_trim]
   as.numeric(result)
@@ -39,10 +39,10 @@ recode_likert <- function(x, mapping) {
 #'
 #' @examples
 #' df <- data.frame(satisfaction = sample(1:5, 50, replace = TRUE))
-#' descr_likert(df, satisfaction, var_name = "Satisfaction globale")
+#' desc_likert(df, satisfaction, var_name = "Satisfaction globale")
 #'
 #' @export
-descr_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
+desc_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
                          digits = 1, color = "transparent", plot = FALSE) {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
@@ -133,7 +133,7 @@ descr_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
 #'   var_labels = c(q1 = "Accessibilité", q2 = "Qualité", q3 = "Satisfaction"))
 #'
 #' @export
-multi_likert_table <- function(data, cols, var_labels = NULL,
+tbl_likert_multi <- function(data, cols, var_labels = NULL,
                                digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")

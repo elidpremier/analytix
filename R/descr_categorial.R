@@ -16,11 +16,11 @@
 #' @return Une liste contenant le tableau de données et le flextable
 #'
 #' @examples
-#' descr_categorial(iris, Species)
-#' descr_categorial(iris, Species, subset = Sepal.Length > 5)
+#' desc_categorical(iris, Species)
+#' desc_categorical(iris, Species, subset = Sepal.Length > 5)
 #'
 #' @export
-descr_categorial <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
+desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
                        include_na = FALSE, na_label = "Manquant", total = TRUE,
                        caption = NULL, color = "transparent", compact = FALSE) {
 

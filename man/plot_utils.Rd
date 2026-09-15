@@ -2,15 +2,15 @@
 % Please edit documentation in R/plot_utils.R
 \name{plot_utils}
 \alias{plot_utils}
-\alias{apply_custom_theme}
-\alias{plot_barplot}
-\alias{plot_pie_chart}
-\alias{plot_stacked_bar_100}
-\alias{plot_grouped_bar}
-\alias{plot_boxplot}
+\alias{fmt_apply_theme}
+\alias{plot_bar}
+\alias{plot_pie}
+\alias{plot_bar_stacked}
+\alias{plot_bar_grouped}
+\alias{plot_box}
 \title{Fonctions graphiques pour l'analyse descriptive}
 \usage{
-apply_custom_theme(
+fmt_apply_theme(
   p,
   theme_name = "minimal",
   base_size = 11,
@@ -19,7 +19,7 @@ apply_custom_theme(
   flip_coord = FALSE
 )
 
-plot_barplot(
+plot_bar(
   data,
   x = NULL,
   title = NULL,
@@ -33,7 +33,7 @@ plot_barplot(
   height = 6
 )
 
-plot_pie_chart(
+plot_pie(
   data,
   x = NULL,
   title = NULL,
@@ -45,7 +45,7 @@ plot_pie_chart(
   height = 6
 )
 
-plot_stacked_bar_100(
+plot_bar_stacked(
   data,
   x,
   fill,
@@ -59,7 +59,7 @@ plot_stacked_bar_100(
   height = 6
 )
 
-plot_grouped_bar(
+plot_bar_grouped(
   data,
   x,
   fill,
@@ -74,7 +74,7 @@ plot_grouped_bar(
   height = 6
 )
 
-plot_boxplot(
+plot_box(
   data,
   x,
   y,

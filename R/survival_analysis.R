@@ -25,7 +25,7 @@ NULL
 
 #' @rdname survival_analysis
 #' @export
-km_table <- function(data, time_var, event_var, group_var = NULL,
+tbl_km <- function(data, time_var, event_var, group_var = NULL,
                      color = "transparent", digits = 1) {
 
   if (!requireNamespace("survival", quietly = TRUE))
@@ -84,7 +84,7 @@ km_table <- function(data, time_var, event_var, group_var = NULL,
 
 #' @rdname survival_analysis
 #' @export
-km_plot <- function(data, time_var, event_var, group_var = NULL) {
+plot_km <- function(data, time_var, event_var, group_var = NULL) {
   if (!requireNamespace("survival", quietly = TRUE)) stop("Package 'survival' requis.")
   if (!requireNamespace("survminer", quietly = TRUE)) stop("Package 'survminer' requis.")
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Package 'ggplot2' requis.")

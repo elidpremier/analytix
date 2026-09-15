@@ -343,7 +343,8 @@ mod_univariate_server <- function(id, data_reactive) {
       sym_var <- rlang::sym(var_name)
       
       tryCatch({
-        if (type == "age" && exists("descr_age", where = asNamespace("analytix"))) {
+        if (type == "age" && (exists("desc_age", where = asNamespace("analytix")) || exists("descr_age", where = asNamespace("analytix")))) {
+          fn <- if (exists("desc_age", where = asNamespace("analytix"))) analytix::desc_age else analytix::descr_age
           # Parse breaks
           breaks_val <- NULL
           breaks_str <- trimws(input$age_breaks)
@@ -360,16 +361,20 @@ mod_univariate_server <- function(id, data_reactive) {
           }
           age_digits <- as.integer(input$age_digits)
           
-          analytix::descr_age(df, var = !!sym_var, breaks = breaks_val, labels = labels_val, digits = age_digits, color = color)
+          fn(df, var = !!sym_var, breaks = breaks_val, labels = labels_val, digits = age_digits, color = color)
 
-        } else if (type == "numeric" && exists("descr_numeric", where = asNamespace("analytix"))) {
-          analytix::descr_numeric(df, var = !!sym_var, digits = digits, show_valid = show_valid, show_skewness = show_skewness, color = color)
-        } else if (type == "categorical" && exists("descr_categorial", where = asNamespace("analytix"))) {
-          analytix::descr_categorial(df, var = !!sym_var, include_na = include_na, digits = digits, color = color)
-        } else if (type == "binary" && exists("descr_binary", where = asNamespace("analytix"))) {
-          analytix::descr_binary(df, var = !!sym_var, digits = digits, color = color)
-        } else if (type == "likert" && exists("descr_likert", where = asNamespace("analytix"))) {
-          analytix::descr_likert(df, var = !!sym_var, color = color)
+        } else if (type == "numeric" && (exists("desc_numeric", where = asNamespace("analytix")) || exists("descr_numeric", where = asNamespace("analytix")))) {
+          fn <- if (exists("desc_numeric", where = asNamespace("analytix"))) analytix::desc_numeric else analytix::descr_numeric
+          fn(df, var = !!sym_var, digits = digits, show_valid = show_valid, show_skewness = show_skewness, color = color)
+        } else if (type == "categorical" && (exists("desc_categorical", where = asNamespace("analytix")) || exists("descr_categorial", where = asNamespace("analytix")))) {
+          fn <- if (exists("desc_categorical", where = asNamespace("analytix"))) analytix::desc_categorical else analytix::descr_categorial
+          fn(df, var = !!sym_var, include_na = include_na, digits = digits, color = color)
+        } else if (type == "binary" && (exists("desc_binary", where = asNamespace("analytix")) || exists("descr_binary", where = asNamespace("analytix")))) {
+          fn <- if (exists("desc_binary", where = asNamespace("analytix"))) analytix::desc_binary else analytix::descr_binary
+          fn(df, var = !!sym_var, digits = digits, color = color)
+        } else if (type == "likert" && (exists("desc_likert", where = asNamespace("analytix")) || exists("descr_likert", where = asNamespace("analytix")))) {
+          fn <- if (exists("desc_likert", where = asNamespace("analytix"))) analytix::desc_likert else analytix::descr_likert
+          fn(df, var = !!sym_var, color = color)
         } else {
           col <- df[[var_name]]
           if (is.numeric(col)) {
@@ -527,35 +532,33 @@ mod_univariate_server <- function(id, data_reactive) {
 
       # Plot Color
       plot_color <- input$plot_color
-      if (input$plot_palette != "Défaut") {
-        plot_color <- switch(input$plot_palette,
-          "Analytix" = "#0284c7",
-          "viridis" = "#440154",
-          "Set1" = "#E41A1C",
-          "Set2" = "#66C2A5",
-          "Pastel1" = "#FBB4AE",
-          "Dark2" = "#1B9E77",
-          plot_color
-        )
-      } else if (is.null(plot_color) || nchar(trimws(plot_color)) == 0) {
-        plot_color <- "#0284c7"
+      if (is.null(plot_color) || nchar(trimws(plot_color)) == 0) plot_color <- "#0284c7"
+      plot_theme_name <- input$plot_theme
+
+      sym_var <- rlang::sym(var_name)
+
+      # Build custom title
+      custom_title <- input$plot_title_custom
+      if (is.null(custom_title) || nchar(trimws(custom_title)) == 0) {
+        custom_title <- sprintf("Distribution de : %s", var_name)
       }
 
-      # Plot Theme
-      plot_theme_name <- input$plot_theme
+      # Standard ggplot fallback theme
       thm <- switch(plot_theme_name,
-                    "minimal" = ggplot2::theme_minimal(base_size = 14),
-                    "classic" = ggplot2::theme_classic(base_size = 14),
-                    "light" = ggplot2::theme_light(base_size = 14),
+                    "classic"  = ggplot2::theme_classic(base_size = 14),
+                    "dark"     = ggplot2::theme_dark(base_size = 14),
+                    "light"    = ggplot2::theme_light(base_size = 14),
+                    "minimal"  = ggplot2::theme_minimal(base_size = 14),
                     ggplot2::theme_minimal(base_size = 14))
 
       p <- NULL
 
       # 1. Pie Chart
       if (requested_type == "pie") {
-        if (exists("plot_pie_chart", where = asNamespace("analytix"))) {
+        pie_fn <- if (exists("plot_pie", where = asNamespace("analytix"))) analytix::plot_pie else if (exists("plot_pie_chart", where = asNamespace("analytix"))) analytix::plot_pie_chart else NULL
+        if (!is.null(pie_fn)) {
           p <- tryCatch({
-            analytix::plot_pie_chart(df, x = !!sym_var, title = custom_title)
+            pie_fn(df, x = !!sym_var, title = custom_title)
           }, error = function(e) NULL)
         }
 
@@ -585,9 +588,10 @@ mod_univariate_server <- function(id, data_reactive) {
       }
       # 2. Bar chart / bar plot
       else if (requested_type == "bar") {
-        if (exists("plot_barplot", where = asNamespace("analytix"))) {
+        bar_fn <- if (exists("plot_bar", where = asNamespace("analytix"))) analytix::plot_bar else if (exists("plot_barplot", where = asNamespace("analytix"))) analytix::plot_barplot else NULL
+        if (!is.null(bar_fn)) {
           p <- tryCatch({
-            analytix::plot_barplot(df, x = !!sym_var, title = custom_title, col = plot_color, horiz = isTRUE(input$plot_horiz), show_labels = isTRUE(input$plot_labels))
+            bar_fn(df, x = !!sym_var, title = custom_title, col = plot_color, horiz = isTRUE(input$plot_horiz), show_labels = isTRUE(input$plot_labels))
           }, error = function(e) NULL)
         }
 
@@ -648,9 +652,10 @@ mod_univariate_server <- function(id, data_reactive) {
       }
 
       # Application du Custom Theme via la fonction du package analytix
-      if (!is.null(p) && exists("apply_custom_theme", where = asNamespace("analytix"))) {
+      fmt_theme_fn <- if (exists("fmt_apply_theme", where = asNamespace("analytix"))) analytix::fmt_apply_theme else if (exists("apply_custom_theme", where = asNamespace("analytix"))) analytix::apply_custom_theme else NULL
+      if (!is.null(p) && !is.null(fmt_theme_fn)) {
         p <- tryCatch({
-          analytix::apply_custom_theme(
+          fmt_theme_fn(
             p,
             theme_name = input$plot_theme,
             base_size = input$plot_base_size,

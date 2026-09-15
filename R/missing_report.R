@@ -6,7 +6,7 @@
 #' @param color couleur de l'en-tête (défaut: "transparent")
 #' @return un objet de classe "missing_report"
 #' @export
-missing_report <- function(data, vars = base::names(data), digits = 1, color = "transparent") {
+report_missing <- function(data, vars = base::names(data), digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("tibble", quietly = TRUE)) stop("tibble requis")

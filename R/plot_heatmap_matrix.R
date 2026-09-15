@@ -23,10 +23,10 @@
 #'   Antibio = rep(c("Ampicilline", "Céfotaxime", "Ciprofloxacine"), 3),
 #'   Taux = c(85.5, 42.0, 15.2, 90.0, 60.1, 20.0, 70.3, 35.0, 10.5)
 #' )
-#' plot_heatmap_matrix(df, x = Source, y = Antibio, fill = Taux)
+#' plot_heatmap(df, x = Source, y = Antibio, fill = Taux)
 #' 
 #' @export
-plot_heatmap_matrix <- function(data, x, y, fill,
+plot_heatmap <- function(data, x, y, fill,
                                 low_color = "#E8F5E9",
                                 high_color = "#D32F2F",
                                 title = NULL,

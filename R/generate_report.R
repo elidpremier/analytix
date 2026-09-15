@@ -51,7 +51,7 @@
 #' @importFrom flextable body_add_flextable flextable theme_vanilla
 #'
 #' @export
-generate_report <- function(data,
+report_generate <- function(data,
                              output      = "rapport_analytix.docx",
                              title       = "Rapport d'Analyse Statistique",
                              subtitle    = "Analyse descriptive et inférentielle",
@@ -167,9 +167,9 @@ generate_report <- function(data,
     doc <- .add_ft(doc, .df_to_ft(meta_df, "Synthèse du jeu de données"))
     doc <- officer::body_add_par(doc, "", style = "Normal")
 
-    # Tableau des types de variables (via auto_describe)
+    # Tableau des types de variables (via desc_auto)
     var_types_df <- tryCatch({
-      attr(auto_describe(data, vars = vars, verbose = FALSE), "var_types")
+      attr(desc_auto(data, vars = vars, verbose = FALSE), "var_types")
     }, error = function(e) NULL)
 
     if (!is.null(var_types_df)) {
@@ -187,14 +187,14 @@ generate_report <- function(data,
     doc <- officer::body_add_par(doc, .next_sec("Données manquantes"), style = "heading 1")
 
     tryCatch({
-      mr <- missing_report(data, digits = digits, color = color)
+      mr <- report_missing(data, digits = digits, color = color)
       if (!is.null(mr$flextable)) {
         # Re-appliquer theme_analytique pour forcer pleine largeur
         doc <- .add_ft(doc, mr$flextable)
         doc <- officer::body_add_par(doc, "", style = "Normal")
       }
     }, error = function(e) {
-      .warn("missing_report a échoué : ", e$message)
+      .warn("report_missing a échoué : ", e$message)
       # Fallback tableau simple
       na_df <- data.frame(
         Variable   = names(data),
@@ -210,7 +210,7 @@ generate_report <- function(data,
     if (include_plots) {
       tryCatch({
         if (any(is.na(data))) {
-          p_miss <- plot_missing_map(data)
+          p_miss <- plot_missing(data)
           tmp_png <- tempfile(fileext = ".png")
           ggplot2::ggsave(tmp_png, plot = p_miss, width = 9, height = 5, dpi = 150)
           doc <- officer::body_add_par(doc, "Cartographie des valeurs manquantes", style = "heading 2")
@@ -231,8 +231,8 @@ generate_report <- function(data,
     vars_desc <- if (is.null(vars)) names(data) else vars
 
     ad_res <- tryCatch(
-      auto_describe(data, vars = vars_desc, digits = digits, color = color, verbose = FALSE),
-      error = function(e) { .warn("auto_describe a échoué : ", e$message); NULL }
+      desc_auto(data, vars = vars_desc, digits = digits, color = color, verbose = FALSE),
+      error = function(e) { .warn("desc_auto a échoué : ", e$message); NULL }
     )
 
     if (!is.null(ad_res) && length(ad_res) > 0) {
@@ -265,7 +265,7 @@ generate_report <- function(data,
               p <- if (type_det == "numerique") {
                 plot_distribution(data, var = !!rlang::sym(var_nm_orig))
               } else if (type_det %in% c("categorielle", "binaire")) {
-                plot_barplot(data, x = !!rlang::sym(var_nm_orig), title = var_label)
+                plot_bar(data, x = !!rlang::sym(var_nm_orig), title = var_label)
               } else NULL
 
               if (!is.null(p)) {
@@ -300,13 +300,13 @@ generate_report <- function(data,
         n >= 2 && n <= 20 && !all(is.na(x))
       })]
       if (length(exposures_auto) == 0) stop("Aucune variable explicative compatible.")
-      ft_biv <- bivariate_or_table(data, outcome = outcome,
+      ft_biv <- tbl_bivariate_or(data, outcome = outcome,
                                     exposures = exposures_auto,
                                     digits = digits, color = color)
       doc <- .add_ft(doc, ft_biv)
       doc <- officer::body_add_par(doc, "", style = "Normal")
     }, error = function(e) {
-      .warn("bivariate_or_table a échoué : ", e$message)
+      .warn("tbl_bivariate_or a échoué : ", e$message)
       doc <<- officer::body_add_par(doc,
         paste("Analyse bivariée non disponible :", e$message), style = "Normal")
     })
@@ -337,12 +337,12 @@ generate_report <- function(data,
                               paste(paste0("`", vars_reg, "`"), collapse = " + "))
         mod <- stats::glm(stats::as.formula(formula_str), data = df_reg,
                           family = stats::binomial())
-        ft_reg <- multivariable_logistic_table(mod, data = df_reg, digits = digits, color = color)
+        ft_reg <- tbl_logistic(mod, data = df_reg, digits = digits, color = color)
         doc <- .add_ft(doc, ft_reg)
         doc <- officer::body_add_par(doc, "", style = "Normal")
         
         # --- NLG : Interprétation automatique ---
-        if (exists("interpret_pvalue", where = asNamespace("analytix"))) {
+        if (exists("interp_pvalue", where = asNamespace("analytix"))) {
           co <- summary(mod)$coefficients
           # Trouver la variable la plus significative (hors Intercept)
           if (nrow(co) > 1) {
@@ -353,8 +353,8 @@ generate_report <- function(data,
                 best_p <- co_vars[best_idx, "Pr(>|z|)"]
                 best_or <- exp(co_vars[best_idx, "Estimate"])
                 
-                phrase_p <- interpret_pvalue(best_p)
-                phrase_or <- interpret_or(best_or, best_p)
+                phrase_p <- interp_pvalue(best_p)
+                phrase_or <- interp_or(best_or, best_p)
                 
                 doc <- officer::body_add_par(doc, "Interprétation automatique :", style = "heading 3")
                 doc <- officer::body_add_par(doc, 
@@ -592,10 +592,10 @@ generate_report <- function(data,
       doc <- officer::body_add_par(doc, .next_sec("Matrice de corrélations"), style = "heading 1")
 
       tryCatch({
-        ft_cor <- correlation_table(data, cols = num_vars, digits = digits, color = color)
+        ft_cor <- tbl_correlation(data, cols = num_vars, digits = digits, color = color)
         doc <- .add_ft(doc, ft_cor)
         doc <- officer::body_add_par(doc, "", style = "Normal")
-      }, error = function(e) .warn("correlation_table a échoué : ", e$message))
+      }, error = function(e) .warn("tbl_correlation a échoué : ", e$message))
 
       if (include_plots && length(num_vars) >= 3) {
         tryCatch({

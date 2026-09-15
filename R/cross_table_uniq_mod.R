@@ -23,7 +23,7 @@
 #' @importFrom flextable as_grouped_data as_flextable set_caption set_header_labels add_footer_lines theme_vanilla bold bg italic fontsize align autofit
 #' @importFrom rlang enquo enquos quo_name
 #' @export
-cross_table_uniq_mod <- function(data, target, ...,
+tbl_cross_unique <- function(data, target, ...,
                                  target_name = NULL,
                                  outcome_of_interest = NULL,
                                  pct = c("row", "col", "total"),

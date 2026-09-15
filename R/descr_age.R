@@ -16,10 +16,10 @@
 #'
 #' @examples
 #' df <- data.frame(age = c(23, 31, 45, 52, 18, 67, 29, 34, NA, 41))
-#' descr_age(df, age, var_name = "Âge des participants")
+#' desc_age(df, age, var_name = "Âge des participants")
 #'
 #' @export
-descr_age <- function(data, var, var_name = NULL, breaks = NULL,
+desc_age <- function(data, var, var_name = NULL, breaks = NULL,
                       labels = NULL, digits = 1, color = "transparent") {
   if (!requireNamespace("dplyr", quietly = TRUE)) stop("dplyr requis")
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")

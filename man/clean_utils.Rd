@@ -4,29 +4,29 @@
 \alias{clean_utils}
 \alias{clean_text}
 \alias{clean_binary}
-\alias{recode_odk_binary}
+\alias{prep_recode_odk}
 \alias{clean_numeric}
 \alias{clean_names}
-\alias{clean_column_names}
-\alias{impute_mode}
-\alias{impute_mean}
+\alias{clean_colnames}
+\alias{prep_impute_mode}
+\alias{prep_impute_mean}
 \title{Utilitaires de nettoyage, d'imputation et de normalisation de noms}
 \usage{
 clean_text(x)
 
 clean_binary(x, yes_label = "Oui", no_label = "Non", na_as_no = FALSE)
 
-recode_odk_binary(x, yes_label = "Oui", no_label = "Non")
+prep_recode_odk(x, yes_label = "Oui", no_label = "Non")
 
 clean_numeric(x)
 
 clean_names(x, max_length = NULL, prefix = "v_")
 
-clean_column_names(x, ...)
+clean_colnames(x, ...)
 
-impute_mode(x)
+prep_impute_mode(x)
 
-impute_mean(x, type = c("mean", "median"))
+prep_impute_mean(x, type = c("mean", "median"))
 }
 \arguments{
 \item{x}{Vecteur ou data.frame à nettoyer ou imputer.}

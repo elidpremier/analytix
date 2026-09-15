@@ -21,16 +21,17 @@
 #'
 #' # Exemple 2 : avec labels personnalisés
 #' categorize_numeric(
+#' prep_categorize(
 #'   df, age,
 #'   breaks = c(0, 18, 35, 50, 100),
 #'   labels = c("Enfant", "Jeune adulte", "Adulte", "Senior")
 #' )
 #'
 #' # Exemple 3 : discretisation automatique en 4 classes
-#' categorize_numeric(df, age, breaks = 4)
+#' prep_categorize(df, age, breaks = 4)
 #'
 #' @export
-categorize_numeric <- function(data, var, breaks, labels = NULL,
+prep_categorize <- function(data, var, breaks, labels = NULL,
                                include_lowest = TRUE, right = TRUE,
                                as_factor = TRUE) {
 

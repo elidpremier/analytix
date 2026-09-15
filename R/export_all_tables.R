@@ -18,7 +18,7 @@
 #'   library(flextable)
 #'   t1 <- as_flextable(head(iris))
 #'   t2 <- as_flextable(head(mtcars))
-#'   export_all_tables(
+#'   export_tables(
 #'     tables = list("Description de l'iris" = t1, "Description des voitures" = t2),
 #'     file   = "mon_rapport.docx",
 #'     title  = "Rapport de tests"
@@ -26,7 +26,7 @@
 #' }
 #'
 #' @export
-export_all_tables <- function(tables, file = "rapport_tableaux.docx",
+export_tables <- function(tables, file = "rapport_tableaux.docx",
                                title = "Rapport d'analyse",
                                subtitle = NULL, author = NULL,
                                date = format(Sys.Date(), "%d %B %Y"),

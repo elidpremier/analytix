@@ -23,7 +23,7 @@
 #'
 #' # NA recodé
 #' quick_code(df, sexe, "H" = "Homme", "F" = "Femme", .na = "Inconnu")
-quick_code <- function(data, var, ..., .na = NULL,
+prep_quick_code <- function(data, var, ..., .na = NULL,
                        to = c("character", "factor", "keep")) {
 
   to <- match.arg(to)

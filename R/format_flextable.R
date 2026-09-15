@@ -17,7 +17,7 @@
 #' format_flextable(ft)
 #' 
 #' @export
-format_flextable <- function(ft, max_width = 6.3, font_size = 9,
+fmt_flextable <- function(ft, max_width = 6.3, font_size = 9,
                              font_family = "Times New Roman",
                              compact = TRUE, color = "transparent", ...) {
   page_width_cm <- max_width * 2.54

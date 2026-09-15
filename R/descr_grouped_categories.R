@@ -23,12 +23,12 @@
 #'   iec        = c("Enalapril", NA, "Ramipril", "Enalapril"),
 #'   ara2       = c(NA, "Valsartan", "Candesartan", NA)
 #' )
-#' descr_grouped_categories(df, cols = c("diuretique", "iec", "ara2"),
+#' desc_grouped(df, cols = c("diuretique", "iec", "ara2"),
 #'   var_labels = c(diuretique = "Diurétique", iec = "IEC", ara2 = "ARA II"),
 #'   caption = "Molécules prescrites par classe")
 #'
 #' @export
-descr_grouped_categories <- function(data,
+desc_grouped <- function(data,
                                      cols = NULL,
                                      group_col = NULL,
                                      sub_col = NULL,

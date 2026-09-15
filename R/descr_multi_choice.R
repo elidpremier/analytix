@@ -19,11 +19,11 @@
 #'   q1_b = c(1, 0, 1, 0, 0),
 #'   q1_c = c(0, 0, 1, 1, 1)
 #' )
-#' descr_multi_choice(df, cols = c("q1_a", "q1_b", "q1_c"),
+#' desc_multi_choice(df, cols = c("q1_a", "q1_b", "q1_c"),
 #'                    var_labels = c(q1_a = "Option A", q1_b = "Option B", q1_c = "Option C"))
 #' 
 #' @export
-descr_multi_choice <- function(data, cols, var_labels = NULL,
+desc_multi_choice <- function(data, cols, var_labels = NULL,
                                title = "Question à choix multiples",
                                pct_type = c("respondents", "choices"),
                                digits = 1,

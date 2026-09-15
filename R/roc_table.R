@@ -28,13 +28,13 @@
 #'   score = rnorm(100, 5, 2),
 #'   maladie = rbinom(100, 1, 0.4)
 #' )
-#' res <- roc_table(df, outcome = "maladie", predictor = "score")
+#' res <- tbl_roc(df, outcome = "maladie", predictor = "score")
 #' res$flextable
 #' res$plot
 #' }
 #'
 #' @export
-roc_table <- function(data, outcome, predictor = NULL, positive_val = NULL,
+tbl_roc <- function(data, outcome, predictor = NULL, positive_val = NULL,
                        conf_level = 0.95, digits = 3, color = "transparent",
                        return_plot = TRUE) {
 

@@ -2,16 +2,16 @@
 % Please edit documentation in R/interpret_stats.R
 \name{interpret_stats}
 \alias{interpret_stats}
-\alias{interpret_pvalue}
-\alias{interpret_or}
-\alias{interpret_association}
+\alias{interp_pvalue}
+\alias{interp_or}
+\alias{interp_association}
 \title{Génération de langage naturel pour l'interprétation statistique}
 \usage{
-interpret_pvalue(p_val, alpha = 0.05)
+interp_pvalue(p_val, alpha = 0.05)
 
-interpret_or(or_val, p_val = NULL)
+interp_or(or_val, p_val = NULL)
 
-interpret_association(var_x, var_y, p_val)
+interp_association(var_x, var_y, p_val)
 }
 \arguments{
 \item{p_val}{p-value du test global}
@@ -37,10 +37,10 @@ en phrases claires et compréhensibles par des non-statisticiens.
 }
 \section{Functions}{
 \itemize{
-\item \code{interpret_pvalue()}: Interprétation générique d'une p-value
+\item \code{interp_pvalue()}: Interprétation générique d'une p-value
 
-\item \code{interpret_or()}: Interprétation d'un Odds Ratio (OR)
+\item \code{interp_or()}: Interprétation d'un Odds Ratio (OR)
 
-\item \code{interpret_association()}: Interprétation globale d'une comparaison de groupes (Chi2 / ANOVA)
+\item \code{interp_association()}: Interprétation globale d'une comparaison de groupes (Chi2 / ANOVA)
 
 }}

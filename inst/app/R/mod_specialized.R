@@ -277,8 +277,9 @@ mod_specialized_server <- function(id, data_reactive) {
       var_nm <- input$likert_var
       sym_v <- rlang::sym(var_nm)
       
-      if (exists("descr_likert", where = asNamespace("analytix"))) {
-        res <- tryCatch(analytix::descr_likert(df, var = !!sym_v), error = function(e) NULL)
+      likert_fn <- if (exists("desc_likert", where = asNamespace("analytix"))) analytix::desc_likert else if (exists("descr_likert", where = asNamespace("analytix"))) analytix::descr_likert else NULL
+      if (!is.null(likert_fn)) {
+        res <- tryCatch(likert_fn(df, var = !!sym_v), error = function(e) NULL)
         if (!is.null(res)) return(res)
       }
       
@@ -308,8 +309,9 @@ mod_specialized_server <- function(id, data_reactive) {
       )
       vars <- input$multi_likert_vars
 
-      if (exists("multi_likert_table", where = asNamespace("analytix"))) {
-        res <- tryCatch(analytix::multi_likert_table(df, cols = vars), error = function(e) NULL)
+      multi_likert_fn <- if (exists("tbl_likert_multi", where = asNamespace("analytix"))) analytix::tbl_likert_multi else if (exists("multi_likert_table", where = asNamespace("analytix"))) analytix::multi_likert_table else NULL
+      if (!is.null(multi_likert_fn)) {
+        res <- tryCatch(multi_likert_fn(df, cols = vars), error = function(e) NULL)
         if (!is.null(res)) return(res)
       }
 
@@ -367,9 +369,10 @@ mod_specialized_server <- function(id, data_reactive) {
       plot_title <- trimws(input$likert_plot_title)
       if (nchar(plot_title) == 0) plot_title <- "Répartition des réponses Likert"
 
-      if (exists("plot_likert_divergent", where = asNamespace("analytix"))) {
+      plot_lik_fn <- if (exists("plot_likert", where = asNamespace("analytix"))) analytix::plot_likert else if (exists("plot_likert_divergent", where = asNamespace("analytix"))) analytix::plot_likert_divergent else NULL
+      if (!is.null(plot_lik_fn)) {
         p <- tryCatch(
-          analytix::plot_likert_divergent(
+          plot_lik_fn(
             df,
             cols = vars_to_use,
             n_levels = n_levels,
@@ -391,13 +394,13 @@ mod_specialized_server <- function(id, data_reactive) {
         df_copy[[var_nm]] <- as.numeric(fact)
         lvls <- levels(fact)
         n_lvls <- length(lvls)
-        if (exists("plot_likert_divergent", where = asNamespace("analytix"))) {
-          analytix::plot_likert_divergent(df_copy, cols = var_nm, n_levels = n_lvls, level_labels = lvls)
+        if (!is.null(plot_lik_fn)) {
+          plot_lik_fn(df_copy, cols = var_nm, n_levels = n_lvls, level_labels = lvls)
         } else NULL
       } else {
         n_lvls <- length(unique(na.omit(vec)))
-        if (exists("plot_likert_divergent", where = asNamespace("analytix"))) {
-          analytix::plot_likert_divergent(df, cols = var_nm, n_levels = max(c(5, n_lvls)))
+        if (!is.null(plot_lik_fn)) {
+          plot_lik_fn(df, cols = var_nm, n_levels = max(c(5, n_lvls)))
         } else NULL
       }
     })
@@ -422,16 +425,17 @@ mod_specialized_server <- function(id, data_reactive) {
       # Check if a grouping variable is selected
       group_var <- if (isTruthy(input$multi_group_var) && input$multi_group_var != "") input$multi_group_var else NULL
 
-      if (exists("descr_multi_choice", where = asNamespace("analytix"))) {
+      multi_choice_fn <- if (exists("desc_multi_choice", where = asNamespace("analytix"))) analytix::desc_multi_choice else if (exists("descr_multi_choice", where = asNamespace("analytix"))) analytix::descr_multi_choice else NULL
+      if (!is.null(multi_choice_fn)) {
         res <- tryCatch({
           if (!is.null(group_var)) {
             # Try with group argument if supported
             tryCatch(
-              analytix::descr_multi_choice(df, vars = vars, group = group_var),
-              error = function(e) analytix::descr_multi_choice(df, vars = vars)
+              multi_choice_fn(df, vars = vars, group = group_var),
+              error = function(e) multi_choice_fn(df, vars = vars)
             )
           } else {
-            analytix::descr_multi_choice(df, vars = vars)
+            multi_choice_fn(df, vars = vars)
           }
         }, error = function(e) NULL)
         if (!is.null(res)) return(res)
@@ -486,8 +490,9 @@ mod_specialized_server <- function(id, data_reactive) {
         if (!is.null(p) && inherits(p, "ggplot")) return(p)
       }
 
-      if (exists("plot_heatmap_matrix", where = asNamespace("analytix"))) {
-        p <- tryCatch(analytix::plot_heatmap_matrix(df, vars = vars), error = function(e) NULL)
+      heatmap_fn <- if (exists("plot_heatmap", where = asNamespace("analytix"))) analytix::plot_heatmap else if (exists("plot_heatmap_matrix", where = asNamespace("analytix"))) analytix::plot_heatmap_matrix else NULL
+      if (!is.null(heatmap_fn)) {
+        p <- tryCatch(heatmap_fn(df, vars = vars), error = function(e) NULL)
         if (!is.null(p) && inherits(p, "ggplot")) return(p)
       }
       
@@ -517,9 +522,10 @@ mod_specialized_server <- function(id, data_reactive) {
       header_color <- input$cor_header_color
       if (is.null(header_color) || nchar(trimws(header_color)) == 0) header_color <- "#0284c7"
 
-      if (exists("correlation_table", where = asNamespace("analytix"))) {
+      cor_tbl_fn <- if (exists("tbl_correlation", where = asNamespace("analytix"))) analytix::tbl_correlation else if (exists("correlation_table", where = asNamespace("analytix"))) analytix::correlation_table else NULL
+      if (!is.null(cor_tbl_fn)) {
         res <- tryCatch(
-          analytix::correlation_table(df, cols = vars, method = cor_method, digits = cor_digits, sig_level = sig_level, color = header_color),
+          cor_tbl_fn(df, cols = vars, method = cor_method, digits = cor_digits, sig_level = sig_level, color = header_color),
           error = function(e) NULL
         )
         if (!is.null(res)) return(res)
@@ -559,9 +565,10 @@ mod_specialized_server <- function(id, data_reactive) {
       header_color <- input$diag_color
       if (is.null(header_color) || nchar(trimws(header_color)) == 0) header_color <- "#0284c7"
 
-      if (exists("calc_sensitivity_specificity", where = asNamespace("analytix"))) {
+      sens_fn <- if (exists("stat_sens_spec", where = asNamespace("analytix"))) analytix::stat_sens_spec else if (exists("calc_sensitivity_specificity", where = asNamespace("analytix"))) analytix::calc_sensitivity_specificity else NULL
+      if (!is.null(sens_fn)) {
         res <- tryCatch({
-          analytix::calc_sensitivity_specificity(act, pred, positive_val = pos_v, conf_level = conf_level, digits = digits, color = header_color)
+          sens_fn(act, pred, positive_val = pos_v, conf_level = conf_level, digits = digits, color = header_color)
         }, error = function(e) NULL)
         if (!is.null(res)) return(res)
       }

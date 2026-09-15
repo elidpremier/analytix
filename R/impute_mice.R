@@ -46,7 +46,7 @@
 #' impute_mice(df2)
 #'
 #' @export
-impute_mice <- function(data,
+prep_impute_mice <- function(data,
                         m                 = 5,
                         maxit             = 5,
                         seed              = 123,

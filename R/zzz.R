@@ -10,6 +10,11 @@
   }
 }
 
+# Hook au chargement du package : invite à configurer la télémétrie si non fait
+.onAttach <- function(libname, pkgname) {
+  tryCatch(.analytix_invite_optin(), error = function(e) invisible(NULL))
+}
+
 # Suppression des avertissements "no visible binding for global variable"
 # générés par dplyr, ggplot2 et tidyr dans les fonctions du package.
 # Déclaration de toutes les variables utilisées dans les pipelines NSE.

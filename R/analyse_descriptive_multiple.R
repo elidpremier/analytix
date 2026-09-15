@@ -15,17 +15,17 @@
 #' 
 #' @examples
 #' # Analyse globale
-#' analyse_descriptive_multiple(iris)
+#' desc_multiple(iris)
 #' 
 #' # Avec filtrage (subset)
-#' analyse_descriptive_multiple(iris, subset = Sepal.Length > 5)
+#' desc_multiple(iris, subset = Sepal.Length > 5)
 #' 
 #' # Forcer un type binaire
 #' mtcars$cyl_bin <- ifelse(mtcars$cyl > 6, 1, 0)
-#' analyse_descriptive_multiple(mtcars, vars = "cyl_bin", var_types = c("cyl_bin" = "binary"))
+#' desc_multiple(mtcars, vars = "cyl_bin", var_types = c("cyl_bin" = "binary"))
 #'
 #' @export
-analyse_descriptive_multiple <- function(
+desc_multiple <- function(
     data,
     vars = NULL,
     subset = NULL,
@@ -72,11 +72,11 @@ analyse_descriptive_multiple <- function(
     args <- list(data = data, var = as.name(v), var_name = label, ...)
     
     target_fn <- if (type == "binary") {
-      descr_binary
+      desc_binary
     } else if (type == "numeric") {
-      descr_numeric
+      desc_numeric
     } else {
-      descr_categorial
+      desc_categorical
     }
     
     # Filtrer les arguments pour ne garder que ceux acceptés par la fonction cible

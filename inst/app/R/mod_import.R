@@ -438,7 +438,9 @@ mod_import_server <- function(id) {
 
           keep_na <- isTRUE(input$collapse_keep_na)
 
-          if (exists("collapse_categories", where = asNamespace("analytix"))) {
+          if (exists("prep_collapse", where = asNamespace("analytix"))) {
+            df <- analytix::prep_collapse(df, var = !!rlang::sym(var_nm), groups = groups, keep_na = keep_na, other_label = other_lbl)
+          } else if (exists("collapse_categories", where = asNamespace("analytix"))) {
             df <- analytix::collapse_categories(df, var = !!rlang::sym(var_nm), groups = groups, keep_na = keep_na, other_label = other_lbl)
           } else {
             # Fallback
@@ -485,7 +487,9 @@ mod_import_server <- function(id) {
 
           as_fac <- isTRUE(input$categorize_as_factor)
 
-          if (exists("categorize_numeric", where = asNamespace("analytix"))) {
+          if (exists("prep_categorize", where = asNamespace("analytix"))) {
+            df <- analytix::prep_categorize(df, var = !!rlang::sym(var_nm), breaks = breaks_val, labels = labels_val, as_factor = as_fac)
+          } else if (exists("categorize_numeric", where = asNamespace("analytix"))) {
             df <- analytix::categorize_numeric(df, var = !!rlang::sym(var_nm), breaks = breaks_val, labels = labels_val, as_factor = as_fac)
           } else {
             # Fallback
@@ -535,7 +539,9 @@ mod_import_server <- function(id) {
             new_col <- factor(ifelse(tolower(as.character(new_col)) %in% c("oui", "yes", "1", "true"), "Oui", "Non"), levels = c("Oui", "Non"))
           }
         } else if (action == "impute_mode") {
-          if (exists("impute_mode", where = asNamespace("analytix"))) {
+          if (exists("prep_impute_mode", where = asNamespace("analytix"))) {
+            new_col <- analytix::prep_impute_mode(new_col)
+          } else if (exists("impute_mode", where = asNamespace("analytix"))) {
             new_col <- analytix::impute_mode(new_col)
           } else {
             ux <- unique(new_col[!is.na(new_col)])
@@ -543,13 +549,17 @@ mod_import_server <- function(id) {
             new_col[is.na(new_col)] <- mode_val
           }
         } else if (action == "impute_mean") {
-          if (exists("impute_mean", where = asNamespace("analytix"))) {
+          if (exists("prep_impute_mean", where = asNamespace("analytix"))) {
+            new_col <- analytix::prep_impute_mean(new_col, type = "mean")
+          } else if (exists("impute_mean", where = asNamespace("analytix"))) {
             new_col <- analytix::impute_mean(new_col, type = "mean")
           } else {
             new_col[is.na(new_col)] <- mean(new_col, na.rm = TRUE)
           }
         } else if (action == "impute_median") {
-          if (exists("impute_mean", where = asNamespace("analytix"))) {
+          if (exists("prep_impute_mean", where = asNamespace("analytix"))) {
+            new_col <- analytix::prep_impute_mean(new_col, type = "median")
+          } else if (exists("impute_mean", where = asNamespace("analytix"))) {
             new_col <- analytix::impute_mean(new_col, type = "median")
           } else {
             new_col[is.na(new_col)] <- median(new_col, na.rm = TRUE)
@@ -588,7 +598,16 @@ mod_import_server <- function(id) {
         shiny::incProgress(0.2, detail = "Préparation des données...")
 
         tryCatch({
-          if (exists("impute_mice", where = asNamespace("analytix"))) {
+          if (exists("prep_impute_mice", where = asNamespace("analytix"))) {
+            shiny::incProgress(0.5, detail = "Imputation en cours...")
+            imp_df <- analytix::prep_impute_mice(
+              df,
+              m       = m_val,
+              maxit   = maxit_val,
+              seed    = seed_val,
+              verbose = FALSE
+            )
+          } else if (exists("impute_mice", where = asNamespace("analytix"))) {
             shiny::incProgress(0.5, detail = "Imputation en cours...")
             imp_df <- analytix::impute_mice(
               df,
@@ -678,7 +697,9 @@ mod_import_server <- function(id) {
       }
       
       if (length(lbl_vector) > 0) {
-        if (exists("label_vars", where = asNamespace("analytix"))) {
+        if (exists("prep_labels", where = asNamespace("analytix"))) {
+          df <- analytix::prep_labels(df, lbl_vector)
+        } else if (exists("label_vars", where = asNamespace("analytix"))) {
           df <- analytix::label_vars(df, lbl_vector)
         } else {
           for (nm in names(lbl_vector)) {
@@ -748,9 +769,10 @@ mod_import_server <- function(id) {
       var_nm <- input$outlier_var
       vec <- df[[var_nm]]
 
-      if (exists("detect_outliers", where = asNamespace("analytix"))) {
+      outlier_fn <- if (exists("prep_outliers", where = asNamespace("analytix"))) analytix::prep_outliers else if (exists("detect_outliers", where = asNamespace("analytix"))) analytix::detect_outliers else NULL
+      if (!is.null(outlier_fn)) {
         sym_var <- rlang::sym(var_nm)
-        res <- tryCatch(analytix::detect_outliers(df, var = !!sym_var), error = function(e) NULL)
+        res <- tryCatch(outlier_fn(df, var = !!sym_var), error = function(e) NULL)
         if (!is.null(res)) {
           # Build cards with all detected outlier info
           tag_list <- tagList()
@@ -762,7 +784,7 @@ mod_import_server <- function(id) {
           tag_list <- tagList(
             tags$div(
               class = "mb-3 p-3 border rounded bg-white",
-              tags$h6(class = "fw-bold text-primary", "Résumé des valeurs aberrantes (detect_outliers)"),
+              tags$h6(class = "fw-bold text-primary", "Résumé des valeurs aberrantes"),
               if (!is.null(ft_summary)) flextable::htmltools_value(ft_summary)
               else tableOutput(ns("outlier_fallback_table"))
             ),
@@ -812,9 +834,10 @@ mod_import_server <- function(id) {
       df <- cleaned_data()
       req(df, input$outlier_var)
       var_nm <- input$outlier_var
-      if (exists("detect_outliers", where = asNamespace("analytix"))) {
+      outlier_fn <- if (exists("prep_outliers", where = asNamespace("analytix"))) analytix::prep_outliers else if (exists("detect_outliers", where = asNamespace("analytix"))) analytix::detect_outliers else NULL
+      if (!is.null(outlier_fn)) {
         sym_var <- rlang::sym(var_nm)
-        res <- tryCatch(analytix::detect_outliers(df, var = !!sym_var), error = function(e) NULL)
+        res <- tryCatch(outlier_fn(df, var = !!sym_var), error = function(e) NULL)
         if (!is.null(res) && !is.null(res$plot)) return(res$plot)
       }
     })
@@ -861,16 +884,16 @@ mod_import_server <- function(id) {
     output$missing_summary_ui <- renderUI({
       df <- cleaned_data()
       req(df)
+      has_missing_fn <- exists("report_missing", where = asNamespace("analytix")) || exists("missing_report", where = asNamespace("analytix"))
       tagList(
-        # Intégration de missing_report() si disponible
-        if (exists("missing_report", where = asNamespace("analytix"))) {
+        if (has_missing_fn) {
           tags$div(
             class = "mb-3",
             bslib::card(
               bslib::card_header(
                 tags$div(
                   class = "d-flex justify-content-between align-items-center w-100",
-                  tags$span(class = "fw-bold", icon("table", class = "me-2"), "Rapport Complet des Valeurs Manquantes (analytix::missing_report)"),
+                  tags$span(class = "fw-bold", icon("table", class = "me-2"), "Rapport Complet des Valeurs Manquantes"),
                   downloadButton(ns("dl_missing_report"), "Word (.docx)", class = "btn-outline-primary btn-sm")
                 )
               ),
@@ -892,12 +915,13 @@ mod_import_server <- function(id) {
       )
     })
 
-    # missing_report (via analytix) in its own renderUI
+    # report_missing (via analytix) in its own renderUI
     output$missing_report_ui <- renderUI({
       df <- cleaned_data()
       req(df)
-      if (exists("missing_report", where = asNamespace("analytix"))) {
-        res <- tryCatch(analytix::missing_report(df), error = function(e) NULL)
+      missing_fn <- if (exists("report_missing", where = asNamespace("analytix"))) analytix::report_missing else if (exists("missing_report", where = asNamespace("analytix"))) analytix::missing_report else NULL
+      if (!is.null(missing_fn)) {
+        res <- tryCatch(missing_fn(df), error = function(e) NULL)
         if (!is.null(res)) {
           ft <- if (inherits(res, "flextable")) res
                 else if (is.list(res) && !is.null(res$flextable)) res$flextable
@@ -906,14 +930,15 @@ mod_import_server <- function(id) {
           if (is.data.frame(res)) return(tableOutput(ns("missing_report_raw")))
         }
       }
-      tags$p(class = "text-muted", "missing_report() non disponible dans la version du package chargée.")
+      tags$p(class = "text-muted", "report_missing() non disponible.")
     })
 
     output$missing_report_raw <- renderTable({
       df <- cleaned_data()
       req(df)
-      if (exists("missing_report", where = asNamespace("analytix"))) {
-        tryCatch(as.data.frame(analytix::missing_report(df)), error = function(e) NULL)
+      missing_fn <- if (exists("report_missing", where = asNamespace("analytix"))) analytix::report_missing else if (exists("missing_report", where = asNamespace("analytix"))) analytix::missing_report else NULL
+      if (!is.null(missing_fn)) {
+        tryCatch(as.data.frame(missing_fn(df)), error = function(e) NULL)
       }
     }, striped = TRUE, hover = TRUE)
 
@@ -923,9 +948,9 @@ mod_import_server <- function(id) {
         df <- cleaned_data()
         doc <- officer::read_docx()
         doc <- officer::body_add_par(doc, "Rapport des Valeurs Manquantes", style = "heading 1")
-        # Via missing_report()
-        if (exists("missing_report", where = asNamespace("analytix"))) {
-          res <- tryCatch(analytix::missing_report(df), error = function(e) NULL)
+        missing_fn <- if (exists("report_missing", where = asNamespace("analytix"))) analytix::report_missing else if (exists("missing_report", where = asNamespace("analytix"))) analytix::missing_report else NULL
+        if (!is.null(missing_fn)) {
+          res <- tryCatch(missing_fn(df), error = function(e) NULL)
           if (!is.null(res)) {
             ft <- if (inherits(res, "flextable")) res
                   else if (is.list(res) && !is.null(res$flextable)) res$flextable
@@ -962,8 +987,9 @@ mod_import_server <- function(id) {
     output$missing_map_plot <- renderPlot({
       df <- cleaned_data()
       req(df)
-      if (exists("plot_missing_map", where = asNamespace("analytix"))) {
-        tryCatch(analytix::plot_missing_map(df), error = function(e) {
+      missing_plot_fn <- if (exists("plot_missing", where = asNamespace("analytix"))) analytix::plot_missing else if (exists("plot_missing_map", where = asNamespace("analytix"))) analytix::plot_missing_map else NULL
+      if (!is.null(missing_plot_fn)) {
+        tryCatch(missing_plot_fn(df), error = function(e) {
           ggplot2::ggplot() + ggplot2::labs(title = "Carte Visuelle non disponible") + ggplot2::theme_void()
         })
       } else {

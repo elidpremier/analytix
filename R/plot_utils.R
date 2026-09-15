@@ -41,7 +41,7 @@ NULL
 
 #' @rdname plot_utils
 #' @export
-apply_custom_theme <- function(p, theme_name = "minimal", base_size = 11,
+fmt_apply_theme <- function(p, theme_name = "minimal", base_size = 11,
                                legend_pos = "right", palette_name = NULL,
                                flip_coord = FALSE) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
@@ -88,7 +88,7 @@ apply_custom_theme <- function(p, theme_name = "minimal", base_size = 11,
 
 #' @rdname plot_utils
 #' @export
-plot_barplot <- function(data, x = NULL, title = NULL, subtitle = NULL,
+plot_bar <- function(data, x = NULL, title = NULL, subtitle = NULL,
                          horiz = FALSE, col = "#2C6E9B", show_labels = TRUE,
                          digits = 1, file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
@@ -168,7 +168,7 @@ plot_barplot <- function(data, x = NULL, title = NULL, subtitle = NULL,
 
 #' @rdname plot_utils
 #' @export
-plot_pie_chart <- function(data, x = NULL, title = NULL, palette = NULL,
+plot_pie <- function(data, x = NULL, title = NULL, palette = NULL,
                            legend_title = NULL, digits = 1,
                            file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
@@ -225,7 +225,7 @@ plot_pie_chart <- function(data, x = NULL, title = NULL, palette = NULL,
 
 #' @rdname plot_utils
 #' @export
-plot_stacked_bar_100 <- function(data, x, fill, title = NULL, xlab = NULL,
+plot_bar_stacked <- function(data, x, fill, title = NULL, xlab = NULL,
                                  ylab = "Pourcentage (%)", legend_title = NULL,
                                  palette = NULL, file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
@@ -270,7 +270,7 @@ plot_stacked_bar_100 <- function(data, x, fill, title = NULL, xlab = NULL,
 
 #' @rdname plot_utils
 #' @export
-plot_grouped_bar <- function(data, x, fill, title = NULL, xlab = NULL,
+plot_bar_grouped <- function(data, x, fill, title = NULL, xlab = NULL,
                              ylab = "Effectif", legend_title = NULL,
                              palette = NULL, show_pct = FALSE,
                              file = NULL, width = 9, height = 6) {
@@ -328,7 +328,7 @@ plot_grouped_bar <- function(data, x, fill, title = NULL, xlab = NULL,
 
 #' @rdname plot_utils
 #' @export
-plot_boxplot <- function(data, x, y, title = NULL, xlab = NULL, ylab = NULL,
+plot_box <- function(data, x, y, title = NULL, xlab = NULL, ylab = NULL,
                          palette = NULL, file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
   
