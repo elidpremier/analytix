@@ -185,7 +185,7 @@ export_all_tables(
   ),
   file     = "rapport_final.docx",
   title    = "Rapport d'analyse — Enquête 2025",
-  author   = "IDO Esliée"
+  author   = "IDO Elisée"
 )
 
 # Option 2 — Objets individuels

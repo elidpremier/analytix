@@ -74,6 +74,7 @@ tbl_cross_unique <- function(data, target, ...,
   }
 
   all_results <- list()
+  has_small_counts <- FALSE
 
   for (v_enq in vars_enq) {
     v_name   <- .resolve_var_name(data, v_enq)
@@ -93,15 +94,18 @@ tbl_cross_unique <- function(data, target, ...,
     exp_counts <- suppressWarnings(tryCatch(chisq.test(tab_full)$expected, error = function(e) NULL))
     use_fisher_global <- FALSE
     if (test == "auto") {
-      if (is.null(exp_counts) || any(exp_counts < 5, na.rm = TRUE)) use_fisher_global <- TRUE
+      if (is.null(exp_counts) || any(exp_counts < 5, na.rm = TRUE)) {
+        use_fisher_global <- TRUE
+        has_small_counts <- TRUE
+      }
     } else if (test == "fisher") {
       use_fisher_global <- TRUE
     }
 
     if (use_fisher_global) {
-      res_global <- tryCatch(fisher.test(tab_full, simulate.p.value = (nrow(tab_full) > 2 || ncol(tab_full) > 2)), error = function(e) list(p.value = NA))
+      res_global <- tryCatch(suppressWarnings(fisher.test(tab_full, simulate.p.value = (nrow(tab_full) > 2 || ncol(tab_full) > 2))), error = function(e) list(p.value = NA))
     } else {
-      res_global <- tryCatch(chisq.test(tab_full, correct = FALSE), error = function(e) list(p.value = NA))
+      res_global <- tryCatch(suppressWarnings(chisq.test(tab_full, correct = FALSE)), error = function(e) list(p.value = NA))
     }
 
     p_glob_val <- res_global$p.value
@@ -143,15 +147,18 @@ tbl_cross_unique <- function(data, target, ...,
       # Choix du test
       use_fisher <- FALSE
       if (test == "auto") {
-        if (any(sub_tab < 5, na.rm = TRUE)) use_fisher <- TRUE
+        if (any(sub_tab < 5, na.rm = TRUE)) {
+          use_fisher <- TRUE
+          has_small_counts <- TRUE
+        }
       } else if (test == "fisher") {
         use_fisher <- TRUE
       }
 
       if (use_fisher) {
-        res_test <- tryCatch(fisher.test(sub_tab), error = function(e) list(p.value = NA))
+        res_test <- tryCatch(suppressWarnings(fisher.test(sub_tab)), error = function(e) list(p.value = NA))
       } else {
-        res_test <- tryCatch(chisq.test(sub_tab, correct = FALSE), error = function(e) list(p.value = NA))
+        res_test <- tryCatch(suppressWarnings(chisq.test(sub_tab, correct = FALSE)), error = function(e) list(p.value = NA))
       }
 
       p_val <- res_test$p.value
@@ -205,6 +212,10 @@ tbl_cross_unique <- function(data, target, ...,
     "p-value : test d'indépendance modalité vs reste",
     "p global : test d'indépendance global de la variable (Fisher / χ²)"
   )
+  if (has_small_counts) {
+    note_parts <- c(note_parts, "effectifs théoriques < 5 détectés (test exact de Fisher appliqué)")
+  }
+
   note_text <- paste0("Notes : ", paste(note_parts, collapse = " ; "), ".")
 
   # --- Titre ---

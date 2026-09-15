@@ -93,11 +93,11 @@ run_gui()
 }
 }
 \author{
-\strong{Maintainer}: IDO Esliée \email{elidopremier@gmail.com}
+\strong{Maintainer}: IDO Elisée \email{elidopremier@gmail.com}
 
 Authors:
 \itemize{
-  \item IDO Esliée \email{elidopremier@gmail.com}
+  \item IDO Elisée \email{elidopremier@gmail.com}
 }
 
 }

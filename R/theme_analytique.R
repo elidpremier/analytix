@@ -4,6 +4,7 @@
 #' Convertit automatiquement les données en flextable et applique un formatage cohérent.
 #' Les colonnes sont redimensionnées proportionnellement pour que le tableau occupe
 #' exactement la largeur utile de la page Word (layout "fixed" — garantit la pleine largeur).
+#' Ajuste automatiquement la taille de police et le padding si le tableau possède un grand nombre de colonnes (>= 6).
 #'
 #' @param data Un objet flextable, analytix_table, dataframe, tibble, ou structure convertible en flextable
 #' @param page_width Largeur de la zone utile de la page en cm.
@@ -53,6 +54,16 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
     ft <- flextable::set_caption(ft, caption)
   }
 
+  n_cols <- flextable::ncol_keys(ft)
+
+  # Auto-scaling dynamique si nombre élevé de colonnes pour éviter tout débordement Word
+  if (n_cols >= 8) {
+    font_size <- min(font_size, 8.0)
+    compact <- TRUE
+  } else if (n_cols >= 6) {
+    font_size <- min(font_size, 8.5)
+  }
+
   # --- Étape 1 : Thème et formatage de base ---
   ft <- ft %>%
     flextable::theme_booktabs() %>%
@@ -61,10 +72,11 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
     flextable::fontsize(size = font_size, part = "all") %>%
     flextable::font(part = "all", fontname = font_family)
 
-  if (compact) {
+  if (compact || n_cols >= 6) {
+    pad_val <- if (n_cols >= 7) 2 else 3
     ft <- ft %>%
       flextable::padding(padding.top = 2, padding.bottom = 2,
-                         padding.left = 4, padding.right = 4, part = "all")
+                         padding.left = pad_val, padding.right = pad_val, part = "all")
   }
 
   ft <- ft %>% flextable::bg(part = "header", bg = color)
@@ -77,7 +89,6 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
 
   ft <- ft %>% flextable::align(j = 1, align = "left", part = "all")
 
-  n_cols <- flextable::ncol_keys(ft)
   if (n_cols >= 2) {
     ft <- ft %>% flextable::align(j = 2:n_cols, align = "center", part = "all")
   }

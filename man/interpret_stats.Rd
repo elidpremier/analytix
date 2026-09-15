@@ -7,16 +7,18 @@
 \alias{interp_association}
 \title{Génération de langage naturel pour l'interprétation statistique}
 \usage{
-interp_pvalue(p_val, alpha = 0.05)
+interp_pvalue(p_val, alpha = 0.05, small_counts = FALSE)
 
 interp_or(or_val, p_val = NULL)
 
-interp_association(var_x, var_y, p_val)
+interp_association(var_x, var_y, p_val, small_counts = FALSE)
 }
 \arguments{
 \item{p_val}{p-value du test global}
 
 \item{alpha}{Seuil de significativité (défaut: 0.05)}
+
+\item{small_counts}{Logique. Si TRUE, ajoute une mention sur les effectifs théoriques faibles < 5.}
 
 \item{or_val}{Valeur de l'Odds Ratio}
 

@@ -2,9 +2,9 @@ Package: analytix
 Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
 Version: 0.5.1
 Authors@R: 
-    person("IDO", "Esliée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
-Author: IDO Esliée
-Maintainer: IDO Esliée <elidopremier@gmail.com>
+    person("IDO", "Elisée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
+Author: IDO Elisée
+Maintainer: IDO Elisée <elidopremier@gmail.com>
 Description: Package complet d'automatisation de l'analyse de données pour des rapports
     francophones professionnels. Couvre le nettoyage des données (import, labellisation,
     détection d'outliers), l'analyse descriptive univariée et bivariée (catégorielle,

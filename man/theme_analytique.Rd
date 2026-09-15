@@ -46,6 +46,7 @@ Un objet flextable formaté, pleine largeur de page
 Convertit automatiquement les données en flextable et applique un formatage cohérent.
 Les colonnes sont redimensionnées proportionnellement pour que le tableau occupe
 exactement la largeur utile de la page Word (layout "fixed" — garantit la pleine largeur).
+Ajuste automatiquement la taille de police et le padding si le tableau possède un grand nombre de colonnes (>= 6).
 }
 \examples{
 theme_analytique(head(iris))

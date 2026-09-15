@@ -11,7 +11,9 @@ export_tables(
   subtitle = NULL,
   author = NULL,
   date = format(Sys.Date(), "\%d \%B \%Y"),
-  section_style = "heading 2"
+  section_style = "heading 2",
+  auto_landscape = TRUE,
+  strip_manual_numbering = FALSE
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ export_tables(
 \item{date}{Chaîne de date pour la page de garde (défaut: date du jour).}
 
 \item{section_style}{Style Word des titres de sections (défaut: "heading 2").}
+
+\item{auto_landscape}{Logique. Si TRUE (défaut), bascule automatiquement les tableaux >= 7 colonnes en orientation paysage.}
+
+\item{strip_manual_numbering}{Logique. Si TRUE, retire les préfixes numériques manuels (ex: "8.7 ") pour éviter les doubles numérotations Word.}
 }
 \value{
 Chemin vers le fichier Word créé (invisible).
@@ -35,15 +41,18 @@ Chemin vers le fichier Word créé (invisible).
 \description{
 Exporte une liste nommée d'objets \code{flextable} ou de résultats d'analyse \code{analytix_table}
 dans un document Word unique, avec chaque tableau précédé d'un titre de section.
+Gère l'orientation paysage automatique pour les très grands tableaux et le nettoyage optionnel
+des numérotations manuelle de titres.
 }
 \examples{
 \dontrun{
   t1 <- desc_numeric(mtcars, mpg)
   t2 <- desc_categorical(iris, Species)
   export_tables(
-    tables = list("Description de MPG" = t1, "Description de Species" = t2),
+    tables = list("1.1 Description de MPG" = t1, "1.2 Description de Species" = t2),
     file   = "mon_rapport.docx",
-    title  = "Rapport de tests"
+    title  = "Rapport de tests",
+    strip_manual_numbering = TRUE
   )
 }
 

@@ -10,20 +10,23 @@ NULL
 #' Interprétation générique d'une p-value
 #' @param p_val Valeur de la p-value
 #' @param alpha Seuil de significativité (défaut: 0.05)
+#' @param small_counts Logique. Si TRUE, ajoute une mention sur les effectifs théoriques faibles < 5.
 #' @return Une chaîne de caractères explicative.
 #' @rdname interpret_stats
 #' @export
-interp_pvalue <- function(p_val, alpha = 0.05) {
+interp_pvalue <- function(p_val, alpha = 0.05, small_counts = FALSE) {
   if (is.na(p_val) || !is.numeric(p_val)) return("")
 
+  note_small <- if (isTRUE(small_counts)) " (Note : effectifs théoriques < 5 détectés ; le test exact de Fisher est privilégié)." else ""
+
   if (p_val < 0.001) {
-    return("La différence observée est hautement significative sur le plan statistique (p < 0.001). Il est extrêmement improbable que ce résultat soit dû aux simples fluctuations d'échantillonnage.")
+    return(paste0("La différence observée est hautement significative sur le plan statistique (p < 0.001). Il est extrêmement improbable que ce résultat soit dû aux simples fluctuations d'échantillonnage.", note_small))
   } else if (p_val < alpha) {
-    return(paste0("La différence observée est statistiquement significative (p = ", formatC(p_val, format = "f", digits = 3), "). On observe une association statistiquement significative."))
+    return(paste0("La différence observée est statistiquement significative (p = ", formatC(p_val, format = "f", digits = 3), "). On observe une association statistiquement significative.", note_small))
   } else if (p_val < 0.1) {
-    return(paste0("La différence n'est pas tout à fait significative au seuil strict de 5% (p = ", formatC(p_val, format = "f", digits = 3), "), mais on observe une tendance qui mériterait d'être explorée sur un plus grand échantillon."))
+    return(paste0("La différence n'est pas tout à fait significative au seuil strict de 5% (p = ", formatC(p_val, format = "f", digits = 3), "), mais on observe une tendance qui mériterait d'être explorée sur un plus grand échantillon.", note_small))
   } else {
-    return(paste0("Aucune différence statistiquement significative n'a été mise en évidence (p = ", formatC(p_val, format = "f", digits = 3), "). Les écarts observés peuvent être dus aux seules fluctuations d'échantillonnage."))
+    return(paste0("Aucune différence statistiquement significative n'a été mise en évidence (p = ", formatC(p_val, format = "f", digits = 3), "). Les écarts observés peuvent être dus aux seules fluctuations d'échantillonnage.", note_small))
   }
 }
 
@@ -71,14 +74,17 @@ interp_or <- function(or_val, p_val = NULL) {
 #' @param var_x Nom de la variable explicative
 #' @param var_y Nom de la variable expliquée
 #' @param p_val p-value du test global
+#' @param small_counts Logique. Si TRUE, ajoute une mention sur les effectifs théoriques faibles < 5.
 #' @return Une chaîne de caractères explicative.
 #' @rdname interpret_stats
 #' @export
-interp_association <- function(var_x, var_y, p_val) {
+interp_association <- function(var_x, var_y, p_val, small_counts = FALSE) {
     if (is.na(p_val) || !is.numeric(p_val)) return("")
+    note_small <- if (isTRUE(small_counts)) " (Note : effectifs théoriques < 5 détectés ; le test exact de Fisher est appliqué)." else ""
+
     if (p_val < 0.05) {
-        return(paste0("L'analyse révèle une association statistiquement significative entre '", var_x, "' et '", var_y, "' (p = ", formatC(p_val, format="f", digits=3), "). Cela indique que la distribution de '", var_y, "' varie de façon probante selon les différentes modalités de '", var_x, "'."))
+        return(paste0("L'analyse révèle une association statistiquement significative entre '", var_x, "' et '", var_y, "' (p = ", formatC(p_val, format="f", digits=3), "). Cela indique que la distribution de '", var_y, "' varie de façon probante selon les différentes modalités de '", var_x, "'.", note_small))
     } else {
-         return(paste0("L'analyse ne montre pas d'association statistiquement significative entre '", var_x, "' et '", var_y, "' (p = ", formatC(p_val, format="f", digits=3), "). Les variations observées pourraient être dues au hasard."))
+         return(paste0("L'analyse ne montre pas d'association statistiquement significative entre '", var_x, "' et '", var_y, "' (p = ", formatC(p_val, format="f", digits=3), "). Les variations observées pourraient être dues au hasard.", note_small))
     }
 }
