@@ -1,7 +1,7 @@
 #' @title Calcul de fréquences universel avec flextable
 #' @description Calcule les fréquences et pourcentages d'une variable et génère un flextable professionnel
 #' @param data Le dataframe contenant les données
-#' @param var La variable à analyser (symbole ou chaîne de caractères)
+#' @param var La variable à analyser (symbole, chaîne de caractères ou variable R contenant un nom)
 #' @param var_name Nom personnalisé pour la variable (optionnel)
 #' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param sort TRUE pour trier par fréquence décroissante, FALSE pour ordre naturel
@@ -18,6 +18,11 @@
 #' @examples
 #' desc_categorical(iris, Species)
 #' desc_categorical(iris, "Species", subset = Sepal.Length > 5)
+#'
+#' # Utilisation dans une boucle
+#' for (v in c("Species")) {
+#'   desc_categorical(iris, v)
+#' }
 #'
 #' @export
 desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = TRUE, digits = 1,
@@ -36,10 +41,9 @@ desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = T
   }
 
   var_enq <- rlang::enquo(var)
-  var_expr <- rlang::quo_get_expr(var_enq)
-  var_name_auto <- if (is.character(var_expr)) var_expr else rlang::as_name(var_enq)
+  var_name_auto <- .resolve_var_name(data, var_enq)
 
-  if (!var_name_auto %in% names(data)) {
+  if (is.null(var_name_auto) || !var_name_auto %in% names(data)) {
     stop("La variable '", var_name_auto, "' n'existe pas dans le dataframe.")
   }
 

@@ -22,7 +22,7 @@ desc_categorical(
 \arguments{
 \item{data}{Le dataframe contenant les données}
 
-\item{var}{La variable à analyser (symbole ou chaîne de caractères)}
+\item{var}{La variable à analyser (symbole, chaîne de caractères ou variable R contenant un nom)}
 
 \item{var_name}{Nom personnalisé pour la variable (optionnel)}
 
@@ -53,5 +53,10 @@ Calcule les fréquences et pourcentages d'une variable et génère un flextable 
 \examples{
 desc_categorical(iris, Species)
 desc_categorical(iris, "Species", subset = Sepal.Length > 5)
+
+# Utilisation dans une boucle
+for (v in c("Species")) {
+  desc_categorical(iris, v)
+}
 
 }

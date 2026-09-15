@@ -14,6 +14,32 @@ test_that("tbl_cross_unique fonctionne avec target_name et inclut p_global", {
   expect_true("p_value" %in% names(res$data))
 })
 
+test_that("tbl_cross_unique lève une erreur explicite sans variables en ligne", {
+  df <- data.frame(gueri = c("Oui", "Non"))
+  expect_error(tbl_cross_unique(df, target = gueri), "Aucune variable en ligne fournie")
+})
+
+test_that("desc_categorical et desc_numeric fonctionnent dans une boucle for avec une variable chaîne", {
+  df <- data.frame(
+    sexe = c("M", "F", "M", "F"),
+    age = c(20, 30, 40, 50)
+  )
+
+  cols_cat <- c("sexe")
+  for (v in cols_cat) {
+    res <- desc_categorical(df, v)
+    expect_s3_class(res, "analytix_table")
+    expect_equal(res$variable_name, "sexe")
+  }
+
+  cols_num <- c("age")
+  for (v in cols_num) {
+    res <- desc_numeric(df, v)
+    expect_s3_class(res, "analytix_table")
+    expect_equal(res$variable_name, "age")
+  }
+})
+
 test_that("export_tables extrait correctement les objets analytix_table et listes mixtes", {
   df <- data.frame(a = 1:5, b = c("Oui", "Non", "Oui", "Oui", "Non"))
   t1 <- desc_numeric(df, a)
@@ -58,7 +84,7 @@ test_that("desc_score calcule correctement le score et les tranches", {
     q3 = c(0, 1, 1, 1)
   )
 
-  res <- desc_score(df, cols = c(q1, q2, q3), breaks = c(-Inf, 1, 3), labels = c("Faible", "Élevé"))
+  res <- desc_score(df, cols = c("q1", "q2", "q3"), breaks = c(-Inf, 1, 3), labels = c("Faible", "Élevé"))
   expect_s3_class(res, "analytix_table")
   expect_equal(res$data$max_score, 3)
   expect_equal(length(res$data$scores), 4)
@@ -70,7 +96,7 @@ test_that("desc_grouped retourne un data.frame plat propre dans $data", {
     element = c("e1", "e2", "e3", "e4")
   )
 
-  res <- desc_grouped(df, group_col = classe, sub_col = element)
+  res <- desc_grouped(df, group_col = "classe", sub_col = "element")
   expect_s3_class(res, "analytix_table")
   expect_false(any(is.na(res$data$Classe)))
 })

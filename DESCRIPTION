@@ -1,6 +1,6 @@
 Package: analytix
 Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: 
     person("IDO", "Esliée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
 Author: IDO Esliée

@@ -20,7 +20,7 @@ desc_numeric(
 \arguments{
 \item{data}{data.frame}
 
-\item{var}{variable numérique à analyser (symbole ou chaîne)}
+\item{var}{variable numérique à analyser (symbole, chaîne ou variable R contenant un nom)}
 
 \item{var_name}{nom personnalisé (optionnel)}
 

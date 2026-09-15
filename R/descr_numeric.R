@@ -1,7 +1,7 @@
 #' @title Analyse descriptive pour variables numériques
 #' @description Génère un tableau récapitulatif des statistiques descriptives d'une variable numérique
 #' @param data data.frame
-#' @param var variable numérique à analyser (symbole ou chaîne)
+#' @param var variable numérique à analyser (symbole, chaîne ou variable R contenant un nom)
 #' @param var_name nom personnalisé (optionnel)
 #' @param subset Expression logique pour filtrer les données (ex: sexe == "M")
 #' @param digits nombre de décimales (défaut: 2)
@@ -38,11 +38,10 @@ desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
   }
 
   var_enq <- rlang::enquo(var)
-  var_expr <- rlang::quo_get_expr(var_enq)
-  var_name_auto <- if (is.character(var_expr)) var_expr else rlang::as_name(var_enq)
+  var_name_auto <- .resolve_var_name(data, var_enq)
 
-  if (!var_name_auto %in% names(data)) {
-    stop("La variable '", var_name_auto, "' n'existe pas.")
+  if (is.null(var_name_auto) || !var_name_auto %in% names(data)) {
+    stop("La variable '", var_name_auto, "' n'existe pas dans le dataframe.")
   }
 
   # Récupération du label si var_name est NULL

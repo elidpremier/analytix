@@ -46,9 +46,13 @@ tbl_cross_unique <- function(data, target, ...,
 
   # --- Extraction des variables ---
   target_enq <- rlang::enquo(target)
-  vars_enq <- rlang::enquos(...)
+  target_nm  <- .resolve_var_name(data, target_enq)
 
-  target_nm <- rlang::quo_name(target_enq)
+  vars_enq <- rlang::enquos(...)
+  if (length(vars_enq) == 0) {
+    stop("Aucune variable en ligne fournie dans '...'. Usage : tbl_cross_unique(data, target, var1, var2, ...)")
+  }
+
   if (is.null(target_name)) {
     target_name <- .get_label(data, target_nm, target_nm)
   }
@@ -72,7 +76,7 @@ tbl_cross_unique <- function(data, target, ...,
   all_results <- list()
 
   for (v_enq in vars_enq) {
-    v_name   <- rlang::quo_name(v_enq)
+    v_name   <- .resolve_var_name(data, v_enq)
     if (!v_name %in% names(data)) next
     v_label  <- .get_label(data, v_name, v_name)
     x_full   <- data[[v_name]]
@@ -187,6 +191,10 @@ tbl_cross_unique <- function(data, target, ...,
     block <- merge(block, stats_df, by = "Modalité", sort = FALSE)
     block <- cbind(Variable = v_label, block)
     all_results[[v_name]] <- block
+  }
+
+  if (length(all_results) == 0) {
+    stop("Aucune variable en ligne valide trouvée dans le jeu de données.")
   }
 
   final_df <- do.call(rbind, all_results)
