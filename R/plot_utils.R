@@ -223,7 +223,7 @@ plot_pie <- function(data, x = NULL, title = NULL, palette = NULL,
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_manual(values = palette)
   } else {
-    p <- p + ggplot2::scale_fill_brewer(palette = "Set2")
+    p <- p + ggplot2::scale_fill_manual(values = .analytix_accessible_palette)
   }
   
   if (!is.null(file)) {
@@ -270,7 +270,7 @@ plot_bar_stacked <- function(data, x, fill, title = NULL, xlab = NULL,
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_manual(values = palette)
   } else {
-    p <- p + ggplot2::scale_fill_brewer(palette = "Set1")
+    p <- p + ggplot2::scale_fill_manual(values = .analytix_accessible_palette)
   }
   
   if (!is.null(file)) {
@@ -332,7 +332,7 @@ plot_bar_grouped <- function(data, x, fill, title = NULL, xlab = NULL,
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_manual(values = palette)
   } else {
-    p <- p + ggplot2::scale_fill_brewer(palette = "Set2")
+    p <- p + ggplot2::scale_fill_manual(values = .analytix_accessible_palette)
   }
   
   if (!is.null(file)) {
@@ -372,7 +372,7 @@ plot_box <- function(data, x, y, title = NULL, xlab = NULL, ylab = NULL,
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_manual(values = palette)
   } else {
-    p <- p + ggplot2::scale_fill_brewer(palette = "Set2")
+    p <- p + ggplot2::scale_fill_manual(values = .analytix_accessible_palette)
   }
   
   if (!is.null(file)) {

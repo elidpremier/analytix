@@ -136,3 +136,19 @@ test_that("la charte de présentation respecte le contraste WCAG AA", {
     logical(1)
   )))
 })
+
+test_that("les graphiques catégoriels utilisent la palette accessible par défaut", {
+  plot <- plot_bar_stacked(
+    data.frame(group = c("A", "A", "B", "B"), status = c("Oui", "Non", "Oui", "Oui")),
+    group,
+    status
+  )
+  scales <- ggplot2::ggplot_build(plot)$plot$scales$scales
+  fill_scale <- scales[vapply(scales, function(scale) "fill" %in% scale$aesthetics, logical(1))][[1]]
+
+  expect_true(inherits(fill_scale, "ScaleDiscrete"))
+  expect_identical(
+    unname(fill_scale$palette.cache),
+    analytix:::.analytix_accessible_palette
+  )
+})
