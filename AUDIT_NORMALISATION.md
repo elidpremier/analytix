@@ -259,4 +259,4 @@ plutôt qu'un remplacement silencieux.
 | Données manquantes | Variable et observation identifiées | Conforme | Test des axes |
 | Corrélations | Méthode et unité affichées | Conforme | Test de légende `r (méthode)` |
 | Heatmaps | Axes et unité de remplissage | Conforme | Test des labels |
-| Rapports Word | Sections statistiques lisibles | En cours | Validation par `R CMD check` |
+| Rapports Word | Sections statistiques lisibles et captions | Conforme | Tests de génération et captions de repli |

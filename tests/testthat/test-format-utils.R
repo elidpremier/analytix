@@ -193,3 +193,14 @@ test_that("les heatmaps et corrélations exposent leurs unités", {
   expect_identical(heatmap$labels$y, "marker")
   expect_identical(heatmap$labels$fill, "Taux (%)")
 })
+
+test_that("les tableaux de rapport reçoivent une caption de repli", {
+  ft <- flextable::flextable(data.frame(value = 1))
+  expect_null(ft$caption$value)
+
+  ft <- analytix:::.ensure_table_caption(ft, "Tableau de repli")
+  expect_identical(ft$caption$value, "Tableau de repli")
+
+  ft <- analytix:::.ensure_table_caption(ft, "Autre titre")
+  expect_identical(ft$caption$value, "Tableau de repli")
+})

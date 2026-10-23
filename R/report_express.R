@@ -339,6 +339,14 @@ report_express <- function(data,
 
 #' Ajouter une liste de tableaux dans un document Word avec synthèses optionnelles
 #' @noRd
+.ensure_table_caption <- function(ft, fallback) {
+  if (is.null(ft$caption$value) || !nzchar(trimws(ft$caption$value))) {
+    return(flextable::set_caption(ft, fallback))
+  }
+  ft
+}
+
+#' @noRd
 .add_tables_to_doc <- function(doc, tables, syntheses = list(), verbose = FALSE) {
   nms <- names(tables)
   if (is.null(nms)) nms <- paste0("Tableau_", seq_along(tables))
@@ -354,6 +362,7 @@ report_express <- function(data,
     fts <- .extract_flextables(obj)
     for (ft in fts) {
       if (inherits(ft, "flextable")) {
+        ft <- .ensure_table_caption(ft, nm)
         # Auto-paysage pour les tableaux larges
         n_cols_ft <- length(flextable::ncol_keys(ft))
         if (n_cols_ft >= 7) {
