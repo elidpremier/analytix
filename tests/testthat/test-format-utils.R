@@ -152,3 +152,25 @@ test_that("les graphiques catégoriels utilisent la palette accessible par défa
     analytix:::.analytix_accessible_palette
   )
 })
+
+test_that("les graphiques exposent des axes et légendes explicites", {
+  distribution <- plot_distribution(
+    data.frame(score = c(1, 2, 3, 4)),
+    score,
+    type = "boxplot"
+  )
+  likert_plot <- plot_likert(
+    data.frame(q1 = c(1, 2, 3, 4)),
+    cols = "q1"
+  )
+  missing_plot <- plot_missing(
+    data.frame(score = c(1, NA_real_)),
+    vars = "score"
+  )
+
+  expect_identical(distribution$labels$y, "score")
+  expect_identical(likert_plot$labels$x, "Pourcentage des réponses")
+  expect_identical(likert_plot$labels$y, "Question / variable")
+  expect_identical(likert_plot$labels$fill, "Réponse")
+  expect_identical(missing_plot$labels$y, "Variable")
+})

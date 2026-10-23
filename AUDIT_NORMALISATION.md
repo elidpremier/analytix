@@ -240,6 +240,8 @@ Le premier lot de la phase 5 introduit une charte interne de présentation :
 - validation explicite des couleurs d'en-tête personnalisées ;
 - palette qualitative `Analytix` à contraste renforcé ;
 - palettes par défaut des graphiques catégoriels alignées sur cette charte ;
+- axes et légendes explicites pour les graphiques de distribution, Likert et
+  données manquantes ;
 - tests automatisés du contraste et de la taille de la palette.
 
 Les couleurs personnalisées restent possibles. Lorsqu'une couleur d'en-tête

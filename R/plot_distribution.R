@@ -66,8 +66,17 @@ plot_distribution <- function(data, var = NULL, type = "auto",
                 "light" = ggplot2::theme_light(),
                 ggplot2::theme_minimal())
 
+  axis_labels <- if (identical(type, "boxplot")) {
+    list(x = NULL, y = var_name)
+  } else {
+    list(x = var_name, y = NULL)
+  }
   p <- p + thm +
-    ggplot2::labs(title = paste("Distribution de :", var_name), x = var_name) +
+    ggplot2::labs(
+      title = paste("Distribution de :", var_name),
+      x = axis_labels$x,
+      y = axis_labels$y
+    ) +
     ggplot2::theme(plot.title = ggplot2::element_text(face = "bold"))
 
   return(p)

@@ -80,9 +80,14 @@ plot_likert <- function(data, cols, n_levels = 5,
       ggplot2::aes(x = pct_centred, y = variable, fill = niveau)) +
     ggplot2::geom_col(position = ggplot2::position_stack(reverse = FALSE)) +
     ggplot2::geom_vline(xintercept = 0, linewidth = 0.8, color = "grey30") +
-    ggplot2::scale_fill_manual(values = palette, name = NULL) +
+    ggplot2::scale_fill_manual(values = palette, name = "Réponse") +
     ggplot2::scale_x_continuous(labels = function(x) paste0(abs(x), "%")) +
-    ggplot2::labs(title = title, x = NULL, y = NULL) +
+    ggplot2::labs(
+      title = title,
+      x = "Pourcentage des réponses",
+      y = "Question / variable",
+      fill = "Réponse"
+    ) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
       plot.title   = ggplot2::element_text(face = "bold", size = 12),
@@ -156,7 +161,7 @@ plot_missing <- function(data, vars = NULL,
                     length(vars), " variables | ",
                     .fmt_percent(100 * mean(is.na(df_sub[, vars])), 1),
                     " % de manquants"),
-                  x = "N° observation", y = NULL) +
+                  x = "N° observation", y = "Variable") +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
       plot.title    = ggplot2::element_text(face = "bold", size = 12),
