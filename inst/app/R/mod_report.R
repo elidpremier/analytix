@@ -152,7 +152,38 @@ mod_report_ui <- function(id) {
 
       tags$hr(),
 
+      # --- Section Options IA / LLM ---
+      tags$h6(tags$strong("Rédaction IA & Synthèses (LLM) :")),
+      checkboxInput(ns("rep_use_ai"), "Activer les synthèses IA", value = TRUE),
+      conditionalPanel(
+        condition = paste0("input['", ns("rep_use_ai"), "'] == true"),
+        selectInput(
+          ns("rep_ai_provider"), "Fournisseur LLM :",
+          choices = c("Groq (Recommandé)" = "groq", "Mistral AI" = "mistral"),
+          selected = "groq"
+        ),
+        selectInput(
+          ns("rep_ai_model"), "Modèle LLM :",
+          choices = c(
+            "Groq Compound Mini (recommandé)" = "groq/compound-mini",
+            "Llama 3.1 8B Instant"            = "llama-3.1-8b-instant",
+            "OpenAI GPT-OSS 120B"            = "openai/gpt-oss-120b",
+            "Groq Compound"                   = "groq/compound"
+          ),
+          selected = "groq/compound-mini"
+        ),
+        passwordInput(ns("rep_ai_key"), "Clé API (optionnel si dans .Renviron) :", value = "", placeholder = "gsk_..."),
+        textInput(ns("rep_ai_context"), "Contexte d'étude :", value = "", placeholder = "Ex: Enquête nutritionnelle Bénin 2025...")
+      ),
+
+      tags$hr(),
+
       # Boutons d'export
+      downloadButton(
+        ns("dl_express_report_word"),
+        label = tags$span(icon("rocket", class = "me-2"), "Générer le Rapport Express (.docx)"),
+        class = "btn btn-primary btn-lg w-100 mb-2 fw-bold"
+      ),
       downloadButton(
         ns("dl_magic_report_word"),
         label = tags$span(icon("wand-magic-sparkles", class = "me-2", lib="font-awesome"), "Magic Report en 1-clic !"),
@@ -160,8 +191,8 @@ mod_report_ui <- function(id) {
       ),
       downloadButton(
         ns("dl_report_word"),
-        label = tags$span(icon("file-word", class = "me-2"), "Générer le Rapport personnalisé (.docx)"),
-        class = "btn btn-success btn-lg w-100 mb-2"
+        label = tags$span(icon("file-word", class = "me-2"), "Générer le Rapport personnalisé"),
+        class = "btn btn-success btn-sm w-100 mb-2"
       ),
       downloadButton(
         ns("dl_vars_csv"),
@@ -343,6 +374,61 @@ mod_report_server <- function(id, data_reactive) {
           )
         )
     })
+
+    # ====================================================================
+    # DOWNLOAD : Rapport Express Word (avec IA / LLM)
+    # ====================================================================
+    output$dl_express_report_word <- downloadHandler(
+      filename = function() {
+        paste0("Rapport_Express_Analytix_", format(Sys.Date(), "%Y%m%d"), ".docx")
+      },
+      content = function(file) {
+        df <- data_reactive()
+        req(df, nrow(df) > 0)
+
+        # Configurer la clé API si saisie dans le formulaire
+        if (isTRUE(input$rep_use_ai) && nchar(trimws(input$rep_ai_key)) > 0) {
+          if (identical(input$rep_ai_provider, "groq")) {
+            analytix::setup_api_keys(groq_key = trimws(input$rep_ai_key), groq_model = input$rep_ai_model)
+          } else {
+            analytix::setup_api_keys(mistral_key = trimws(input$rep_ai_key))
+          }
+        }
+
+        outcome_val <- if (nchar(trimws(input$rep_outcome)) == 0) NULL else input$rep_outcome
+
+        shiny::withProgress(message = "Génération du Rapport Express...", value = 0, {
+          shiny::incProgress(0.2, detail = "Initialisation du pipeline...")
+
+          tryCatch({
+            analytix::report_express(
+              data         = df,
+              output       = file,
+              title        = input$rep_title,
+              author       = input$rep_author,
+              outcome      = outcome_val,
+              exclude_vars = NULL,
+              use_ai       = isTRUE(input$rep_use_ai),
+              provider     = input$rep_ai_provider,
+              model        = input$rep_ai_model,
+              context      = if (nchar(trimws(input$rep_ai_context)) > 0) input$rep_ai_context else NULL,
+              open_doc     = FALSE,
+              verbose      = FALSE
+            )
+
+            shiny::incProgress(1.0, detail = "Terminé !")
+            shiny::showNotification("🚀 Rapport Express généré avec succès !", type = "message", duration = 5)
+
+          }, error = function(e) {
+            shiny::showNotification(paste("❌ Erreur Rapport Express :", e$message), type = "error", duration = 10)
+            doc <- officer::read_docx()
+            doc <- officer::body_add_par(doc, "Erreur du Rapport Express", style = "heading 1")
+            doc <- officer::body_add_par(doc, as.character(e$message), style = "Normal")
+            print(doc, target = file)
+          })
+        })
+      }
+    )
 
     # ====================================================================
     # DOWNLOAD : Rapport Word complet

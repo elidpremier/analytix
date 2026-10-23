@@ -2,31 +2,22 @@
 % Please edit documentation in R/telemetry_public.R
 \name{analytix_feedback}
 \alias{analytix_feedback}
-\title{Envoyer un commentaire ou une note à l'auteur}
+\title{Envoyer une suggestion à l'auteur}
 \usage{
-analytix_feedback(
-  text,
-  type = c("suggestion", "bug", "compliment", "autre"),
-  rating = NULL
-)
+analytix_feedback(text)
 }
 \arguments{
-\item{text}{Texte libre du commentaire.}
-
-\item{type}{Type de retour : \code{"suggestion"}, \code{"bug"}, \code{"compliment"} ou \code{"autre"}.}
-
-\item{rating}{Note de satisfaction de 1 à 5 (optionnel).}
+\item{text}{Texte de la suggestion.}
 }
 \value{
-Invisible \code{TRUE} si envoyé.
+Invisible \code{TRUE} après ouverture du client de messagerie.
 }
 \description{
-Permet d'envoyer un retour libre (suggestion, bug, compliment) directement
-à l'auteur du package.
+Ouvre un nouveau message adressé à l'auteur. La suggestion n'est envoyée
+qu'après validation par l'utilisateur dans son client de messagerie.
 }
 \examples{
 \dontrun{
-analytix_feedback("Le module Likert est excellent !", type = "compliment", rating = 5)
-analytix_feedback("Il manque un export PDF", type = "suggestion")
+analytix_feedback("Ajouter un export PDF aux rapports.")
 }
 }

@@ -1,5 +1,16 @@
 # analytix News
 
+## Version 0.6.0.9000 — 2026-10-23 (Bêta)
+
+### 🔒 Confidentialité
+- Suppression de la télémétrie, du suivi d'utilisation, de l'identifiant de session et des journaux locaux automatiques.
+- Suppression de la configuration du webhook et des fonctions publiques de contrôle de télémétrie.
+- `analytix_report_issue()` et `analytix_feedback()` ouvrent désormais uniquement un courriel explicite vers **elidopremier@gmail.com** pour les bugs et suggestions.
+
+### 📦 Publication
+- Version de développement bêta alignée sur la convention usuelle des packages R : `0.6.0.9000`.
+- Documentation et badge README mis à jour pour refléter le statut bêta.
+
 ## Version 0.5.1 — 2026-09-15 (Résolution Évaluation Boucle & Validation Stricte)
 
 ### 🐛 Corrections de bugs & Améliorations Épidémiologiques

@@ -1,0 +1,102 @@
+# Audit de normalisation et de présentation
+
+Date de l'audit : 2026-10-23
+
+## Synthèse
+
+Le projet est fonctionnellement riche, mais il mélange encore plusieurs conventions
+historiques. La priorité est de stabiliser l'API bêta, de rendre la documentation
+reproductible et d'appliquer une présentation homogène aux sorties statistiques.
+La suppression de la télémétrie automatique est traitée dans la version
+`0.6.0.9000`.
+
+## Référentiels utilisés
+
+- conventions de structure et de contrôle des packages R (`DESCRIPTION`, roxygen2,
+  `R CMD check`, tests testthat) ;
+- versionnement sémantique, avec `0.x` pour une API encore susceptible d'évoluer
+  et un suffixe de développement `.9000` pour une version bêta non publiée ;
+- conventions de nommage cohérentes de type `famille_action()` ;
+- principes d'accessibilité des documents et tableaux : contraste lisible,
+  information non portée uniquement par la couleur, titres et notes explicites ;
+- bonnes pratiques de confidentialité : minimisation des données, consentement
+  explicite et absence de transfert automatique.
+
+## Constats et ajustements proposés
+
+| Priorité | Constat | Ajustement recommandé | Critère d'acceptation |
+|---|---|---|---|
+| P0 | L'ancienne télémétrie pouvait créer un identifiant persistant et un journal local. | Supprimer toute collecte automatique ; conserver uniquement les retours initiés par l'utilisateur. | Aucun appel réseau ou fichier de suivi au chargement ou à l'appel d'une fonction analytique. |
+| P0 | Le README affichait `0.4.0` alors que le package avait évolué. | Utiliser une source unique de version et vérifier le badge à chaque release. | README, `DESCRIPTION` et `NEWS.md` concordants. |
+| P1 | Des doublons historiques existent (`desc_*`/`descr_*`, plusieurs alias `plot_*`). | Documenter les alias comme compatibilité, puis choisir une famille canonique pour les nouvelles fonctions. | Chaque export possède une fonction canonique documentée et un alias marqué comme tel. |
+| P1 | Les nombres de tests et de fonctions affichés dans le README sont statiques. | Remplacer les badges manuels par des indicateurs mis à jour lors de la release, ou les retirer. | Aucun compteur obsolète après ajout ou retrait de tests. |
+| P1 | Les sorties utilisent plusieurs libellés et conventions de présentation. | Centraliser les libellés (`n`, `%`, IC95 %, p-value), les arrondis, la virgule décimale et les notes de méthode. | Une même statistique est présentée de façon identique dans les fonctions `desc_*`, `tbl_*` et les rapports. |
+| P1 | Les tableaux et graphiques n'ont pas encore une charte d'accessibilité formalisée. | Définir une palette contrastée, des titres/captions, des unités et des textes alternatifs ; ne pas coder une information uniquement par la couleur. | Vérification visuelle et test de contraste pour les thèmes exportés. |
+| P2 | La documentation est principalement en français mais les noms d'arguments et certains textes sont mixtes. | Conserver les noms d'API stables, franciser les messages utilisateur et fournir un glossaire bilingue pour les termes statistiques. | Messages et exemples cohérents, sans changement silencieux de signature. |
+| P2 | Les appels LLM sont externes et peuvent transmettre des statistiques agrégées. | Documenter clairement le périmètre des données envoyées, le fournisseur et la responsabilité de l'utilisateur. | Option désactivée par défaut et avertissement dans la documentation des fonctions LLM. |
+
+## Plan de normalisation recommandé
+
+1. **Avant chaque version bêta** : `roxygen2::roxygenise()`, `R CMD check`,
+   tests testthat et vérification des fichiers inclus dans le tarball.
+2. **Avant la version stable 1.0.0** : figer les fonctions canoniques, déprécier
+   les alias historiques avec une période de transition et publier une matrice
+   de compatibilité.
+3. **Présentation** : créer un thème unique pour `flextable` et `ggplot2`, avec
+   une règle documentée pour les arrondis, les intervalles de confiance, les
+   valeurs manquantes et les p-values.
+4. **Qualité** : ajouter des tests de non-régression sur les formats de sortie,
+   la confidentialité (aucun fichier de suivi) et l'accessibilité minimale des
+   documents exportés.
+5. **Publication** : conserver `NEWS.md` comme journal de référence, dater chaque
+   entrée, et vérifier que la version de `DESCRIPTION` correspond au tag GitHub.
+
+## Baseline phase 0 — 2026-10-23
+
+### Environnement
+
+- R `4.6.1` ;
+- `testthat` disponible ;
+- `pROC`, `survminer` et `bsicons` absents de l'environnement local ;
+- version contrôlée : `0.6.0.9000`.
+
+### Commandes exécutées
+
+```r
+roxygen2::roxygenise(clean = TRUE)
+testthat::test_dir("tests/testthat")
+```
+
+```bash
+R CMD build . --no-build-vignettes
+_R_CHECK_FORCE_SUGGESTS_=false \
+  R CMD check --no-manual --no-vignettes --no-build-vignettes \
+  analytix_0.6.0.9000.tar.gz
+```
+
+### Résultats
+
+- génération roxygen : réussie ;
+- tests `testthat` : réussis, avec avertissements fonctionnels déjà présents ;
+- construction du tarball : réussie ;
+- installation et chargement du tarball : réussis ;
+- `R CMD check` : les erreurs bloquantes des exemples `desc_multi_choice()`,
+  `plot_missing()` et `tbl_bivariate_or()` ont été corrigées ; le contrôle sans
+  les suggestions indisponibles termine avec succès (`0` erreur, `3` warnings,
+  `2` notes) et les tests du package passent.
+
+### Limites conservées volontairement
+
+Les avertissements relatifs aux caractères non ASCII, aux dépendances déclarées
+mais non utilisées, aux imports implicites et à la vignette sans artefact sont
+enregistrés comme travaux ultérieurs. Ils ne sont pas corrigés dans cette phase
+pour éviter de mélanger la baseline avec la normalisation du code et de la
+présentation.
+
+### Corrections incluses dans la phase 0
+
+- exemples roxygen corrigés pour utiliser des noms de colonnes explicites ;
+- `plot_missing()` rendue robuste aux colonnes de types mixtes ;
+- arguments publics manquants ajoutés à la documentation roxygen ;
+- fichiers d'environnement et répertoires de contrôle exclus du tarball via
+  `.Rbuildignore`.

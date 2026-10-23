@@ -1,6 +1,6 @@
 Package: analytix
-Title: Outils d'Analyse Descriptive pour Tableaux Professionnels
-Version: 0.5.1
+Title: Outils d’Analyse Descriptive Pour Tableaux Professionnels
+Version: 0.6.0.9000
 Authors@R: 
     person("IDO", "Elisée", role = c("aut", "cre"), email = "elidopremier@gmail.com")
 Author: IDO Elisée
@@ -13,6 +13,8 @@ Description: Package complet d'automatisation de l'analyse de données pour des 
     la visualisation (ggplot2 : barplots, Likert divergent, heatmap de corrélations, carte des manquants)
     et l'export Word structuré via flextable et officer.
 License: MIT + file LICENSE
+Depends:
+    R (>= 4.1.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
@@ -41,6 +43,8 @@ Suggests:
     rmarkdown,
     shinyjs,
     bsicons,
-    gtsummary
+    gtsummary,
+    jsonlite,
+    curl
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

@@ -127,6 +127,7 @@ plot_missing <- function(data, vars = NULL,
 
   df_sub <- data[seq_len(min(nrow(data), max_obs)), vars, drop = FALSE]
   df_sub$obs_id <- seq_len(nrow(df_sub))
+  df_sub[vars] <- lapply(df_sub[vars], as.character)
 
   df_long <- tidyr::pivot_longer(df_sub, cols = -obs_id,
                                   names_to = "variable", values_to = "valeur")

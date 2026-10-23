@@ -42,7 +42,6 @@ df <- data.frame(age = c(5, 12, 17, 23, 35, 45, 60, 78))
 categorize_numeric(df, age, breaks = c(0, 18, 35, 50, 100))
 
 # Exemple 2 : avec labels personnalisés
-categorize_numeric(
 prep_categorize(
   df, age,
   breaks = c(0, 18, 35, 50, 100),

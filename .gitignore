@@ -4,3 +4,10 @@
 *.Ruserdata
 .DS_Store
 Thumbs.db
+
+# Fichiers de clés et variables d'environnement confidentielles
+.Renviron
+.env
+*.env
+*.secret
+credentials/

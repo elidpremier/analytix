@@ -19,7 +19,9 @@
 #'   bourse = c("Oui", "Oui", "Non", "Oui", "Non", "Non", "Non", "Oui"),
 #'   sexe = c("F", "M", "F", "M", "F", "M", "F", "F")
 #' )
-#' tbl_bivariate_or(df, outcome = reussite, exposures = c(bourse, sexe), outcome_positive_val = "Oui")
+#' tbl_bivariate_or(df, outcome = "reussite",
+#'                  exposures = c("bourse", "sexe"),
+#'                  outcome_positive_val = "Oui")
 #'
 #' @export
 tbl_bivariate_or <- function(data, outcome, exposures,

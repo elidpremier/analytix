@@ -22,6 +22,10 @@ report_generate(
   digits = 1,
   color = "transparent",
   include_plots = TRUE,
+  use_ai = FALSE,
+  provider = c("groq", "mistral"),
+  model = NULL,
+  context = NULL,
   open_doc = FALSE,
   verbose = TRUE
 )
@@ -65,6 +69,14 @@ Si NULL (défaut), utilise toutes les \code{vars} (sauf l'outcome).}
 \item{color}{Couleur d'en-tête des flextables (défaut: "transparent").}
 
 \item{include_plots}{Inclure des graphiques dans le rapport (défaut: TRUE).}
+
+\item{use_ai}{Utiliser une synthèse LLM (défaut: FALSE).}
+
+\item{provider}{Fournisseur LLM : \code{"groq"} ou \code{"mistral"}.}
+
+\item{model}{Modèle LLM spécifique (optionnel).}
+
+\item{context}{Contexte transmis au LLM, sans donnée sensible (optionnel).}
 
 \item{open_doc}{Ouvrir le document après génération (défaut: FALSE).}
 

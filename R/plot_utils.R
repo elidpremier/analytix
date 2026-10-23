@@ -20,6 +20,12 @@
 #' @param xlab Libelle de l'axe X (defaut: nom de la variable).
 #' @param ylab Libelle de l'axe Y (defaut: "Effectif" ou "Pourcentage (%)").
 #' @param show_pct Logique. Afficher les pourcentages au lieu des effectifs dans les barres groupees (defaut: FALSE).
+#' @param p Objet ggplot2 à personnaliser.
+#' @param theme_name Nom du thème ggplot2.
+#' @param base_size Taille de base du texte du thème.
+#' @param legend_pos Position de la légende.
+#' @param palette_name Nom de la palette à appliquer.
+#' @param flip_coord Logique. Retourner les coordonnées du graphique.
 #'
 #' @return Un objet `ggplot2`.
 #' 

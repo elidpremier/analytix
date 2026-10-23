@@ -7,11 +7,26 @@
 Nettoyage, description, statistiques, visualisation et export Word — entièrement en français
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Version](https://img.shields.io/badge/Version-0.4.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-0.6.0.9000--beta-blue.svg)
 ![Tests](https://img.shields.io/badge/Tests-102%20pass-brightgreen.svg)
 ![Fonctions](https://img.shields.io/badge/Fonctions-52-informational.svg)
 
 </div>
+
+---
+
+## 🧪 Statut et confidentialité
+
+`analytix` est actuellement en version bêta (`0.6.0.9000`). Aucune télémétrie,
+aucun suivi d'utilisation et aucun journal automatique ne sont activés. Les
+données restent dans votre session et sur votre machine, sauf lorsqu'une
+fonction d'analyse externe est appelée explicitement (par exemple un fournisseur
+LLM configuré par l'utilisateur).
+
+Pour signaler volontairement un bug ou proposer une amélioration, utilisez
+`analytix_report_issue()` ou `analytix_feedback()`. Ces fonctions ouvrent un
+courriel adressé à **elidopremier@gmail.com** ; rien n'est envoyé sans action
+de votre part.
 
 ---
 

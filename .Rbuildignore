@@ -1,5 +1,9 @@
 ^analytix\.Rproj$
 ^\.Rproj\.user$
+^\.env\.example$
+^\.Rhistory$
+^\.Rcheck$
+^analytix\.Rcheck$
 ^LICENSE\.md$
 ^\.devcontainer$
 ^\.vscode$

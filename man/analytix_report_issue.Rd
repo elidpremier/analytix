@@ -2,26 +2,29 @@
 % Please edit documentation in R/telemetry_public.R
 \name{analytix_report_issue}
 \alias{analytix_report_issue}
-\title{Signaler un incident ou une erreur}
+\title{Signaler un bug à l'auteur}
 \usage{
 analytix_report_issue(message, fn_name = NULL, context = NULL)
 }
 \arguments{
-\item{message}{Message décrivant l'incident (chaîne de caractères).}
+\item{message}{Description du bug rencontré.}
 
 \item{fn_name}{Nom de la fonction concernée (optionnel).}
 
-\item{context}{Contexte additionnel (données, paramètres — évitez les données sensibles).}
+\item{context}{Contexte utile à la reproduction, sans donnée sensible (optionnel).}
 }
 \value{
-Invisible \code{TRUE} si envoyé, \code{FALSE} si hors-ligne (stocké localement).
+Invisible \code{TRUE} après ouverture du client de messagerie.
 }
 \description{
-Permet de signaler manuellement une erreur rencontrée lors de l'utilisation
-d'une fonction du package. L'incident est envoyé au tableau de bord de l'auteur.
+Ouvre un nouveau message adressé à l'auteur. Aucune donnée n'est envoyée
+automatiquement et aucun journal local n'est créé.
 }
 \examples{
 \dontrun{
-analytix_report_issue("tbl_logistic plante avec un jeu de données vide", fn_name = "tbl_logistic")
+analytix_report_issue(
+  "tbl_logistic échoue avec un jeu de données vide",
+  fn_name = "tbl_logistic"
+)
 }
 }

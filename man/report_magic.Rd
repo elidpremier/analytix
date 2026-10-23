@@ -2,14 +2,15 @@
 % Please edit documentation in R/magic_report.R
 \name{report_magic}
 \alias{report_magic}
-\title{Le Rapport "Magique" en 1-Clic}
+\title{Le Rapport "Magique" Express en 1-Clic}
 \usage{
 report_magic(
   data,
   output = "magic_report.docx",
   title = "Rapport Magique Analytix",
   outcome = NULL,
-  open_doc = TRUE
+  open_doc = TRUE,
+  ...
 )
 }
 \arguments{
@@ -17,17 +18,21 @@ report_magic(
 
 \item{output}{Chemin du fichier Word de sortie (défaut: "magic_report.docx").}
 
-\item{title}{Titre du rapport.}
+\item{title}{Titre du rapport (défaut: "Rapport Magique Analytix").}
 
 \item{outcome}{Nom de la variable d'intérêt. Si NULL, la fonction tente de la deviner.}
 
 \item{open_doc}{Ouvrir le document après génération (défaut: TRUE).}
+
+\item{...}{Arguments supplémentaires transmis à \code{\link{report_express}}.}
 }
 \value{
 Le chemin du fichier Word généré (invisible).
 }
 \description{
-Analyse automatiquement un jeu de données, détecte la variable d'intérêt la plus
-pertinente si non spécifiée, impute les valeurs manquantes, applique les statistiques
-appropriées et génère un rapport Word complet incluant des interprétations en français.
+Analyse automatiquement un jeu de données, détecte la variable d'intérêt si non spécifiée,
+applique l'analyse univariée et bivariée et génère un rapport Word complet incluant des
+synthèses rédigées par IA (ou mode heuristique) en français.
+
+Cette fonction est désormais un alias optimisé vers \code{\link{report_express}}.
 }

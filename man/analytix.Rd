@@ -66,10 +66,14 @@ Le package \code{analytix} utilise une nomenclature standardisée organisée par
 \item \code{\link{plot_km}} : Courbes de survie de Kaplan-Meier.
 }
 
-\bold{5. Formatage, Rapports et Exports Word (\code{fmt_*}, \code{report_*}, \code{export_*})}
+\bold{5. Formatage, Rapports Word et Rédaction IA (\code{report_*}, \code{llm_*}, \code{fmt_*}, \code{export_*})}
 \itemize{
-\item \code{\link{theme_analytique}}, \code{\link{fmt_flextable}}, \code{\link{fmt_regression}}, \code{\link{fmt_apply_theme}} : Thèmes et mises en forme flextable et ggplot2.
-\item \code{\link{report_generate}}, \code{\link{report_magic}}, \code{\link{report_missing}}, \code{\link{report_compile}} : Rapports Word automatiques et modulaires.
+\item \code{\link{report_express}} : Rapport 1-Clic automatisé avec synthèses rédigées par IA (Groq / Mistral AI).
+\item \code{\link{report_generate}} : Rapport scientifique complet sur mesure par sections (Survie, ROC, Régression, avec option IA).
+\item \code{\link{report_compile}} : Assemblage libre de tableaux et graphiques dans un document Word.
+\item \code{\link{report_missing}} : Bilan qualitatif des valeurs manquantes.
+\item \code{\link{llm_summarize_table}}, \code{\link{llm_summarize_report}}, \code{\link{setup_api_keys}} : Moteur de rédaction automatique LLM et gestion des clés API.
+\item \code{\link{theme_analytique}}, \code{\link{fmt_flextable}}, \code{\link{fmt_regression}} : Thèmes et mises en forme de tableaux.
 \item \code{\link{export_word}}, \code{\link{export_tables}} : Exportation des tableaux au format Word (.docx).
 }
 

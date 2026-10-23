@@ -20,7 +20,6 @@
 #' categorize_numeric(df, age, breaks = c(0, 18, 35, 50, 100))
 #'
 #' # Exemple 2 : avec labels personnalisés
-#' categorize_numeric(
 #' prep_categorize(
 #'   df, age,
 #'   breaks = c(0, 18, 35, 50, 100),

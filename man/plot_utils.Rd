@@ -88,6 +88,18 @@ plot_box(
 )
 }
 \arguments{
+\item{p}{Objet ggplot2 à personnaliser.}
+
+\item{theme_name}{Nom du thème ggplot2.}
+
+\item{base_size}{Taille de base du texte du thème.}
+
+\item{legend_pos}{Position de la légende.}
+
+\item{palette_name}{Nom de la palette à appliquer.}
+
+\item{flip_coord}{Logique. Retourner les coordonnées du graphique.}
+
 \item{data}{data.frame ou vecteur/tableau d'effectifs.}
 
 \item{x}{Variable principale / axe X (ou formule pour boxplot).}

@@ -27,6 +27,10 @@
 #' @param digits Nombre de décimales (défaut: 1).
 #' @param color Couleur d'en-tête des flextables (défaut: "transparent").
 #' @param include_plots Inclure des graphiques dans le rapport (défaut: TRUE).
+#' @param use_ai Utiliser une synthèse LLM (défaut: FALSE).
+#' @param provider Fournisseur LLM : `"groq"` ou `"mistral"`.
+#' @param model Modèle LLM spécifique (optionnel).
+#' @param context Contexte transmis au LLM, sans donnée sensible (optionnel).
 #' @param open_doc Ouvrir le document après génération (défaut: FALSE).
 #' @param verbose Afficher les messages de progression (défaut: TRUE).
 #'
@@ -68,8 +72,14 @@ report_generate <- function(data,
                              digits      = 1,
                              color       = "transparent",
                              include_plots = TRUE,
+                             use_ai      = FALSE,
+                             provider    = c("groq", "mistral"),
+                             model       = NULL,
+                             context     = NULL,
                              open_doc    = FALSE,
                              verbose     = TRUE) {
+
+  provider <- match.arg(provider)
 
   # ============================================================
   # Validation des entrées
@@ -248,6 +258,26 @@ report_generate <- function(data,
         if (!is.null(res_var$flextable)) {
           doc <- .add_ft(doc, res_var$flextable)
           doc <- officer::body_add_par(doc, "", style = "Normal")
+        }
+
+        # Synthèse rédigée IA (si activée)
+        if (use_ai) {
+          tryCatch({
+            synthese <- llm_summarize_table(
+              table_obj     = res_var,
+              variable_name = var_label,
+              context       = context,
+              provider      = provider,
+              model         = model,
+              verbose       = verbose
+            )
+            if (!is.null(synthese) && nchar(trimws(synthese)) > 0) {
+              doc <- officer::body_add_par(doc, synthese, style = "Normal")
+              doc <- officer::body_add_par(doc, "", style = "Normal")
+            }
+          }, error = function(e) {
+            .warn("Synthèse IA pour '", var_label, "' non générée : ", e$message)
+          })
         }
 
         # Graphique associé

@@ -46,6 +46,6 @@ df <- data.frame(
   q1_b = c("Oui", "Non", "Oui", "Non", "Non"),
   q1_c = c("Non", "Non", "Oui", "Oui", "Oui")
 )
-desc_multi_choice(df, cols = c(q1_a, q1_b, q1_c), positive = "Oui")
+desc_multi_choice(df, cols = c("q1_a", "q1_b", "q1_c"), positive = "Oui")
 
 }
