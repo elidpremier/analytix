@@ -131,3 +131,24 @@ La phase 2 est considérée comme valide lorsque le script de cohérence passe e
 que le tarball construit avec cette version passe les tests et le contrôle du
 package. Les warnings ou notes de `R CMD check` restent suivis séparément et ne
 doivent pas être masqués par la procédure.
+
+## Phase 3 — Compatibilité de l'API
+
+La matrice [`API_COMPATIBILITY.md`](./API_COMPATIBILITY.md) formalise les
+fonctions canoniques et les alias historiques. Les alias sont conservés pendant
+la bêta, émettent un avertissement et délèguent vers leur fonction canonique.
+Le test `test-api-compatibility.R` vérifie que chaque alias et chaque cible sont
+exportés et que chaque alias avertit avant sa délégation.
+
+La phase 3 ne supprime aucune fonction et ne modifie aucune signature publique.
+Une suppression future nécessitera une entrée `NEWS.md`, une période de
+transition et une alternative documentée.
+
+### Validation de la phase 3
+
+- matrice de compatibilité ajoutée ;
+- 56 alias historiques et leurs cibles canoniques contrôlés ;
+- chaque alias est exporté et émet un avertissement avant délégation ;
+- suite complète `testthat` réussie avec le package chargé ;
+- aucun changement de signature publique ;
+- aucun commit automatique créé.
