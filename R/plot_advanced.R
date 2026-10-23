@@ -154,8 +154,8 @@ plot_missing <- function(data, vars = NULL,
     ggplot2::labs(title = title,
                   subtitle = paste0("N = ", nrow(data), " obs. | ",
                     length(vars), " variables | ",
-                    format(round(100 * mean(is.na(df_sub[, vars])), 1),
-                           decimal.mark = ","), "% de manquants"),
+                    .fmt_percent(100 * mean(is.na(df_sub[, vars])), 1),
+                    " % de manquants"),
                   x = "N° observation", y = NULL) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
@@ -217,7 +217,7 @@ plot_correlation <- function(data, cols = NULL,
 
   cor_df$label <- ifelse(
     cor_df$Var1 == cor_df$Var2, "",
-    format(round(cor_df$correlation, digits), nsmall = digits, decimal.mark = ",")
+    .fmt_decimal(cor_df$correlation, digits)
   )
 
   p <- ggplot2::ggplot(cor_df, ggplot2::aes(x = Var1, y = Var2, fill = correlation)) +

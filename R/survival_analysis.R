@@ -52,9 +52,9 @@ tbl_km <- function(data, time_var, event_var, group_var = NULL,
       row.names = NULL, check.names = FALSE, stringsAsFactors = FALSE
     )
     names(med_df) <- c("Groupe", "N", "Événements", "Médiane de survie")
-    med_df$`Médiane de survie` <- round(med_df$`Médiane de survie`, digits)
+    med_df$`Médiane de survie` <- .fmt_decimal(med_df$`Médiane de survie`, digits)
 
-    p_str <- if (p_logrank < 0.001) "< 0.001" else format(round(p_logrank, 3), nsmall = 3)
+    p_str <- .fmt_pvalue(p_logrank, 3)
 
     ft <- flextable::flextable(med_df) |>
       theme_analytique(color = color) |>
@@ -69,9 +69,9 @@ tbl_km <- function(data, time_var, event_var, group_var = NULL,
       Valeur = c(
         km_fit$n,
         sum(km_fit$n.event),
-        round(km_sum["median"], digits),
-        round(km_fit$time[which.min(abs(km_fit$surv - 0.75))], digits),
-        round(km_fit$time[which.min(abs(km_fit$surv - 0.25))], digits)
+        .fmt_decimal(km_sum["median"], digits),
+        .fmt_decimal(km_fit$time[which.min(abs(km_fit$surv - 0.75))], digits),
+        .fmt_decimal(km_fit$time[which.min(abs(km_fit$surv - 0.25))], digits)
       )
     )
 

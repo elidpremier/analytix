@@ -198,7 +198,7 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
   df1    <- aov_sum[["Df"]][1]
   df2    <- aov_sum[["Df"]][2]
   p_val  <- aov_sum[["Pr(>F)"]][1]
-  p_str  <- if (p_val < 0.001) "< 0,001" else format(round(p_val, digits), decimal.mark = ",")
+  p_str  <- .fmt_pvalue(p_val, digits)
 
   # ANOVA synthèse
   aov_df <- data.frame(
@@ -206,7 +206,7 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
     Df         = c(df1, df2),
     "Somme carr." = round(c(aov_sum[["Sum Sq"]][1], aov_sum[["Sum Sq"]][2]), digits),
     "Carré moy."  = round(c(aov_sum[["Mean Sq"]][1], aov_sum[["Mean Sq"]][2]), digits),
-    F          = c(format(f_val, nsmall = digits, decimal.mark = ","), ""),
+    F          = c(.fmt_decimal(f_val, digits), ""),
     "p-value"  = c(p_str, ""),
     stringsAsFactors = FALSE,
     check.names = FALSE
@@ -216,12 +216,10 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
   tukey <- stats::TukeyHSD(fit_aov)[[group_nm]]
   tuk_df <- data.frame(
     Comparaison = rownames(tukey),
-    Difference  = format(round(tukey[, "diff"], digits), nsmall = digits, decimal.mark = ","),
-    IC_inf      = format(round(tukey[, "lwr"],  digits), nsmall = digits, decimal.mark = ","),
-    IC_sup      = format(round(tukey[, "upr"],  digits), nsmall = digits, decimal.mark = ","),
-    "p adj."    = sapply(tukey[, "p adj"], function(p) {
-      if (p < 0.001) "< 0,001" else format(round(p, digits), decimal.mark = ",")
-    }),
+    Difference  = .fmt_decimal(tukey[, "diff"], digits),
+    IC_inf      = .fmt_decimal(tukey[, "lwr"], digits),
+    IC_sup      = .fmt_decimal(tukey[, "upr"], digits),
+    "p adj."    = .fmt_pvalue(tukey[, "p adj"], digits),
     stringsAsFactors = FALSE,
     check.names = FALSE
   )
@@ -298,7 +296,7 @@ tbl_correlation <- function(data, cols = NULL, method = c("pearson", "spearman")
 
   res_df <- as.data.frame(display_mat)
   res_df[] <- lapply(res_df, function(v) {
-    ifelse(is.na(v), "", format(round(v, digits), nsmall = digits, decimal.mark = ","))
+    ifelse(is.na(v), "", .fmt_decimal(v, digits))
   })
   res_df <- data.frame(Variable = cols, res_df, check.names = FALSE)
 

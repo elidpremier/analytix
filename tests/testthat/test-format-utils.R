@@ -99,3 +99,19 @@ test_that("les tableaux statistiques spécialisés utilisent le formatage centra
   expect_true(any(grepl("50,0 %", age$body$dataset$Valeur, fixed = TRUE)))
   expect_true(any(grepl("1,5", grouped$body$dataset$A, fixed = TRUE)))
 })
+
+test_that("les sorties avancées restantes utilisent le formatage centralisé", {
+  heatmap <- plot_heatmap(
+    data.frame(x = "A", y = "B", value = 12.5),
+    x, y, value
+  )
+  survival <- tbl_km(
+    data.frame(time = c(1, 2, 3, 4), event = c(1, 1, 0, 1)),
+    time_var = "time",
+    event_var = "event"
+  )
+
+  heatmap_labels <- ggplot2::ggplot_build(heatmap)$data[[2]]$label
+  expect_identical(heatmap_labels, "12,5 %")
+  expect_true(all(grepl(",", survival$body$dataset$Valeur, fixed = TRUE)[3:5]))
+})

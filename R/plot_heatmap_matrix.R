@@ -66,7 +66,7 @@ plot_heatmap <- function(data, x, y, fill,
 
   if (show_values) {
     data_val <- data
-    data_val$label_val <- paste0(format(round(data_val[[fill_nm]], digits), nsmall = digits, decimal.mark = ","), "%")
+    data_val$label_val <- .fmt_percent(data_val[[fill_nm]], digits, suffix = TRUE)
     p <- p + ggplot2::geom_text(
       data = data_val,
       ggplot2::aes(x = !!x_enq, y = !!y_enq, label = label_val),
