@@ -181,6 +181,11 @@ Les tableaux ANOVA et corrélation, les heatmaps, les rapports de valeurs
 manquantes avancés et les tableaux Kaplan-Meier utilisent également les helpers
 centraux.
 
+Le générateur de rapports Word réutilise désormais les mêmes helpers pour les
+taux de complétude, les indicateurs ROC, les seuils, les intervalles et les
+résultats Kaplan-Meier. Les dates, identifiants et messages techniques restent
+formatés selon leur nature propre.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans
@@ -202,3 +207,26 @@ des sorties existantes.
 - tarball et `R CMD check` réussis sans erreur ;
 - warnings et notes restants inchangés et déjà documentés ;
 - aucun commit automatique créé.
+
+### Clôture de la phase 4
+
+La migration progressive couvre désormais les sorties descriptives, tableaux
+croisés, régressions, ROC, épidémiologie, survie, graphiques, heatmaps, Likert
+et rapports Word. Les helpers internes de `R/format_utils.R` sont utilisés pour
+les décimales, pourcentages, effectifs, p-values et intervalles de confiance.
+
+Les formats non statistiques (dates, identifiants, messages de progression et
+messages d'erreur) restent volontairement hors de ce socle. Les signatures
+publiques et les structures de retour ont été conservées.
+
+Validation finale :
+
+- suite complète `testthat` réussie ;
+- tarball et `R CMD check` réussis sans erreur ;
+- warnings et notes connus inchangés ;
+- absence d'artefact de validation dans le dépôt ;
+- aucun commit automatique créé.
+
+La phase 5 peut commencer avec la charte d'accessibilité : contraste des
+palettes, titres explicites, unités, légendes, captions et lisibilité des
+tableaux et graphiques.

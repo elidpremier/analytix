@@ -115,3 +115,8 @@ test_that("les sorties avancées restantes utilisent le formatage centralisé", 
   expect_identical(heatmap_labels, "12,5 %")
   expect_true(all(grepl(",", survival$body$dataset$Valeur, fixed = TRUE)[3:5]))
 })
+
+test_that("les formats de rapport utilisent les helpers statistiques", {
+  expect_identical(analytix:::.fmt_decimal(0.875, 3), "0,875")
+  expect_identical(analytix:::.fmt_percent(12.5, 1, suffix = TRUE), "12,5 %")
+})

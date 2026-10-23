@@ -171,7 +171,8 @@ report_generate <- function(data,
     completude <- round((1 - sum(is.na(data)) / (nrow(data) * ncol(data))) * 100, 1)
     meta_df <- data.frame(
       Indicateur = c("Nombre d'observations", "Nombre de variables", "Taux de complétude global"),
-      Valeur     = c(format(nrow(data), big.mark = "\u202f"), ncol(data), paste0(completude, " %")),
+      Valeur     = c(format(nrow(data), big.mark = "\u202f"), ncol(data),
+                     .fmt_percent(completude, 1, suffix = TRUE)),
       stringsAsFactors = FALSE
     )
     doc <- .add_ft(doc, .df_to_ft(meta_df, "Synthèse du jeu de données"))
@@ -209,7 +210,11 @@ report_generate <- function(data,
       na_df <- data.frame(
         Variable   = names(data),
         `Nb NA`    = sapply(data, function(x) sum(is.na(x))),
-        `Taux (%)`  = round(sapply(data, function(x) mean(is.na(x)) * 100), 1),
+        `Taux (%)`  = .fmt_percent(
+          sapply(data, function(x) mean(is.na(x)) * 100),
+          1,
+          suffix = TRUE
+        ),
         check.names = FALSE, stringsAsFactors = FALSE
       )
       doc <<- .add_ft(doc, .df_to_ft(na_df, "Données manquantes par variable"))
@@ -442,14 +447,14 @@ report_generate <- function(data,
           Métrique = c("AUC (Aire sous la courbe)", "IC95% AUC (DeLong)",
                        "Seuil optimal (Youden)", "Sensibilité au seuil", "Spécificité au seuil"),
           Valeur   = c(
-            format(auc_val, decimal.mark = ","),
-            paste0("[", format(round(ci_auc[1], 3), decimal.mark = ","), " — ",
-                   format(round(ci_auc[3], 3), decimal.mark = ","), "]"),
+            .fmt_decimal(auc_val, 3),
+            paste0("[", .fmt_decimal(ci_auc[1], 3), " — ",
+                   .fmt_decimal(ci_auc[3], 3), "]"),
             tryCatch({
               coords_opt <- pROC::coords(roc_obj, "best", ret = c("threshold","sensitivity","specificity"))
-              c(format(round(coords_opt[1,1], 3), decimal.mark = ","),
-                paste0(format(round(coords_opt[1,2]*100, 1), decimal.mark = ","), " %"),
-                paste0(format(round(coords_opt[1,3]*100, 1), decimal.mark = ","), " %"))
+              c(.fmt_decimal(coords_opt[1, 1], 3),
+                .fmt_percent(coords_opt[1, 2] * 100, 1, suffix = TRUE),
+                .fmt_percent(coords_opt[1, 3] * 100, 1, suffix = TRUE))
             }, error = function(e) rep("N/D", 3))
           ),
           stringsAsFactors = FALSE
@@ -466,8 +471,10 @@ report_generate <- function(data,
           TRUE            ~ "Pas de discrimination (AUC < 0.60)"
         )
         doc <- officer::body_add_par(doc,
-          paste0("Interprétation : ", auc_interp, ". AUC = ", auc_val,
-                 " IC95% [", round(ci_auc[1],3), " — ", round(ci_auc[3],3), "]."),
+          paste0("Interprétation : ", auc_interp, ". AUC = ",
+                 .fmt_decimal(auc_val, 3),
+                 " IC95% [", .fmt_decimal(ci_auc[1], 3), " — ",
+                 .fmt_decimal(ci_auc[3], 3), "]."),
           style = "Normal")
 
         # Graphique ROC
@@ -476,7 +483,7 @@ report_generate <- function(data,
             ggplot2::geom_abline(slope = 1, intercept = 1, linetype = "dashed",
                                  colour = "grey60", alpha = 0.8) +
             ggplot2::annotate("text", x = 0.3, y = 0.1,
-                              label = paste0("AUC = ", auc_val),
+                              label = paste0("AUC = ", .fmt_decimal(auc_val, 3)),
                               size = 5, fontface = "bold", colour = "#0284c7") +
             ggplot2::labs(title = paste("Courbe ROC —", .get_label(data, outcome, outcome)),
                           x = "1 — Spécificité", y = "Sensibilité") +
@@ -528,7 +535,7 @@ report_generate <- function(data,
                                row.names = NULL, check.names = FALSE,
                                stringsAsFactors = FALSE)
           names(med_df) <- c("Groupe", "N", "Événements", "Médiane de survie")
-          p_str  <- if (p_logrank < 0.001) "< 0,001" else format(round(p_logrank, 3), decimal.mark = ",")
+          p_str  <- .fmt_pvalue(p_logrank, 3)
           doc <- officer::body_add_par(doc,
             paste("Analyse stratifiée par :", .get_label(data, group_var, group_var)), style = "heading 2")
           doc <- .add_ft(doc, .df_to_ft(med_df, "Médianes de survie par groupe"))
@@ -581,9 +588,9 @@ report_generate <- function(data,
             Indicateur = c("N total", "N événements", "Médiane de survie",
                            "Q1 (75% de survie)", "Q3 (25% de survie)"),
             Valeur     = c(km_fit$n, sum(km_fit$n.event),
-                           format(round(km_med, 1), decimal.mark = ","),
-                           format(round(km_q1, 1),  decimal.mark = ","),
-                           format(round(km_q3, 1),  decimal.mark = ",")),
+                           .fmt_decimal(km_med, 1),
+                           .fmt_decimal(km_q1, 1),
+                           .fmt_decimal(km_q3, 1)),
             stringsAsFactors = FALSE
           )
           doc <- .add_ft(doc, .df_to_ft(km_df, "Résumé de la courbe de survie"))
