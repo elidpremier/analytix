@@ -153,6 +153,13 @@ transition et une alternative documentée.
 - aucun changement de signature publique ;
 - aucun commit automatique créé.
 
+### Lot suivant de la phase 4
+
+Le formatage centralisé est maintenant utilisé par `tbl_cross_multi()` et les
+résultats diagnostiques/régressions de `epid_stats.R`, sans changement de
+signature publique. Les sorties existantes restent structurées de la même façon ;
+seules les chaînes numériques utilisent les helpers communs.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans

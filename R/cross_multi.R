@@ -67,12 +67,11 @@ tbl_cross_multi <- function(data,
   }, names(y_tab_full), as.numeric(y_tab_full))
 
   # Helpers
-  fmt_num <- function(x) format(round(x, 2), nsmall = 2, decimal.mark = ",")
-  fmt_pct <- function(x) format(round(x, digits), nsmall = digits, decimal.mark = ",")
+  fmt_num <- function(x) .fmt_decimal(x, 2)
+  fmt_pct <- function(x) .fmt_percent(x, digits)
   fmt_p <- function(p) {
     if (is.na(p)) return("")
-    if (p < 0.001) return("< 0,001")
-    format(round(p, 3), decimal.mark = ",")
+    .fmt_pvalue(p, 3)
   }
 
   z <- stats::qnorm(0.975)
@@ -151,7 +150,7 @@ tbl_cross_multi <- function(data,
       lvl_char <- as.character(lvl)
       row_data <- list(Variable = paste0("  ", ifelse(is.na(lvl), "<NA>", lvl_char)))
       for (j in seq_along(col_labels_y)) {
-        row_data[[col_labels_y[j]]] <- sprintf("%s (%s%%)", tab[lvl_char, j], fmt_pct(pct_mat[lvl_char, j]))
+        row_data[[col_labels_y[j]]] <- sprintf("%s (%s %s)", tab[lvl_char, j], fmt_pct(pct_mat[lvl_char, j]), "%")
       }
       row_data[["OR brute (IC 95%)"]] <- or_per_level[lvl_char]
       row_data[["p-value"]] <- pval_per_level[lvl_char]

@@ -50,9 +50,9 @@ stat_sens_spec <- function(actual, predicted,
 
   .fmt <- function(num, denom) {
     r <- .ic(num, denom)
-    pct <- format(round(r[1] * 100, digits), nsmall = digits, decimal.mark = ",")
-    lo  <- format(round(r[2] * 100, digits), nsmall = digits, decimal.mark = ",")
-    hi  <- format(round(r[3] * 100, digits), nsmall = digits, decimal.mark = ",")
+    pct <- .fmt_percent(r[1] * 100, digits)
+    lo  <- .fmt_percent(r[2] * 100, digits)
+    hi  <- .fmt_percent(r[3] * 100, digits)
     paste0(pct, "% [", lo, " - ", hi, "]")
   }
 
@@ -73,8 +73,8 @@ stat_sens_spec <- function(actual, predicted,
       .fmt(tn, tn + fp),
       .fmt(tp, tp + fp),
       .fmt(tn, tn + fn),
-      format(round(lr_pos, 2), decimal.mark = ","),
-      format(round(lr_neg, 2), decimal.mark = ",")
+      .fmt_decimal(lr_pos, 2),
+      .fmt_decimal(lr_neg, 2)
     ),
     stringsAsFactors = FALSE
   )
@@ -134,12 +134,12 @@ tbl_logistic <- function(model, data = NULL, var_labels = NULL,
     } else {
       nm
     }
-    p_s <- if (pval < 0.001) "< 0,001" else format(round(pval, 3), decimal.mark = ",")
+    p_s <- .fmt_pvalue(pval, 3)
     data.frame(
       Variable    = lab,
-      ORa         = paste0(format(round(or, digits), nsmall = digits, decimal.mark = ","),
-                           " [", format(round(lo, digits), nsmall = digits, decimal.mark = ","),
-                           " - ", format(round(hi, digits), nsmall = digits, decimal.mark = ","), "]"),
+      ORa         = paste0(.fmt_decimal(or, digits),
+                           " [", .fmt_decimal(lo, digits),
+                           " - ", .fmt_decimal(hi, digits), "]"),
       P_value     = p_s,
       stringsAsFactors = FALSE
     )

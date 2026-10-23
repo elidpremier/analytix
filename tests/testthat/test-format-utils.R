@@ -34,3 +34,17 @@ test_that("les sorties descriptives utilisent les helpers centralisés", {
   expect_match(prevalence_result$Formate, "IC95 %")
   expect_match(prevalence_result$Formate, "50,0 %")
 })
+
+test_that("les tableaux croisés utilisent le formatage centralisé", {
+  result <- tbl_cross_multi(
+    data.frame(
+      outcome = c("Oui", "Oui", "Non", "Non"),
+      exposure = c("A", "B", "A", "B")
+    ),
+    outcome = outcome,
+    predictors = "exposure",
+    method = "level"
+  )
+
+  expect_true(any(grepl("50,0 %", unlist(result), fixed = TRUE)))
+})
