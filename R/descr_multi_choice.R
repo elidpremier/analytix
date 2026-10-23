@@ -95,7 +95,7 @@ desc_multi_choice <- function(data, cols,
   res_df <- res_df[order(-res_df$Effectif), ]
   rownames(res_df) <- NULL
 
-  res_df$Pourcentage_str <- format(round(res_df$Pourcentage, digits), nsmall = digits, decimal.mark = ",")
+  res_df$Pourcentage_str <- .fmt_percent(res_df$Pourcentage, digits)
 
   display_df <- data.frame(
     Option = res_df$Option,

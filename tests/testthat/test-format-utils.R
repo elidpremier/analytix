@@ -53,3 +53,25 @@ test_that("les fonctions de formatage avancées utilisent le helper décimal", {
   expect_identical(analytix:::.fmt_decimal(c(1.234, 9.8), 2), c("1,23", "9,80"))
   expect_identical(analytix:::.fmt_percent(c(12.34, 56.7), 1), c("12,3", "56,7"))
 })
+
+test_that("les tableaux descriptifs secondaires utilisent le formatage centralisé", {
+  binary <- desc_binary(
+    data.frame(status = c("Oui", "Non")),
+    status,
+    target_level = "Oui"
+  )
+  multi <- desc_multi_choice(
+    data.frame(q1 = c("Oui", "Non"), q2 = c("Oui", "Oui")),
+    cols = c("q1", "q2"),
+    positive = "Oui"
+  )
+  score <- desc_score(
+    data.frame(q1 = c(1, 0), q2 = c(1, 1)),
+    cols = c("q1", "q2"),
+    breaks = c(-Inf, 1, Inf)
+  )
+
+  expect_identical(binary$data$`Pourcentage (%)`, "50,0")
+  expect_true(any(grepl("50,0 %", multi$flextable$body$dataset[[3]], fixed = TRUE)))
+  expect_true(any(grepl("50,0 %", score$data$summary$Valeur, fixed = TRUE)))
+})

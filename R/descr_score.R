@@ -88,17 +88,21 @@ desc_score <- function(data, cols,
     ),
     data.frame(
       Paramètre = "Moyenne ± Écart-type",
-      Valeur = sprintf("%.*f ± %.*f", digits, mean_val, digits, sd_val),
+      Valeur = paste(.fmt_decimal(mean_val, digits), "±", .fmt_decimal(sd_val, digits)),
       stringsAsFactors = FALSE
     ),
     data.frame(
       Paramètre = "Médiane [Q1 - Q3]",
-      Valeur = sprintf("%.*f [%.*f - %.*f]", digits, med_val, digits, q1_val, digits, q3_val),
+      Valeur = paste0(
+        .fmt_decimal(med_val, digits), " [",
+        .fmt_decimal(q1_val, digits), " - ",
+        .fmt_decimal(q3_val, digits), "]"
+      ),
       stringsAsFactors = FALSE
     ),
     data.frame(
       Paramètre = "Min - Max",
-      Valeur = sprintf("%g - %g", min_val, max_val),
+      Valeur = paste(.fmt_decimal(min_val, digits), "-", .fmt_decimal(max_val, digits)),
       stringsAsFactors = FALSE
     )
   )
@@ -114,7 +118,8 @@ desc_score <- function(data, cols,
 
     cat_df <- data.frame(
       Paramètre = paste0("Tranche : ", names(counts)),
-      Valeur = sprintf("%d (%.*f %%)", as.numeric(counts), digits, pcts),
+      Valeur = paste0(.fmt_count(as.numeric(counts)), " (",
+                      .fmt_percent(pcts, digits, suffix = TRUE), ")"),
       stringsAsFactors = FALSE
     )
     summary_df <- dplyr::bind_rows(summary_df, cat_df)

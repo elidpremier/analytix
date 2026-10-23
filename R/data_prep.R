@@ -67,11 +67,11 @@ prep_outliers <- function(data, var, var_name = NULL,
     Valeur = c(
       n_all, sum(!valid), sum(valid),
       method,
-      format(round(lower_iqr, 2), decimal.mark = ","),
-      format(round(upper_iqr, 2), decimal.mark = ","),
+      .fmt_decimal(lower_iqr, 2),
+      .fmt_decimal(upper_iqr, 2),
       paste0("±", z_threshold),
       n_out,
-      paste0(format(round(100 * n_out / sum(valid), 1), decimal.mark = ","), "%")
+      .fmt_percent(100 * n_out / sum(valid), 1, suffix = TRUE)
     ),
     stringsAsFactors = FALSE
   )

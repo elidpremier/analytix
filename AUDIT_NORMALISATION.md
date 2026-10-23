@@ -164,6 +164,11 @@ Le même socle est désormais utilisé par `fmt_regression()` et `tbl_roc()` pou
 les estimations, intervalles de confiance, AUC et seuils. Ces fonctions
 conservent leurs dépendances optionnelles et leur structure de retour.
 
+Les tableaux descriptifs secondaires (`desc_binary()`, `desc_multi_choice()`,
+`desc_grouped()`, `desc_score()`, `report_missing()` et `prep_outliers()`)
+utilisent également les helpers communs pour les pourcentages et les valeurs
+numériques, sans modification de leur API publique.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans

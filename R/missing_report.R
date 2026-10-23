@@ -31,7 +31,7 @@ report_missing <- function(data, vars = base::names(data), digits = 1, color = "
 
   miss_data <- dplyr::bind_rows(res_list) %>%
     dplyr::mutate(
-      `Taux (%)` = base::format(base::round(`Taux (%)`, digits), nsmall = digits, decimal.mark = ",")
+      `Taux (%)` = .fmt_percent(`Taux (%)`, digits)
     )
 
   ft <- flextable::flextable(miss_data) %>%

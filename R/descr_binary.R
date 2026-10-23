@@ -52,7 +52,7 @@ desc_binary <- function(data, var, target_level = NULL, var_name = NULL, subset 
     Modalité = as.character(target_level),
     Effectif = n_target,
     `Total (N)` = n_total,
-    `Pourcentage (%)` = format(round(pct, digits), nsmall = digits, decimal.mark = ",")
+    `Pourcentage (%)` = .fmt_percent(pct, digits)
   )
 
   ft <- theme_analytique(res_df, color = color) %>%

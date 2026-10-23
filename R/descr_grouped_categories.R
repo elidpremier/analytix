@@ -119,7 +119,7 @@ desc_grouped <- function(data,
     dplyr::arrange(.data$Classe, .data$is_autre, dplyr::desc(.data$Effectif)) %>%
     dplyr::select(-"is_autre")
 
-  df_sum$pct_fmt <- sprintf(paste0("%.", digits, "f%%"), df_sum$Pourcentage)
+  df_sum$pct_fmt <- .fmt_percent(df_sum$Pourcentage, digits, suffix = TRUE)
 
   final_df <- df_sum %>%
     dplyr::select(Classe = "Classe", Modalite = "Element", Effectif = "Effectif", `Pourcentage (%)` = "pct_fmt")
