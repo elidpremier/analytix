@@ -47,13 +47,13 @@ plot_heatmap <- function(data, x, y, fill,
   y_nm <- rlang::as_name(y_enq)
   fill_nm <- rlang::as_name(fill_enq)
 
-  if (is.null(x_lab)) x_lab <- x_nm
-  if (is.null(y_lab)) y_lab <- y_nm
+  if (is.null(x_lab)) x_lab <- .get_label(data, x_nm, x_nm)
+  if (is.null(y_lab)) y_lab <- .get_label(data, y_nm, y_nm)
 
   p <- ggplot2::ggplot(data, ggplot2::aes(x = !!x_enq, y = !!y_enq, fill = !!fill_enq)) +
     ggplot2::geom_tile(color = "white", linewidth = 0.5) +
     ggplot2::scale_fill_gradient(low = low_color, high = high_color, name = fill_lab) +
-    ggplot2::labs(title = title, x = x_lab, y = y_lab) +
+    ggplot2::labs(title = title, x = x_lab, y = y_lab, fill = fill_lab) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
       axis.text.x = ggplot2::element_text(size = 11, angle = 0, hjust = 0.5),

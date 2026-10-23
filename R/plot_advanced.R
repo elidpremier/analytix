@@ -234,7 +234,12 @@ plot_correlation <- function(data, cols = NULL,
       midpoint = 0, limits = c(-1, 1),
       name = paste0("r (", method, ")")
     ) +
-    ggplot2::labs(title = title, x = NULL, y = NULL) +
+    ggplot2::labs(
+      title = title,
+      x = "Variable",
+      y = "Variable",
+      fill = paste0("Corrélation (", method, ")")
+    ) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
       plot.title   = ggplot2::element_text(face = "bold", size = 12),

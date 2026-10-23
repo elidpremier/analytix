@@ -242,8 +242,21 @@ Le premier lot de la phase 5 introduit une charte interne de présentation :
 - palettes par défaut des graphiques catégoriels alignées sur cette charte ;
 - axes et légendes explicites pour les graphiques de distribution, Likert et
   données manquantes ;
+- unités et titres explicites pour les graphiques de corrélation et heatmaps ;
 - tests automatisés du contraste et de la taille de la palette.
 
 Les couleurs personnalisées restent possibles. Lorsqu'une couleur d'en-tête
 personnalisée est sous le seuil WCAG AA, un avertissement explicite est émis
 plutôt qu'un remplacement silencieux.
+
+### Matrice de conformité de la phase 5
+
+| Surface | Exigence | État | Vérification |
+|---|---|---|---|
+| Tableaux `flextable` | En-tête contrasté | Conforme | Test WCAG AA `>= 4,5:1` |
+| Graphiques catégoriels | Palette accessible par défaut | Conforme | Test de palette `Analytix` |
+| Graphiques Likert | Axes et légende explicites | Conforme | Tests de labels `ggplot2` |
+| Données manquantes | Variable et observation identifiées | Conforme | Test des axes |
+| Corrélations | Méthode et unité affichées | Conforme | Test de légende `r (méthode)` |
+| Heatmaps | Axes et unité de remplissage | Conforme | Test des labels |
+| Rapports Word | Sections statistiques lisibles | En cours | Validation par `R CMD check` |

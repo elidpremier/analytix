@@ -174,3 +174,22 @@ test_that("les graphiques exposent des axes et légendes explicites", {
   expect_identical(likert_plot$labels$fill, "Réponse")
   expect_identical(missing_plot$labels$y, "Variable")
 })
+
+test_that("les heatmaps et corrélations exposent leurs unités", {
+  correlation <- plot_correlation(
+    data.frame(x = c(1, 2, 3), y = c(3, 2, 1))
+  )
+  heatmap <- plot_heatmap(
+    data.frame(context = "A", marker = "B", rate = 25),
+    context,
+    marker,
+    rate
+  )
+
+  expect_identical(correlation$labels$x, "Variable")
+  expect_identical(correlation$labels$y, "Variable")
+  expect_identical(correlation$labels$fill, "Corrélation (pearson)")
+  expect_identical(heatmap$labels$x, "context")
+  expect_identical(heatmap$labels$y, "marker")
+  expect_identical(heatmap$labels$fill, "Taux (%)")
+})
