@@ -1,8 +1,8 @@
 #' @title Module de rédaction automatique via API LLM
-#' @description Envoi de tableaux statistiques agrégés à une API LLM gratuite
-#' (Groq ou Mistral AI) pour générer des synthèses rédigées en français professionnel.
-#' Seules les statistiques déjà calculées et anonymisées sont transmises — jamais les
-#' données individuelles.
+#' @description Envoi explicite de tableaux statistiques à une API LLM (Groq ou
+#' Mistral AI) pour générer des synthèses rédigées en français professionnel.
+#' L'appel est désactivé sans clé API. L'utilisateur doit vérifier que le tableau
+#' et le contexte ne contiennent aucune donnée sensible avant tout envoi externe.
 #'
 #' @name llm_summarize
 #' @rdname llm_summarize
@@ -306,8 +306,10 @@ NULL
 #' agrégées) et génère automatiquement 4–5 phrases de synthèse en français professionnel
 #' via une API LLM gratuite (Groq ou Mistral AI).
 #'
-#' **Confidentialité** : seules les statistiques déjà agrégées et anonymisées
-#' sont transmises à l'API — jamais les données individuelles.
+#' **Confidentialité** : la fonction ne contacte un fournisseur externe que si
+#' une clé API est configurée et qu'elle est appelée. Les données transmises
+#' correspondent au tableau et au contexte fournis par l'utilisateur ; il lui
+#' appartient de fournir uniquement des statistiques agrégées et non sensibles.
 #'
 #' @param table_obj Tableau à synthétiser : objet `analytix_table`, `flextable`,
 #'   ou `data.frame` contenant les statistiques agrégées.

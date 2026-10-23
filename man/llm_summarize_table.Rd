@@ -42,8 +42,10 @@ Prend un tableau de résultats \code{analytix} (ou un data.frame de statistiques
 agrégées) et génère automatiquement 4–5 phrases de synthèse en français professionnel
 via une API LLM gratuite (Groq ou Mistral AI).
 
-\strong{Confidentialité} : seules les statistiques déjà agrégées et anonymisées
-sont transmises à l'API — jamais les données individuelles.
+\strong{Confidentialité} : la fonction ne contacte un fournisseur externe que si
+une clé API est configurée et qu'elle est appelée. Les données transmises
+correspondent au tableau et au contexte fournis par l'utilisateur ; il lui
+appartient de fournir uniquement des statistiques agrégées et non sensibles.
 }
 \examples{
 \dontrun{

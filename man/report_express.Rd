@@ -73,9 +73,10 @@ couvre le nettoyage des données, l'analyse descriptive univariée, l'analyse bi
 (si une variable de résultat est fournie), et une synthèse rédigée en français
 grâce à un LLM externe (Groq ou Mistral AI) ou une interprétation heuristique locale.
 
-\strong{Confidentialité} : les données individuelles ne quittent jamais la machine locale.
-Seules les statistiques agrégées (tableaux de fréquences, moyennes, p-valeurs) sont
-transmises à l'API externe si \code{use_ai = TRUE}.
+\strong{Confidentialité} : aucune API externe n'est appelée si \code{use_ai = FALSE} ou
+si aucune clé API n'est configurée. Lorsque \code{use_ai = TRUE}, les statistiques
+préparées et le contexte fourni peuvent être transmis au fournisseur LLM ;
+l'utilisateur doit vérifier qu'ils sont agrégés et exempts de données sensibles.
 }
 \examples{
 \dontrun{

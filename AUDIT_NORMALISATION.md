@@ -100,3 +100,18 @@ présentation.
 - arguments publics manquants ajoutés à la documentation roxygen ;
 - fichiers d'environnement et répertoires de contrôle exclus du tarball via
   `.Rbuildignore`.
+
+## Phase 1 — Sécurité et confidentialité
+
+La phase 1 ajoute des tests de non-régression couvrant :
+
+- l'absence de fichier `.analytix_config` ou `.analytix_log.json` après une
+  analyse ;
+- l'absence des anciennes surfaces de télémétrie et de `httr2` ;
+- la préparation locale d'un courriel pour un bug ou une suggestion ;
+- le fonctionnement local du résumé LLM sans clé API.
+
+La documentation LLM précise désormais qu'un appel externe est possible
+uniquement lorsqu'il est explicitement demandé et qu'une clé API est disponible.
+Les tableaux et contextes fournis restent sous la responsabilité de l'utilisateur
+et doivent être agrégés et exempts de données sensibles.

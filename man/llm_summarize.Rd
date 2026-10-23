@@ -4,8 +4,8 @@
 \alias{llm_summarize}
 \title{Module de rédaction automatique via API LLM}
 \description{
-Envoi de tableaux statistiques agrégés à une API LLM gratuite
-(Groq ou Mistral AI) pour générer des synthèses rédigées en français professionnel.
-Seules les statistiques déjà calculées et anonymisées sont transmises — jamais les
-données individuelles.
+Envoi explicite de tableaux statistiques à une API LLM (Groq ou
+Mistral AI) pour générer des synthèses rédigées en français professionnel.
+L'appel est désactivé sans clé API. L'utilisateur doit vérifier que le tableau
+et le contexte ne contiennent aucune donnée sensible avant tout envoi externe.
 }

@@ -5,9 +5,10 @@
 #' (si une variable de résultat est fournie), et une synthèse rédigée en français
 #' grâce à un LLM externe (Groq ou Mistral AI) ou une interprétation heuristique locale.
 #'
-#' **Confidentialité** : les données individuelles ne quittent jamais la machine locale.
-#' Seules les statistiques agrégées (tableaux de fréquences, moyennes, p-valeurs) sont
-#' transmises à l'API externe si `use_ai = TRUE`.
+#' **Confidentialité** : aucune API externe n'est appelée si `use_ai = FALSE` ou
+#' si aucune clé API n'est configurée. Lorsque `use_ai = TRUE`, les statistiques
+#' préparées et le contexte fourni peuvent être transmis au fournisseur LLM ;
+#' l'utilisateur doit vérifier qu'ils sont agrégés et exempts de données sensibles.
 #'
 #' @param data data.frame ou chemin vers un fichier Excel (.xlsx/.xls) ou CSV.
 #' @param output Chemin du fichier Word de sortie (défaut: `"Rapport_Express.docx"`).
