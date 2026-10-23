@@ -93,12 +93,8 @@ desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = T
   if (sort) freq_data <- dplyr::arrange(freq_data, dplyr::desc(n))
 
   # Formater les pourcentages
-  format_pct <- function(val, d = digits) {
-    base::format(base::round(val, d), nsmall = d, decimal.mark = ",")
-  }
-
   freq_data <- freq_data %>%
-    dplyr::mutate(pourcentage_formate = format_pct(pourcentage))
+    dplyr::mutate(pourcentage_formate = .fmt_percent(pourcentage, digits))
 
   # Calcul du total
   if (total) {
@@ -106,7 +102,7 @@ desc_categorical <- function(data, var, var_name = NULL, subset = NULL, sort = T
       variable = "Total",
       n = sum(freq_data$n),
       pourcentage = sum(freq_data$pourcentage),
-      pourcentage_formate = format_pct(sum(freq_data$pourcentage))
+      pourcentage_formate = .fmt_percent(sum(freq_data$pourcentage), digits)
     )
     freq_data <- dplyr::bind_rows(freq_data, total_row)
   }

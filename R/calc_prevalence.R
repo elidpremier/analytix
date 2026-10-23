@@ -79,11 +79,10 @@ desc_prevalence <- function(data, var = NULL, cases_val = NULL,
   pct_lower <- lower * 100
   pct_upper <- upper * 100
   
-  str_pct <- format(round(pct, digits), nsmall = digits, decimal.mark = ",")
-  str_low <- format(round(pct_lower, digits), nsmall = digits, decimal.mark = ",")
-  str_upp <- format(round(pct_upper, digits), nsmall = digits, decimal.mark = ",")
-  
-  formatted <- paste0(cases, "/", total, " (", str_pct, "% [IC", round(conf_level * 100), "%: ", str_low, " - ", str_upp, "])")
+  str_pct <- .fmt_percent(pct, digits)
+  str_ci <- .fmt_ci_percent(pct_lower, pct_upper, digits, conf_level * 100)
+
+  formatted <- paste0(cases, "/", total, " (", str_pct, " % ", str_ci, ")")
   
   res <- data.frame(
     Variable    = var_name,

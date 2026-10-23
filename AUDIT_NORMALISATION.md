@@ -152,3 +152,25 @@ transition et une alternative documentée.
 - suite complète `testthat` réussie avec le package chargé ;
 - aucun changement de signature publique ;
 - aucun commit automatique créé.
+
+## Phase 4 — Normalisation des sorties statistiques
+
+Le premier lot introduit les helpers internes de formatage dans
+`R/format_utils.R` et les applique à `desc_numeric()`, `desc_categorical()` et
+`desc_prevalence()`. Il uniformise la virgule décimale, les pourcentages, les
+effectifs, les p-values et les intervalles de confiance.
+
+Les autres fonctions ne sont pas encore migrées : elles feront l'objet de lots
+successifs avec tests de non-régression afin d'éviter une modification globale
+des sorties existantes.
+
+### Validation du premier lot de la phase 4
+
+- helpers de formatage testés pour les décimales, effectifs, pourcentages,
+  p-values et IC95 % ;
+- sorties de `desc_numeric()`, `desc_categorical()` et `desc_prevalence()`
+  validées ;
+- suite complète `testthat` réussie ;
+- tarball et `R CMD check` réussis sans erreur ;
+- warnings et notes restants inchangés et déjà documentés ;
+- aucun commit automatique créé.

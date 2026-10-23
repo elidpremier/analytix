@@ -110,7 +110,7 @@ desc_numeric <- function(data, var, var_name = NULL, subset = NULL, digits = 2,
     if (stat_name %in% c("Effectif total", "Valeurs manquantes", "Valeurs valides")) {
       return(as.character(as.integer(val)))
     } else {
-      return(format(round(val, digits), nsmall = digits, decimal.mark = ","))
+      return(.fmt_decimal(val, digits))
     }
   }
 
