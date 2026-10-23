@@ -230,3 +230,17 @@ Validation finale :
 La phase 5 peut commencer avec la charte d'accessibilité : contraste des
 palettes, titres explicites, unités, légendes, captions et lisibilité des
 tableaux et graphiques.
+
+## Phase 5 — Accessibilité et présentation
+
+Le premier lot de la phase 5 introduit une charte interne de présentation :
+
+- en-tête de tableau accessible par défaut (`#1F4E79`, contraste WCAG AA
+  supérieur ou égal à 4,5:1 avec le texte blanc) ;
+- validation explicite des couleurs d'en-tête personnalisées ;
+- palette qualitative `Analytix` à contraste renforcé ;
+- tests automatisés du contraste et de la taille de la palette.
+
+Les couleurs personnalisées restent possibles. Lorsqu'une couleur d'en-tête
+personnalisée est sous le seuil WCAG AA, un avertissement explicite est émis
+plutôt qu'un remplacement silencieux.

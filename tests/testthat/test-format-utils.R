@@ -120,3 +120,19 @@ test_that("les formats de rapport utilisent les helpers statistiques", {
   expect_identical(analytix:::.fmt_decimal(0.875, 3), "0,875")
   expect_identical(analytix:::.fmt_percent(12.5, 1, suffix = TRUE), "12,5 %")
 })
+
+test_that("la charte de présentation respecte le contraste WCAG AA", {
+  expect_gte(
+    analytix:::.analytix_contrast_ratio(
+      analytix:::.analytix_accessible_header,
+      "#FFFFFF"
+    ),
+    4.5
+  )
+  expect_length(analytix:::.analytix_accessible_palette, 7)
+  expect_true(all(vapply(
+    analytix:::.analytix_accessible_palette,
+    function(color) analytix:::.analytix_contrast_ratio(color, "#FFFFFF") >= 3,
+    logical(1)
+  )))
+})

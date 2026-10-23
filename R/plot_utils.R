@@ -83,7 +83,7 @@ fmt_apply_theme <- function(p, theme_name = "minimal", base_size = 11,
       p <- p + ggplot2::scale_fill_viridis_d(option = palette_name) +
                ggplot2::scale_color_viridis_d(option = palette_name)
     } else if (palette_name == "Analytix") {
-      pal <- c("#0284c7", "#dc2626", "#059669", "#d97706", "#7c3aed", "#ec4899", "#06b6d4")
+      pal <- .analytix_accessible_palette
       p <- p + ggplot2::scale_fill_manual(values = pal) +
                ggplot2::scale_color_manual(values = pal)
     }

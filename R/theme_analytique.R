@@ -9,13 +9,16 @@
 #' @param data Un objet flextable, analytix_table, dataframe, tibble, ou structure convertible en flextable
 #' @param page_width Largeur de la zone utile de la page en cm.
 #'   Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)
-#' @param color Couleur de l'en-tête (défaut: "transparent")
+#' @param color Couleur de l'en-tête (défaut: `"transparent"`, remplacé par une
+#'   couleur accessible lorsque `accessible = TRUE`)
 #' @param zebre Logique. Applique un zébrage alterné sur les lignes du corps (défaut: FALSE)
 #' @param zebre_color Couleur utilisée pour le zébrage (défaut: "#F2F2F2")
 #' @param font_size Taille de police en points (défaut: 11)
 #' @param font_family Nom de la police (défaut: "Times New Roman")
 #' @param compact Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)
 #' @param caption Titre / Légende personnalisé du tableau (optionnel)
+#' @param accessible Logique. Utiliser un en-tête avec un contraste WCAG AA
+#'   minimal de 4,5:1 avec le texte blanc (défaut: TRUE).
 #' @param ... Autres arguments passés à flextable::flextable() si conversion nécessaire
 #'
 #' @return Un objet flextable formaté, pleine largeur de page
@@ -28,7 +31,8 @@
 theme_analytique <- function(data, page_width = 16, color = "transparent",
                                zebre = FALSE, zebre_color = "#F2F2F2",
                                font_size = 11, font_family = "Times New Roman",
-                               compact = FALSE, caption = NULL, ...) {
+                               compact = FALSE, caption = NULL,
+                               accessible = TRUE, ...) {
 
   if (!is.numeric(page_width) || page_width <= 0) {
     stop("page_width doit être un nombre positif")
@@ -52,6 +56,10 @@ theme_analytique <- function(data, page_width = 16, color = "transparent",
 
   if (!is.null(caption)) {
     ft <- flextable::set_caption(ft, caption)
+  }
+
+  if (isTRUE(accessible)) {
+    color <- .analytix_validate_header_color(color)
   }
 
   n_cols <- flextable::ncol_keys(ft)

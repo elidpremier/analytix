@@ -14,6 +14,7 @@ theme_analytique(
   font_family = "Times New Roman",
   compact = FALSE,
   caption = NULL,
+  accessible = TRUE,
   ...
 )
 }
@@ -23,7 +24,8 @@ theme_analytique(
 \item{page_width}{Largeur de la zone utile de la page en cm.
 Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)}
 
-\item{color}{Couleur de l'en-tête (défaut: "transparent")}
+\item{color}{Couleur de l'en-tête (défaut: \code{"transparent"}, remplacé par une
+couleur accessible lorsque \code{accessible = TRUE})}
 
 \item{zebre}{Logique. Applique un zébrage alterné sur les lignes du corps (défaut: FALSE)}
 
@@ -36,6 +38,9 @@ Par défaut : 16 cm (largeur Word standard A4 avec marges 2,5 cm)}
 \item{compact}{Logique. Si TRUE, réduit les marges internes (padding) (défaut: FALSE)}
 
 \item{caption}{Titre / Légende personnalisé du tableau (optionnel)}
+
+\item{accessible}{Logique. Utiliser un en-tête avec un contraste WCAG AA
+minimal de 4,5:1 avec le texte blanc (défaut: TRUE).}
 
 \item{...}{Autres arguments passés à flextable::flextable() si conversion nécessaire}
 }
