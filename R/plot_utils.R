@@ -125,7 +125,7 @@ plot_bar <- function(data, x = NULL, title = NULL, subtitle = NULL,
   if (is.null(subtitle)) subtitle <- paste0("N = ", n_total)
   
   df_plot$pct <- round(100 * df_plot$effectif / n_total, digits)
-  df_plot$etiquette <- paste0(format(df_plot$pct, nsmall = digits, decimal.mark = ","), "%")
+  df_plot$etiquette <- .fmt_percent(df_plot$pct, digits, suffix = TRUE)
   
   if (horiz) {
     df_plot <- df_plot[order(df_plot$effectif), ]
@@ -198,7 +198,11 @@ plot_pie <- function(data, x = NULL, title = NULL, palette = NULL,
   df_plot$pct <- round(100 * df_plot$effectif / n_total, digits)
   
   # Masquer les étiquettes < 5% pour éviter les chevauchements
-  df_plot$label <- ifelse(df_plot$pct >= 5, paste0(format(df_plot$pct, nsmall = digits, decimal.mark = ","), "%"), "")
+  df_plot$label <- ifelse(
+    df_plot$pct >= 5,
+    .fmt_percent(df_plot$pct, digits, suffix = TRUE),
+    ""
+  )
   df_plot <- df_plot[order(df_plot$effectif, decreasing = TRUE), ]
   
   p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = "", y = effectif, fill = modalite)) +
@@ -253,7 +257,9 @@ plot_bar_stacked <- function(data, x, fill, title = NULL, xlab = NULL,
   
   p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = factor(!!x_enq), y = n, fill = factor(!!fill_enq))) +
     ggplot2::geom_col(position = "fill") +
-    ggplot2::scale_y_continuous(labels = function(x) paste0(round(x * 100), "%")) +
+    ggplot2::scale_y_continuous(
+      labels = function(x) .fmt_percent(x * 100, 0, suffix = TRUE)
+    ) +
     ggplot2::labs(title = title, x = xlab, y = ylab, fill = legend_title) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
@@ -299,7 +305,11 @@ plot_bar_grouped <- function(data, x, fill, title = NULL, xlab = NULL,
   if (show_pct) {
     df_plot <- df_plot %>%
       dplyr::group_by(!!x_enq) %>%
-      dplyr::mutate(total_grp = sum(n), pct = round(100 * n / total_grp, 1), label_val = paste0(pct, "%"))
+      dplyr::mutate(
+        total_grp = sum(n),
+        pct = round(100 * n / total_grp, 1),
+        label_val = .fmt_percent(pct, 1, suffix = TRUE)
+      )
   } else {
     df_plot$label_val <- as.character(df_plot$n)
   }

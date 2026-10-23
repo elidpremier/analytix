@@ -75,3 +75,15 @@ test_that("les tableaux descriptifs secondaires utilisent le formatage centralis
   expect_true(any(grepl("50,0 %", multi$flextable$body$dataset[[3]], fixed = TRUE)))
   expect_true(any(grepl("50,0 %", score$data$summary$Valeur, fixed = TRUE)))
 })
+
+test_that("les graphiques et tableaux Likert utilisent le formatage centralisé", {
+  bar <- plot_bar(data.frame(status = c("Oui", "Non")), status)
+  likert <- desc_likert(
+    data.frame(satisfaction = c(1, 2, 2, 3)),
+    satisfaction
+  )
+
+  bar_labels <- ggplot2::ggplot_build(bar)$data[[2]]$label
+  expect_true(any(grepl("50,0 %", bar_labels, fixed = TRUE)))
+  expect_true(any(grepl("50,0 %", likert$body$dataset$Pourcentage, fixed = TRUE)))
+})

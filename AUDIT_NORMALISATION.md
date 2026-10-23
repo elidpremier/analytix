@@ -169,6 +169,10 @@ Les tableaux descriptifs secondaires (`desc_binary()`, `desc_multi_choice()`,
 utilisent également les helpers communs pour les pourcentages et les valeurs
 numériques, sans modification de leur API publique.
 
+Les étiquettes des graphiques de `plot_utils.R` et les tableaux Likert utilisent
+également ce socle. Les calculs internes restent numériques ; seul l'affichage
+des pourcentages et scores est normalisé.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans

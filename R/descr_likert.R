@@ -75,17 +75,17 @@ desc_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
   res_df <- data.frame(
     Niveau = labels_niv,
     Effectif = freqs,
-    Pourcentage = paste0(format(pcts, nsmall = digits, decimal.mark = ","), " %"),
+    Pourcentage = .fmt_percent(pcts, digits, suffix = TRUE),
     stringsAsFactors = FALSE
   )
 
   ft <- flextable::flextable(res_df) %>%
     theme_analytique(color = color) %>%
     flextable::set_caption(paste0(var_name, " (Moy. = ",
-      format(score_moy, nsmall = digits, decimal.mark = ","), ")")) %>%
+      .fmt_decimal(score_moy, digits), ")")) %>%
     flextable::add_footer_lines(paste0("N = ", n_total,
       " | Score moyen = ",
-      format(score_moy, nsmall = digits, decimal.mark = ",")))
+      .fmt_decimal(score_moy, digits)))
 
   if (!plot) return(ft)
 
@@ -95,11 +95,12 @@ desc_likert <- function(data, var, var_name = NULL, levels_labels = NULL,
   )
   p <- ggplot2::ggplot(df_plot, ggplot2::aes(x = niveau, y = pct)) +
     ggplot2::geom_col(fill = "#2C6E9B", width = 0.7) +
-    ggplot2::geom_text(ggplot2::aes(label = paste0(pct, "%")),
+    ggplot2::geom_text(ggplot2::aes(label = .fmt_percent(pct, digits, suffix = TRUE)),
                        vjust = -0.4, size = 3.5, fontface = "bold") +
     ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.15))) +
     ggplot2::labs(title = var_name,
-                  subtitle = paste0("N = ", n_total, " | Moy. = ", score_moy),
+                  subtitle = paste0("N = ", n_total, " | Moy. = ",
+                                    .fmt_decimal(score_moy, digits)),
                   x = NULL, y = "%") +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
@@ -155,10 +156,11 @@ tbl_likert_multi <- function(data, cols, var_labels = NULL,
     data.frame(
       Variable   = lab,
       N          = n_val,
-      Moyenne    = format(moy, nsmall = digits, decimal.mark = ","),
-      Mediane    = format(med, nsmall = digits, decimal.mark = ","),
-      Ecart_type = format(ec_t, nsmall = digits, decimal.mark = ","),
-      Min_Max    = paste0(min_v, " - ", max_v),
+      Moyenne    = .fmt_decimal(moy, digits),
+      Mediane    = .fmt_decimal(med, digits),
+      Ecart_type = .fmt_decimal(ec_t, digits),
+      Min_Max    = paste0(.fmt_decimal(min_v, digits), " - ",
+                          .fmt_decimal(max_v, digits)),
       stringsAsFactors = FALSE
     )
   })
