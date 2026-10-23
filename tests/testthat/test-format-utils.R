@@ -48,3 +48,8 @@ test_that("les tableaux croisés utilisent le formatage centralisé", {
 
   expect_true(any(grepl("50,0 %", unlist(result), fixed = TRUE)))
 })
+
+test_that("les fonctions de formatage avancées utilisent le helper décimal", {
+  expect_identical(analytix:::.fmt_decimal(c(1.234, 9.8), 2), c("1,23", "9,80"))
+  expect_identical(analytix:::.fmt_percent(c(12.34, 56.7), 1), c("12,3", "56,7"))
+})

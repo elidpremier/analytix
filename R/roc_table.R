@@ -105,7 +105,7 @@ tbl_roc <- function(data, outcome, predictor = NULL, positive_val = NULL,
     TRUE            ~ "Pas de discrimination (< 0,60)"
   )
 
-  .fmt <- function(x, d = digits) format(round(x, d), nsmall = d, decimal.mark = ",")
+  .fmt <- function(x, d = digits) .fmt_decimal(x, d)
 
   rows <- list(
     data.frame(Indicateur = "Prédicteur analysé",

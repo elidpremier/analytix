@@ -15,11 +15,11 @@ fmt_regression <- function(x, digits = 2) {
           estimate_text = dplyr::case_when(
             reference_row == TRUE ~ "(Réf.)",
             row_type == "level" ~ paste0(
-              format(round(estimate, digits), nsmall = digits, decimal.mark = ","),
+              .fmt_decimal(estimate, digits),
               " [",
-              format(round(conf.low, digits), nsmall = digits, decimal.mark = ","),
+              .fmt_decimal(conf.low, digits),
               " - ",
-              format(round(conf.high, digits), nsmall = digits, decimal.mark = ","),
+              .fmt_decimal(conf.high, digits),
               "]"
             ),
             TRUE ~ NA_character_

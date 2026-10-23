@@ -160,6 +160,10 @@ résultats diagnostiques/régressions de `epid_stats.R`, sans changement de
 signature publique. Les sorties existantes restent structurées de la même façon ;
 seules les chaînes numériques utilisent les helpers communs.
 
+Le même socle est désormais utilisé par `fmt_regression()` et `tbl_roc()` pour
+les estimations, intervalles de confiance, AUC et seuils. Ces fonctions
+conservent leurs dépendances optionnelles et leur structure de retour.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans
