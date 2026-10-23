@@ -8,8 +8,6 @@ Nettoyage, description, statistiques, visualisation et export Word — entièrem
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Version](https://img.shields.io/badge/Version-0.6.0.9000--beta-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-102%20pass-brightgreen.svg)
-![Fonctions](https://img.shields.io/badge/Fonctions-52-informational.svg)
 
 </div>
 
@@ -43,6 +41,25 @@ de votre part.
 ---
 
 ## 📦 Installation
+
+## ✅ Validation d'une release
+
+Depuis la racine du dépôt, exécuter les commandes suivantes avant de publier une
+version :
+
+```bash
+Rscript scripts/check_release.R
+Rscript -e 'roxygen2::roxygenise(clean = TRUE)'
+R CMD build . --no-build-vignettes
+R CMD check --no-manual analytix_*.tar.gz
+Rscript -e 'testthat::test_dir("tests/testthat")'
+```
+
+Le script `scripts/check_release.R` vérifie la cohérence entre la version du
+fichier `DESCRIPTION`, le badge de version du README et la dernière entrée de
+`NEWS.md`. Les résultats des tests et du contrôle du package doivent être
+conservés dans le compte rendu de release, sans afficher de compteurs statiques
+qui pourraient devenir obsolètes.
 
 ### 🪟 Windows (RStudio / Positron) — sans Rtools
 

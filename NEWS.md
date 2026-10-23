@@ -10,6 +10,7 @@
 ### 📦 Publication
 - Version de développement bêta alignée sur la convention usuelle des packages R : `0.6.0.9000`.
 - Documentation et badge README mis à jour pour refléter le statut bêta.
+- Contrôle de cohérence de release ajouté dans `scripts/check_release.R`.
 
 ## Version 0.5.1 — 2026-09-15 (Résolution Évaluation Boucle & Validation Stricte)
 

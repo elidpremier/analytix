@@ -115,3 +115,19 @@ La documentation LLM précise désormais qu'un appel externe est possible
 uniquement lorsqu'il est explicitement demandé et qu'une clé API est disponible.
 Les tableaux et contextes fournis restent sous la responsabilité de l'utilisateur
 et doivent être agrégés et exempts de données sensibles.
+
+## Phase 2 — Release et documentation
+
+La procédure de release est désormais vérifiable sans compteur manuel :
+
+- `scripts/check_release.R` compare la version de `DESCRIPTION`, le badge du
+  README et la dernière version de `NEWS.md` ;
+- les badges statiques de nombre de tests et de fonctions ont été supprimés ;
+- le README décrit l'ordre de validation : cohérence, roxygen2, build, check et
+  tests ;
+- la procédure ne crée ni commit ni publication automatiquement.
+
+La phase 2 est considérée comme valide lorsque le script de cohérence passe et
+que le tarball construit avec cette version passe les tests et le contrôle du
+package. Les warnings ou notes de `R CMD check` restent suivis séparément et ne
+doivent pas être masqués par la procédure.
