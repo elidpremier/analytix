@@ -44,13 +44,13 @@ desc_age <- function(data, var, var_name = NULL, breaks = NULL,
                     "Minimum", "Maximum", "Q1", "Q3"),
     Valeur = c(
       n_val, n_miss,
-      format(moy, nsmall = digits, decimal.mark = ","),
-      format(med, nsmall = digits, decimal.mark = ","),
-      format(ec_t, nsmall = digits, decimal.mark = ","),
-      format(round(min(vec_clean), digits), nsmall = digits, decimal.mark = ","),
-      format(round(max(vec_clean), digits), nsmall = digits, decimal.mark = ","),
-      format(q1, nsmall = digits, decimal.mark = ","),
-      format(q3, nsmall = digits, decimal.mark = ",")
+      .fmt_decimal(moy, digits),
+      .fmt_decimal(med, digits),
+      .fmt_decimal(ec_t, digits),
+      .fmt_decimal(min(vec_clean), digits),
+      .fmt_decimal(max(vec_clean), digits),
+      .fmt_decimal(q1, digits),
+      .fmt_decimal(q3, digits)
     ),
     stringsAsFactors = FALSE
   )
@@ -73,7 +73,7 @@ desc_age <- function(data, var, var_name = NULL, breaks = NULL,
 
   tranches_df <- data.frame(
     Statistique = paste0("  ", names(tab_t)),
-    Valeur = paste0(as.numeric(tab_t), " (", format(pct_t, nsmall = digits, decimal.mark = ","), "%)"),
+    Valeur = paste0(as.numeric(tab_t), " (", .fmt_percent(pct_t, digits, suffix = TRUE), ")"),
     stringsAsFactors = FALSE
   )
 

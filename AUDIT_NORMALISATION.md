@@ -173,6 +173,10 @@ Les étiquettes des graphiques de `plot_utils.R` et les tableaux Likert utilisen
 également ce socle. Les calculs internes restent numériques ; seul l'affichage
 des pourcentages et scores est normalisé.
 
+Les tableaux croisés spécialisés, les odds ratios bivariés, les analyses par
+groupe et le descriptif de l'âge utilisent désormais les mêmes helpers pour les
+pourcentages, intervalles, rapports et p-values.
+
 ## Phase 4 — Normalisation des sorties statistiques
 
 Le premier lot introduit les helpers internes de formatage dans

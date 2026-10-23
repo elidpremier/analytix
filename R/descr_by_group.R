@@ -69,9 +69,8 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
     
     # Formatage sélectif pour éviter les warnings de conversion sur Min_Max et n
     idx_num <- !final_df$Statistique %in% c("n", "Min_Max")
-    final_df$Valeur[idx_num] <- base::format(
-      base::round(as.numeric(final_df$Valeur[idx_num]), digits),
-      nsmall = digits, decimal.mark = ","
+    final_df$Valeur[idx_num] <- .fmt_decimal(
+      as.numeric(final_df$Valeur[idx_num]), digits
     )
 
     final_df <- final_df %>%
@@ -113,7 +112,7 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
           }
         }
         
-        p_str <- if (p_val < 0.001) "< 0,001" else format(round(p_val, 3), decimal.mark = ",")
+        p_str <- .fmt_pvalue(p_val, 3)
         ft <- flextable::add_footer_lines(ft, paste0(test_label, " : p = ", p_str))
       }
     }
@@ -129,7 +128,10 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
     for (mod in rownames(tab)) {
       row_data <- data.frame(Statistique = mod, stringsAsFactors = FALSE)
       for (col_nm in colnames(tab)) {
-        row_data[[col_nm]] <- sprintf("%s (%s%%)", tab[mod, col_nm], format(round(pct_tab[mod, col_nm], digits), nsmall = digits, decimal.mark = ","))
+        row_data[[col_nm]] <- paste0(
+          tab[mod, col_nm], " (",
+          .fmt_percent(pct_tab[mod, col_nm], digits, suffix = TRUE), ")"
+        )
       }
       res_list[[mod]] <- row_data
     }
@@ -141,7 +143,7 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
     if (test_stat) {
       test_res <- suppressWarnings(stats::chisq.test(tab))
       p_val <- test_res$p.value
-      p_str <- if(p_val < 0.001) "< 0,001" else format(round(p_val, 3), decimal.mark = ",")
+      p_str <- .fmt_pvalue(p_val, 3)
       footer_msg <- paste0("Test de Khi² : p = ", p_str)
     }
 

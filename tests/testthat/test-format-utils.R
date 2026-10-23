@@ -87,3 +87,15 @@ test_that("les graphiques et tableaux Likert utilisent le formatage centralisé"
   expect_true(any(grepl("50,0 %", bar_labels, fixed = TRUE)))
   expect_true(any(grepl("50,0 %", likert$body$dataset$Pourcentage, fixed = TRUE)))
 })
+
+test_that("les tableaux statistiques spécialisés utilisent le formatage centralisé", {
+  age <- desc_age(data.frame(age = c(20, 20, 40, 40)), age)
+  grouped <- desc_by_group(
+    data.frame(value = c(1, 2, 3, 4), group = c("A", "A", "B", "B")),
+    value,
+    group
+  )
+
+  expect_true(any(grepl("50,0 %", age$body$dataset$Valeur, fixed = TRUE)))
+  expect_true(any(grepl("1,5", grouped$body$dataset$A, fixed = TRUE)))
+})

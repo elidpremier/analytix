@@ -119,7 +119,7 @@ tbl_bivariate_or <- function(data, outcome, exposures,
       n_pos <- sum(sub_df$outcome_bin == 1)
       pct_pos <- if (n_mod > 0) (n_pos / n_mod) * 100 else 0
 
-      n_pct_str <- paste0(n_pos, "/", n_mod, " (", format(round(pct_pos, 1), nsmall = 1, decimal.mark = ","), "%)")
+      n_pct_str <- paste0(n_pos, "/", n_mod, " (", .fmt_percent(pct_pos, 1, suffix = TRUE), ")")
 
       if (i == 1) {
         or_str <- "1.00 (Réf.)"
@@ -140,12 +140,12 @@ tbl_bivariate_or <- function(data, outcome, exposures,
             ci_high <- exp(co[coef_row_name, "Estimate"] + z * se)
           }
 
-          or_fmt <- format(round(or_val, digits), nsmall = digits, decimal.mark = ",")
-          low_fmt <- format(round(ci_low, digits), nsmall = digits, decimal.mark = ",")
-          high_fmt <- format(round(ci_high, digits), nsmall = digits, decimal.mark = ",")
+          or_fmt <- .fmt_decimal(or_val, digits)
+          low_fmt <- .fmt_decimal(ci_low, digits)
+          high_fmt <- .fmt_decimal(ci_high, digits)
 
           or_str <- paste0(or_fmt, " [", low_fmt, " - ", high_fmt, "]")
-          p_str <- if (p_val < 0.001) "< 0,001" else format(round(p_val, 3), decimal.mark = ",")
+          p_str <- .fmt_pvalue(p_val, 3)
         } else {
           or_str <- "-"
           p_str <- "-"

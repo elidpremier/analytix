@@ -112,9 +112,9 @@ tbl_cross_unique <- function(data, target, ...,
     p_glob_str <- if (is.na(p_glob_val)) {
       "-"
     } else if (p_glob_val < 0.001) {
-      "<0,001"
+      "< 0,001"
     } else {
-      format(round(p_glob_val, 3), decimal.mark = ",")
+      .fmt_pvalue(p_glob_val, 3)
     }
 
     other_cols <- setdiff(colnames(tab_full), outcome_of_interest)
@@ -165,9 +165,9 @@ tbl_cross_unique <- function(data, target, ...,
       p_str <- if (is.na(p_val)) {
         "-"
       } else if (p_val < 0.001) {
-        "<0,001"
+        "< 0,001"
       } else {
-        format(round(p_val, 3), decimal.mark = ",")
+        .fmt_pvalue(p_val, 3)
       }
       p_vals[mod] <- p_str
     }
@@ -179,9 +179,9 @@ tbl_cross_unique <- function(data, target, ...,
     block <- merge(df_n, df_pct) %>%
       dplyr::mutate(
         cellule = sprintf(
-          "%s (%s%%)",
+          "%s (%s)",
           n,
-          format(round(pct, digits), nsmall = digits, decimal.mark = ",")
+          .fmt_percent(pct, digits, suffix = TRUE)
         )
       ) %>%
       dplyr::select(Modalité, Target, cellule) %>%
