@@ -14,10 +14,18 @@
 #'
 #' @export
 analytix_sample_data <- function(n = 200, seed = 42) {
+  if (length(n) != 1L || !is.numeric(n) || is.na(n) ||
+      n < 2 || n != floor(n)) {
+    stop("`n` doit être un entier supérieur ou égal à 2.", call. = FALSE)
+  }
+  if (length(seed) != 1L || !is.numeric(seed) || is.na(seed)) {
+    stop("`seed` doit être une valeur numérique unique.", call. = FALSE)
+  }
+
   set.seed(seed)
 
   age <- round(stats::rnorm(n, mean = 65, sd = 12))
-  age <- pmax(min(age), pmin(max(age), 95)) # Borner l'âge
+  age <- pmin(pmax(age, 18), 95) # Borner l'âge
 
   sexe <- sample(c("Homme", "Femme"), n, replace = TRUE, prob = c(0.55, 0.45))
   imc <- round(stats::rnorm(n, 26, 4.5), 1)

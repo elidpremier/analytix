@@ -35,8 +35,8 @@ test_that("recode_odk_binary works for ODK/KoboToolbox data", {
   x <- c("Diabète", NA, "", "1", "0")
   res <- recode_odk_binary(x)
   expect_s3_class(res, "factor")
-  expect_equal(as.character(res), c("Oui", "Non", "Non", "Oui", "Non"))
-  expect_equal(levels(res), c("Non", "Oui"))
+  expect_equal(as.character(res), c(NA, NA, NA, "Oui", "Non"))
+  expect_equal(levels(res), c("Oui", "Non"))
 })
 
 test_that("descr_grouped_categories works in wide and long mode", {

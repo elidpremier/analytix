@@ -55,13 +55,18 @@ test_that("llm_summarize_table accepte un data.frame nu", {
   })
 })
 
-test_that("setup_api_keys écrit et charge correctement les clés dans un fichier temporaire", {
+test_that("setup_api_keys écrit les clés sans les charger automatiquement", {
   tmp_env <- tempfile()
   on.exit(unlink(tmp_env))
+  withr::local_envvar(GROQ_API_KEY = "")
   setup_api_keys(groq_key = "gsk_test_12345", path = tmp_env)
   expect_true(file.exists(tmp_env))
   content <- readLines(tmp_env)
-  expect_true(any(grepl("GROQ_API_KEY=gsk_test_12345", content)))
+  expect_true(any(grepl('GROQ_API_KEY="gsk_test_12345"', content, fixed = TRUE)))
+  expect_identical(Sys.getenv("GROQ_API_KEY"), "")
+  if (.Platform$OS.type != "windows") {
+    expect_equal(as.octmode(file.info(tmp_env)$mode), as.octmode("0600"))
+  }
 })
 
 test_that(".build_prompt contient les règles d'interprétation strictes", {

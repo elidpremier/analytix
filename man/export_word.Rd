@@ -15,7 +15,7 @@ export_word(path = "rapport.docx", ..., env = FALSE, add_page_breaks = TRUE)
 \item Mélange : \code{export_word(tab1, resultats)}.
 }}
 
-\item{env}{Si \code{TRUE}, inclut aussi les tableaux de l'environnement global.}
+\item{env}{Si \code{TRUE}, inclut les objets \code{analytix_table} de l'environnement global.}
 
 \item{add_page_breaks}{Ajouter des sauts de page entre les tableaux ? (défaut: TRUE)}
 }
@@ -23,5 +23,7 @@ export_word(path = "rapport.docx", ..., env = FALSE, add_page_breaks = TRUE)
 NULL (crée un fichier Word)
 }
 \description{
-Exporte des tableaux provenant de l'environnement, de listes, ou d'objets individuels.
+Exporte des tableaux provenant de listes ou d'objets individuels.
+Avec \code{env = TRUE}, les seuls objets automatiquement récupérés dans
+l'environnement global sont les objets de classe \code{analytix_table}.
 }

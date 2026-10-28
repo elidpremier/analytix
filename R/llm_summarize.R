@@ -12,7 +12,7 @@ NULL
 # Utilitaires internes
 # ==============================================================================
 
-#' Vérifier si une clé API est disponible (en inspectant Sys.getenv, .Renviron et .env)
+#' Vérifier si une clé API est disponible dans les variables de session
 #' @param provider "groq" ou "mistral"
 #' @return La clé API (chaîne) ou NULL si absente
 #' @noRd
@@ -22,10 +22,6 @@ NULL
     groq    = "GROQ_API_KEY",
     mistral = "MISTRAL_API_KEY"
   )
-
-  # Auto-chargement sécurisé depuis .Renviron ou .env si présent localement
-  if (file.exists(".Renviron")) try(readRenviron(".Renviron"), silent = TRUE)
-  if (file.exists(".env")) try(readRenviron(".env"), silent = TRUE)
 
   key <- Sys.getenv(var_name, unset = NA_character_)
   if (is.na(key) || nchar(trimws(key)) == 0) return(NULL)
@@ -210,38 +206,25 @@ NULL
   })
 }
 
-#' Couche HTTP bas niveau (utilise curl si disponible, sinon download.file)
+#' Couche HTTP bas niveau
 #' @noRd
 .http_post <- function(url, body, headers) {
-  if (requireNamespace("curl", quietly = TRUE)) {
-    h <- curl::new_handle()
-    curl::handle_setheaders(h, .list = as.list(headers))
-    curl::handle_setopt(h, postfields = body)
-    resp <- curl::curl_fetch_memory(url, h)
-    if (resp$status_code >= 400) {
-      stop(paste0("HTTP ", resp$status_code, ": ", rawToChar(resp$content)))
-    }
-    return(rawToChar(resp$content))
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    stop(
+      "Le package 'curl' est requis pour les appels LLM sécurisés. ",
+      "Installez-le avec install.packages('curl').",
+      call. = FALSE
+    )
   }
 
-  # Fallback : utiliser utils::download.file avec tempfiles
-  tmp_body <- tempfile(fileext = ".json")
-  tmp_out  <- tempfile(fileext = ".json")
-  writeLines(body, tmp_body)
-
-  header_args <- paste(
-    sapply(names(headers), function(h) paste0("-H '", h, ": ", headers[[h]], "'")),
-    collapse = " "
-  )
-  cmd <- paste0(
-    "curl -s -X POST ", header_args,
-    " -d @", shQuote(tmp_body), " ", shQuote(url),
-    " -o ", shQuote(tmp_out)
-  )
-  ret <- system(cmd, ignore.stdout = FALSE)
-  if (ret != 0 || !file.exists(tmp_out)) stop("Appel curl échoué.")
-  on.exit({ try(unlink(tmp_body)); try(unlink(tmp_out)) }, add = TRUE)
-  paste(readLines(tmp_out, warn = FALSE), collapse = "\n")
+  h <- curl::new_handle()
+  curl::handle_setheaders(h, .list = as.list(headers))
+  curl::handle_setopt(h, postfields = body)
+  resp <- curl::curl_fetch_memory(url, h)
+  if (resp$status_code >= 400) {
+    stop(paste0("HTTP ", resp$status_code, ": ", rawToChar(resp$content)))
+  }
+  rawToChar(resp$content)
 }
 
 # ==============================================================================
@@ -445,15 +428,27 @@ setup_api_keys <- function(groq_key = NULL, mistral_key = NULL, groq_model = NUL
   set_key <- function(lines, var_name, key_val) {
     if (is.null(key_val) || nchar(trimws(key_val)) == 0) return(lines)
     lines <- lines[!grepl(paste0("^", var_name, "="), lines)]
-    c(lines, paste0(var_name, "=", trimws(key_val)))
+    escaped <- gsub("\\\\", "\\\\\\\\", trimws(key_val))
+    escaped <- gsub('"', '\\"', escaped, fixed = TRUE)
+    c(lines, paste0(var_name, '="', escaped, '"'))
   }
 
   lines <- set_key(lines, "GROQ_API_KEY", groq_key)
   lines <- set_key(lines, "MISTRAL_API_KEY", mistral_key)
   lines <- set_key(lines, "GROQ_MODEL", groq_model)
 
-  writeLines(lines, path)
-  readRenviron(path)
-  message("  → Clés API enregistrées dans '", path, "' (ignoré par .gitignore) et chargées dans la session R.")
+  dir_path <- dirname(path)
+  tmp_path <- tempfile(pattern = ".analytix-renviron-", tmpdir = dir_path)
+  on.exit(unlink(tmp_path), add = TRUE)
+  writeLines(lines, tmp_path, useBytes = TRUE)
+  Sys.chmod(tmp_path, mode = "0600")
+  if (.Platform$OS.type == "windows" && file.exists(path) && !file.remove(path)) {
+    stop("Impossible de remplacer le fichier d'environnement '", path, "'.", call. = FALSE)
+  }
+  if (!file.rename(tmp_path, path)) {
+    stop("Impossible d'écrire le fichier d'environnement '", path, "'.", call. = FALSE)
+  }
+  Sys.chmod(path, mode = "0600")
+  message("  → Clés API enregistrées dans '", path, "'. Elles ne sont pas chargées automatiquement.")
   invisible(TRUE)
 }

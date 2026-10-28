@@ -1,12 +1,14 @@
 #' @title Exporter des tableaux analytiques vers Word
-#' @description Exporte des tableaux provenant de l'environnement, de listes, ou d'objets individuels.
+#' @description Exporte des tableaux provenant de listes ou d'objets individuels.
+#' Avec \code{env = TRUE}, les seuls objets automatiquement récupérés dans
+#' l'environnement global sont les objets de classe \code{analytix_table}.
 #'
 #' @param path Chemin du fichier Word de sortie (défaut: "rapport.docx").
 #' @param ...
 #'   - Un ou plusieurs objets : \code{export_word(tab1, tab2)}.
 #'   - Une liste : \code{export_word(resultats)}.
 #'   - Mélange : \code{export_word(tab1, resultats)}.
-#' @param env Si \code{TRUE}, inclut aussi les tableaux de l'environnement global.
+#' @param env Si \code{TRUE}, inclut les objets \code{analytix_table} de l'environnement global.
 #' @param add_page_breaks Ajouter des sauts de page entre les tableaux ? (défaut: TRUE)
 #'
 #' @return NULL (crée un fichier Word)
@@ -30,8 +32,8 @@ export_word <- function(path = "rapport.docx", ..., env = FALSE, add_page_breaks
     all_tables <- .extract_tables_recursive(dots)
   }
 
-  # 2. Récupérer les tableaux de l'environnement (si demandé ou si rien n'est passé)
-  if (env || (!has_dots)) {
+  # 2. Récupérer explicitement les tableaux autorisés de l'environnement
+  if (isTRUE(env)) {
     env_tables <- .get_tables_from_env()
     all_tables <- c(all_tables, env_tables)
   }
@@ -81,8 +83,7 @@ export_word <- function(path = "rapport.docx", ..., env = FALSE, add_page_breaks
 
 .get_tables_from_env <- function(env = base::globalenv()) {
   is_exportable <- function(x) {
-    base::inherits(x, "flextable") ||
-      (base::is.list(x) && "flextable" %in% base::names(x) && base::inherits(x[["flextable"]], "flextable"))
+    base::inherits(x, "analytix_table")
   }
 
   obj_names <- base::ls(envir = env)

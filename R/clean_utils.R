@@ -69,7 +69,28 @@ clean_binary <- function(x, yes_label = "Oui", no_label = "Non", na_as_no = FALS
 #' @rdname clean_utils
 #' @export
 prep_recode_odk <- function(x, yes_label = "Oui", no_label = "Non") {
-  clean_binary(x, yes_label = yes_label, no_label = no_label, na_as_no = TRUE)
+  x_clean <- clean_text(x)
+  x_lower <- tolower(x_clean)
+
+  yes_vals <- c("oui", "yes", "true", "vrai", "1", "1.0", "y", "o",
+                "positive", "positif", "+")
+  no_vals <- c("non", "no", "false", "faux", "0", "0.0", "n", "negative",
+               "negatif", "-")
+
+  result <- rep(NA_character_, length(x_clean))
+  result[x_lower %in% yes_vals] <- yes_label
+  result[x_lower %in% no_vals] <- no_label
+
+  invalid <- !is.na(x_clean) & is.na(result)
+  if (any(invalid)) {
+    warning(
+      sum(invalid),
+      " valeur(s) ODK hors vocabulaire ont été convertie(s) en NA.",
+      call. = FALSE
+    )
+  }
+
+  factor(result, levels = c(yes_label, no_label))
 }
 
 #' @rdname clean_utils

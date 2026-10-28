@@ -2,6 +2,13 @@
 
 ## Version 0.6.0.9000 — 2026-10-23 (Bêta)
 
+### 🔐 Correctifs S0 issus de l'audit
+- `export_word()` n'inspecte plus l'environnement global sans `env = TRUE` et ne récupère automatiquement que les objets `analytix_table`.
+- Suppression du repli HTTP construit avec `system()` ; les appels LLM exigent désormais le package `curl`.
+- `setup_api_keys()` écrit `.Renviron` avec des permissions privées, échappe les valeurs et ne recharge plus implicitement des variables tierces.
+- `prep_recode_odk()` conserve les valeurs manquantes et convertit les réponses inconnues en `NA` avec avertissement.
+- `analytix_sample_data()` génère des âges variables et valide explicitement `n`.
+
 ### 🔒 Confidentialité
 - Suppression de la télémétrie, du suivi d'utilisation, de l'identifiant de session et des journaux locaux automatiques.
 - Suppression de la configuration du webhook et des fonctions publiques de contrôle de télémétrie.
