@@ -556,7 +556,7 @@ report_generate <- function(data,
               title = paste("Courbes de Kaplan-Meier —", .get_label(data, outcome, outcome))
             )
             tmp_km <- tempfile(fileext = ".png")
-            ggplot2::ggsave(tmp_km, plot = survminer:::.build_ggsurvplot(p_km),
+            ggplot2::ggsave(tmp_km, plot = p_km$plot,
                             width = 9, height = 6.5, dpi = 150)
             doc <- officer::body_add_img(doc, src = tmp_km, width = 6.3, height = 4.5)
             doc <- officer::body_add_par(doc, "", style = "Normal")

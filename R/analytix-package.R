@@ -80,6 +80,9 @@
 #' @name analytix
 #' @aliases analytix analytix-package
 #' @keywords package
+#' @importFrom graphics legend
+#' @importFrom stats AIC chisq.test family fisher.test na.omit nobs setNames
+#' @importFrom utils head packageVersion
 #' @examples
 #' \dontrun{
 #' library(analytix)

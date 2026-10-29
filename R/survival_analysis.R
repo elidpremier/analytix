@@ -93,7 +93,7 @@ tbl_km <- function(data, time_var, event_var, group_var = NULL,
       theme_analytique(color = color) |>
       flextable::set_caption("Résumé de la survie (cohorte globale)")
   }
-  return(ft)
+  as_analytix_table(data = med_df, flextable = ft)
 }
 
 #' @rdname survival_analysis

@@ -30,15 +30,16 @@ Imports:
     rlang,
     stringr,
     shiny,
-    bslib,
     readxl,
-    DT
+    scales
 Suggests: 
     mice,
     testthat (>= 3.0.0),
     pROC,
     survival,
     survminer,
+    bslib,
+    DT,
     knitr,
     rmarkdown,
     shinyjs,

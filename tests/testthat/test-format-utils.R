@@ -113,7 +113,7 @@ test_that("les sorties avancées restantes utilisent le formatage centralisé", 
 
   heatmap_labels <- ggplot2::ggplot_build(heatmap)$data[[2]]$label
   expect_identical(heatmap_labels, "12,5 %")
-  expect_true(all(grepl(",", survival$body$dataset$Valeur, fixed = TRUE)[3:5]))
+  expect_true(all(grepl(",", survival$flextable$body$dataset$Valeur, fixed = TRUE)[3:5]))
 })
 
 test_that("les formats de rapport utilisent les helpers statistiques", {

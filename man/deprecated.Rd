@@ -150,7 +150,7 @@ interpret_or(...)
 
 interpret_association(...)
 
-format_flextable(...)
+format_flextable(ft = NULL, ...)
 
 fmt_regression_fr(...)
 
@@ -168,6 +168,8 @@ export_to_word(...)
 }
 \arguments{
 \item{...}{Arguments transmis à la nouvelle fonction.}
+
+\item{ft}{Objet flextable, analytix_table ou data.frame pour \code{format_flextable()}.}
 }
 \description{
 Ces fonctions sont conservées pour des raisons de rétrocompatibilité,

@@ -179,10 +179,11 @@ tbl_roc <- function(data, outcome, predictor = NULL, positive_val = NULL,
     }
   }
 
-  list(
-    flextable  = ft,
-    plot       = p_roc,
+  as_analytix_table(
+    data = res_df,
+    flextable = ft,
+    plot = p_roc,
     roc_object = roc_obj,
-    auc        = auc_val
+    auc = auc_val
   )
 }

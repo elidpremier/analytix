@@ -22,6 +22,11 @@
 - `tbl_cross_unique(include_na = TRUE)` représente explicitement les modalités manquantes et signale les exclusions sinon.
 - `plot_pie()` génère une palette dynamique pour les jeux comportant plus de sept modalités.
 
+### 🔗 Cohérence de l'API
+- `tbl_roc()` et `tbl_km()` retournent désormais un objet `analytix_table` homogène tout en conservant leurs métadonnées spécifiques.
+- `format_flextable()` délègue directement à `theme_analytique()` et n'émet plus de double avertissement.
+- Les dépendances optionnelles de l'interface et les imports détectés par `R CMD check` sont déclarés selon leur usage réel.
+
 ### 🔒 Confidentialité
 - Suppression de la télémétrie, du suivi d'utilisation, de l'identifiant de session et des journaux locaux automatiques.
 - Suppression de la configuration du webhook et des fonctions publiques de contrôle de télémétrie.

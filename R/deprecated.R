@@ -1,6 +1,7 @@
 #' @title Fonctions dépréciées du package analytix
 #' @description Ces fonctions sont conservées pour des raisons de rétrocompatibilité,
 #' mais seront supprimées dans une future version. Veuillez utiliser les nouvelles fonctions basées sur les préfixes.
+#' @param ft Objet flextable, analytix_table ou data.frame pour `format_flextable()`.
 #' @param ... Arguments transmis à la nouvelle fonction.
 #' @name deprecated
 NULL
@@ -329,9 +330,18 @@ interpret_association <- function(...) {
 
 #' @rdname deprecated
 #' @export
-format_flextable <- function(...) {
+format_flextable <- function(ft = NULL, ...) {
   warning("`format_flextable()` est obsolète. Utilisez `fmt_flextable()` à la place.", call. = FALSE)
-  fmt_flextable(...)
+  args <- list(...)
+  if (is.null(ft)) {
+    stop("L'argument `ft` est requis.", call. = FALSE)
+  }
+  max_width <- if (is.null(args$max_width)) 6.3 else args$max_width
+  args$max_width <- NULL
+  args$page_width <- max_width * 2.54
+  if (is.null(args$font_size)) args$font_size <- 9
+  if (is.null(args$compact)) args$compact <- TRUE
+  do.call(theme_analytique, c(list(data = ft), args))
 }
 
 #' @rdname deprecated
