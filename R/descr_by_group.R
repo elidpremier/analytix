@@ -58,7 +58,11 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
         Moyenne = base::mean(!!var_enq, na.rm = TRUE),
         Mediane = stats::median(!!var_enq, na.rm = TRUE),
         Ecart_type = stats::sd(!!var_enq, na.rm = TRUE),
-        Min_Max = paste0(min(!!var_enq, na.rm = TRUE), " - ", max(!!var_enq, na.rm = TRUE)),
+        Min_Max = paste0(
+          .fmt_decimal(min(!!var_enq, na.rm = TRUE), digits),
+          " - ",
+          .fmt_decimal(max(!!var_enq, na.rm = TRUE), digits)
+        ),
         .groups = "drop"
       )
 
@@ -66,8 +70,7 @@ desc_by_group <- function(data, var, by, var_name = NULL, by_name = NULL,
     final_df <- stats_df %>%
       dplyr::mutate(dplyr::across(-!!by_enq, as.character)) %>%
       tidyr::pivot_longer(cols = -!!by_enq, names_to = "Statistique", values_to = "Valeur")
-    
-    # Formatage sélectif pour éviter les warnings de conversion sur Min_Max et n
+
     idx_num <- !final_df$Statistique %in% c("n", "Min_Max")
     final_df$Valeur[idx_num] <- .fmt_decimal(
       as.numeric(final_df$Valeur[idx_num]), digits

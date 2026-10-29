@@ -208,6 +208,17 @@ report_express <- function(data,
   if (do_bivariate && outcome %in% names(data)) {
     .msg("━━━ Étape 3b / 5 : Analyse bivariée (outcome = '", outcome, "') ━━━")
     vars_bivar <- setdiff(names(data), outcome)
+    max_modalities <- 40L
+    high_cardinality <- vars_bivar[vapply(
+      data[vars_bivar],
+      function(x) length(unique(stats::na.omit(x))) > max_modalities,
+      logical(1)
+    )]
+    if (length(high_cardinality) > 0L) {
+      vars_bivar <- setdiff(vars_bivar, high_cardinality)
+      .msg("  → Variables ignorées (plus de ", max_modalities,
+           " modalités) : ", paste(high_cardinality, collapse = ", "))
+    }
     for (v in vars_bivar) {
       tryCatch({
         res_biv <- tbl_cross_unique(data,

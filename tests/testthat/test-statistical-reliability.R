@@ -54,6 +54,37 @@ test_that("tbl_bivariate_or traite une exposition continue par unité", {
   expect_true(grepl("Par unité", result$flextable$body$dataset$Modalité))
 })
 
+test_that("tbl_bivariate_or accepte les symboles NSE pour outcome et exposition", {
+  skip_if_not_installed("flextable")
+
+  case_f <- c(0, 1, 0, 1, 1, 0, 1, 0)
+  exposure <- factor(c("A", "A", "B", "B", "A", "B", "A", "B"),
+                     levels = c("B", "A"))
+  data <- data.frame(case_f, exposure)
+
+  result <- tbl_bivariate_or(data, case_f, exposure, outcome_positive_val = 1)
+
+  expect_true(nrow(result$data) > 0)
+  expect_identical(result$data$Modalite[1], "B")
+})
+
+test_that("tbl_cross_unique conserve l'ordre des niveaux et évite Fisher exact coûteux", {
+  skip_if_not_installed("flextable")
+
+  data <- data.frame(
+    outcome = factor(rep(c("Non", "Oui"), 25), levels = c("Oui", "Non")),
+    educ = factor(rep(c("0-5yrs", "6-11yrs", "12+ yrs"), length.out = 50),
+                  levels = c("0-5yrs", "6-11yrs", "12+ yrs"))
+  )
+
+  result <- tbl_cross_unique(data, outcome, educ, test = "fisher")
+
+  expect_identical(
+    as.character(result$data$Modalité[seq_len(3)]),
+    c("0-5yrs", "6-11yrs", "12+ yrs")
+  )
+})
+
 test_that("les analyses Kaplan-Meier refusent les temps négatifs", {
   skip_if_not_installed("flextable")
   skip_if_not_installed("survival")

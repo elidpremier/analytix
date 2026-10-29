@@ -217,7 +217,7 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
   fit_aov     <- stats::aov(formula_obj, data = data)
   aov_sum     <- summary(fit_aov)[[1]]
 
-  f_val  <- round(aov_sum[["F value"]][1], digits)
+  f_val  <- .fmt_decimal(aov_sum[["F value"]][1], digits)
   df1    <- aov_sum[["Df"]][1]
   df2    <- aov_sum[["Df"]][2]
   p_val  <- aov_sum[["Pr(>F)"]][1]
@@ -226,10 +226,10 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
   # ANOVA synthèse
   aov_df <- data.frame(
     Source     = c(group_name, "Résidus"),
-    Df         = c(df1, df2),
-    "Somme carr." = round(c(aov_sum[["Sum Sq"]][1], aov_sum[["Sum Sq"]][2]), digits),
-    "Carré moy."  = round(c(aov_sum[["Mean Sq"]][1], aov_sum[["Mean Sq"]][2]), digits),
-    F          = c(.fmt_decimal(f_val, digits), ""),
+    Df         = .fmt_decimal(c(df1, df2), digits),
+    "Somme carr." = .fmt_decimal(c(aov_sum[["Sum Sq"]][1], aov_sum[["Sum Sq"]][2]), digits),
+    "Carré moy."  = .fmt_decimal(c(aov_sum[["Mean Sq"]][1], aov_sum[["Mean Sq"]][2]), digits),
+    F          = c(f_val, ""),
     "p-value"  = c(p_str, ""),
     stringsAsFactors = FALSE,
     check.names = FALSE
@@ -250,7 +250,8 @@ tbl_anova <- function(data, var, group, var_name = NULL, group_name = NULL,
   ft_aov <- flextable::flextable(aov_df) %>%
     theme_analytique(color = color) %>%
     flextable::set_caption(paste("ANOVA :", var_name, "~", group_name)) %>%
-    flextable::add_footer_lines(paste0("F(", df1, ", ", df2, ") = ", f_val,
+    flextable::add_footer_lines(paste0("F(", .fmt_decimal(df1, digits), ", ",
+                                       .fmt_decimal(df2, digits), ") = ", f_val,
                                        " | p = ", p_str))
 
   ft_tuk <- flextable::flextable(tuk_df) %>%
@@ -320,7 +321,9 @@ tbl_correlation <- function(data, cols = NULL, method = c("pearson", "spearman")
         pval_mat[i, j] <- NA
       } else {
         ct <- tryCatch(
-          stats::cor.test(mat_data[[i]], mat_data[[j]], method = method),
+          suppressWarnings(
+            stats::cor.test(mat_data[[i]], mat_data[[j]], method = method)
+          ),
           error = function(e) NULL
         )
         if (!is.null(ct)) {

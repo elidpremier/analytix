@@ -76,6 +76,25 @@ test_that("les tableaux descriptifs secondaires utilisent le formatage centralis
   expect_true(any(grepl("50,0 %", score$data$summary$Valeur, fixed = TRUE)))
 })
 
+test_that("les plages et références utilisent la virgule décimale", {
+  grouped <- desc_by_group(
+    data.frame(value = c(4.17, 6.11), group = c("A", "A")),
+    value,
+    group,
+    digits = 2
+  )
+  expect_true(any(grepl("4,17 - 6,11", grouped$body$dataset$A, fixed = TRUE)))
+
+  or_table <- tbl_bivariate_or(
+    data.frame(outcome = c(0, 1, 0, 1), exposure = factor(c("A", "A", "B", "B"))),
+    outcome,
+    exposure,
+    outcome_positive_val = 1,
+    digits = 2
+  )
+  expect_true(any(grepl("1,00 (Réf.)", or_table$flextable$body$dataset[[4]], fixed = TRUE)))
+})
+
 test_that("les graphiques et tableaux Likert utilisent le formatage centralisé", {
   bar <- plot_bar(data.frame(status = c("Oui", "Non")), status)
   likert <- desc_likert(

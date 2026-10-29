@@ -40,15 +40,23 @@ tbl_bivariate_or <- function(data, outcome, exposures,
   }
 
   outcome_enq <- rlang::enquo(outcome)
-  outcome_nm <- if (is.character(outcome)) outcome else rlang::as_name(outcome_enq)
+  outcome_expr <- rlang::quo_get_expr(outcome_enq)
+  outcome_nm <- if (is.character(outcome_expr)) {
+    outcome_expr
+  } else {
+    rlang::as_name(outcome_enq)
+  }
 
   if (!outcome_nm %in% names(data)) {
     stop(paste("La colonne outcome", outcome_nm, "n'existe pas dans les données."))
   }
 
   exp_enq <- rlang::enquo(exposures)
-  if (is.character(exposures)) {
-    exposures_nms <- exposures
+  exp_expr <- rlang::quo_get_expr(exp_enq)
+  if (is.character(exp_expr)) {
+    exposures_nms <- exp_expr
+  } else if (rlang::is_symbol(exp_expr)) {
+    exposures_nms <- rlang::as_name(exp_enq)
   } else {
     exposures_nms <- tryCatch({
       names(dplyr::select(data, !!exp_enq))
@@ -119,7 +127,10 @@ tbl_bivariate_or <- function(data, outcome, exposures,
     if (is.null(fit)) next
 
     co <- summary(fit)$coefficients
-    ci <- tryCatch(suppressMessages(stats::confint(fit, level = conf_level)), error = function(e) NULL)
+    ci <- tryCatch(
+      stats::confint.default(fit, level = conf_level),
+      error = function(e) NULL
+    )
 
     if (is_continuous) {
       estimate_name <- setdiff(names(stats::coef(fit)), "(Intercept)")
@@ -132,8 +143,10 @@ tbl_bivariate_or <- function(data, outcome, exposures,
         or_str <- "NA"
         p_str <- "NA"
       } else {
-        ci <- tryCatch(suppressMessages(stats::confint(fit, level = conf_level)),
-                       error = function(e) NULL)
+        ci <- tryCatch(
+          stats::confint.default(fit, level = conf_level),
+          error = function(e) NULL
+        )
         if (!is.null(ci) && estimate_name %in% rownames(ci)) {
           ci_low <- exp(ci[estimate_name, 1])
           ci_high <- exp(ci[estimate_name, 2])
@@ -170,7 +183,7 @@ tbl_bivariate_or <- function(data, outcome, exposures,
       n_pct_str <- paste0(n_pos, "/", n_mod, " (", .fmt_percent(pct_pos, 1, suffix = TRUE), ")")
 
       if (i == 1) {
-        or_str <- "1.00 (Réf.)"
+        or_str <- paste0(.fmt_decimal(1, digits), " (Réf.)")
         p_str <- "-"
       } else {
         coef_row_name <- paste0(exp_var, mod)

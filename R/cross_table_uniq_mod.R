@@ -100,7 +100,9 @@ tbl_cross_unique <- function(data, target, ...,
       dimnames(tab_full)[[2]][is.na(dimnames(tab_full)[[2]])] <- "<NA>"
     } else {
       keep <- !is.na(x_full) & !is.na(y_full)
-      tab_full <- table(x_full[keep], y_full[keep], useNA = "no")
+      x_clean <- if (is.factor(x_full)) droplevels(x_full[keep]) else x_full[keep]
+      y_clean <- if (is.factor(y_full)) droplevels(y_full[keep]) else y_full[keep]
+      tab_full <- table(x_clean, y_clean, useNA = "no")
     }
 
     if (!outcome_of_interest %in% colnames(tab_full)) {
@@ -119,7 +121,18 @@ tbl_cross_unique <- function(data, target, ...,
       use_fisher_global <- TRUE
     }
 
-    if (use_fisher_global) {
+    simulate_fisher <- use_fisher_global && max(dim(tab_full)) > 20L
+    if (simulate_fisher) {
+      has_small_counts <- TRUE
+      res_global <- tryCatch(
+        suppressWarnings(stats::fisher.test(tab_full, simulate.p.value = TRUE, B = 2000)),
+        error = function(e) {
+          warning("Le test de Fisher simulé n'a pas pu être calculé : ",
+                  conditionMessage(e), call. = FALSE)
+          list(p.value = NA_real_)
+        }
+      )
+    } else if (use_fisher_global) {
       res_global <- tryCatch(
         suppressWarnings(stats::fisher.test(tab_full)),
         error = function(e) {
@@ -200,7 +213,7 @@ tbl_cross_unique <- function(data, target, ...,
     df_n   <- as.data.frame(tab_mat)   %>% setNames(c("Modalité", "Target", "n"))
     df_pct <- as.data.frame(pct_mat) %>% setNames(c("Modalité", "Target", "pct"))
 
-    block <- merge(df_n, df_pct) %>%
+    block <- merge(df_n, df_pct, sort = FALSE) %>%
       dplyr::mutate(
         cellule = sprintf(
           "%s (%s)",
@@ -237,7 +250,7 @@ tbl_cross_unique <- function(data, target, ...,
     "p global : test d'indépendance global de la variable (Fisher / χ²)"
   )
   if (has_small_counts) {
-    note_parts <- c(note_parts, "effectifs théoriques < 5 détectés (test exact de Fisher appliqué)")
+    note_parts <- c(note_parts, "effectifs faibles détectés (test exact ou simulé de Fisher appliqué)")
   }
 
   note_text <- paste0("Notes : ", paste(note_parts, collapse = " ; "), ".")
