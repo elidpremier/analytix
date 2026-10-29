@@ -24,6 +24,20 @@ stat_sens_spec <- function(actual, predicted,
                                          digits = 1,
                                          color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
+  if (length(actual) != length(predicted)) {
+    stop("`actual` et `predicted` doivent avoir la même longueur.", call. = FALSE)
+  }
+  if (length(conf_level) != 1L || !is.numeric(conf_level) ||
+      is.na(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    stop("`conf_level` doit être strictement compris entre 0 et 1.", call. = FALSE)
+  }
+  excluded <- is.na(actual) | is.na(predicted)
+  if (any(excluded)) {
+    warning(sum(excluded), " observation(s) exclue(s) car `actual` ou `predicted` est manquant.",
+            call. = FALSE)
+    actual <- actual[!excluded]
+    predicted <- predicted[!excluded]
+  }
 
   if (is.null(positive_val)) {
     uv <- unique(c(actual, predicted))
@@ -39,7 +53,7 @@ stat_sens_spec <- function(actual, predicted,
   tn <- sum(actual != positive_val & predicted != positive_val, na.rm = TRUE)
 
   .ic <- function(num, denom) {
-    if (denom == 0) return(c(0, 0, 0))
+    if (denom == 0) return(c(NA_real_, NA_real_, NA_real_))
     p  <- num / denom
     z  <- stats::qnorm(1 - (1 - conf_level) / 2)
     d  <- 1 + z^2 / denom
@@ -50,6 +64,7 @@ stat_sens_spec <- function(actual, predicted,
 
   .fmt <- function(num, denom) {
     r <- .ic(num, denom)
+    if (is.na(r[1])) return("NA")
     pct <- .fmt_percent(r[1] * 100, digits)
     lo  <- .fmt_percent(r[2] * 100, digits)
     hi  <- .fmt_percent(r[3] * 100, digits)
@@ -57,8 +72,8 @@ stat_sens_spec <- function(actual, predicted,
   }
 
   se_r   <- .ic(tp, tp + fn);  sp_r  <- .ic(tn, tn + fp)
-  lr_pos <- if (sp_r[1] == 1) Inf else (se_r[1]) / (1 - sp_r[1])
-  lr_neg <- if (se_r[1] == 0) 0   else (1 - se_r[1]) / sp_r[1]
+  lr_pos <- if (is.na(se_r[1]) || is.na(sp_r[1])) NA_real_ else if (sp_r[1] == 1) Inf else (se_r[1]) / (1 - sp_r[1])
+  lr_neg <- if (is.na(se_r[1]) || is.na(sp_r[1])) NA_real_ else if (se_r[1] == 0) 0 else (1 - se_r[1]) / sp_r[1]
 
   res_df <- data.frame(
     Indicateur = c("VP (vrais positifs)", "FP (faux positifs)",
@@ -107,17 +122,25 @@ tbl_logistic <- function(model, data = NULL, var_labels = NULL,
                                           conf_level = 0.95, digits = 2,
                                           color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
+  if (length(conf_level) != 1L || !is.numeric(conf_level) ||
+      is.na(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    stop("`conf_level` doit être strictement compris entre 0 et 1.", call. = FALSE)
+  }
 
   if (inherits(model, "formula")) {
     if (is.null(data)) stop("Veuillez fournir `data` si `model` est une formule.")
     model <- stats::glm(model, data = data, family = stats::binomial())
+  }
+  if (!inherits(model, "glm") || !identical(family(model)$family, "binomial")) {
+    stop("`model` doit être un modèle `glm` binomial pour produire des OR.", call. = FALSE)
   }
 
   co <- summary(model)$coefficients
   ci <- tryCatch(suppressMessages(stats::confint(model, level = conf_level)),
                  error = function(e) NULL)
 
-  rows <- lapply(rownames(co)[-1], function(nm) {
+  term_names <- setdiff(rownames(co), "(Intercept)")
+  rows <- lapply(term_names, function(nm) {
     or   <- exp(co[nm, "Estimate"])
     pval <- co[nm, "Pr(>|z|)"]
     if (!is.null(ci) && nm %in% rownames(ci)) {

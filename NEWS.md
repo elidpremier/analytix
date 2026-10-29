@@ -9,6 +9,13 @@
 - `prep_recode_odk()` conserve les valeurs manquantes et convertit les réponses inconnues en `NA` avec avertissement.
 - `analytix_sample_data()` génère des âges variables et valide explicitement `n`.
 
+### 📊 Fiabilité statistique
+- Les indicateurs diagnostiques retournent `NA` lorsque leur dénominateur est nul et signalent les observations exclues.
+- `tbl_logistic()` refuse désormais les modèles non binomiaux et valide le niveau de confiance.
+- `tbl_bivariate_or()` conserve les expositions continues sur leur échelle d'origine et signale les estimations instables.
+- Les analyses Kaplan-Meier valident les temps et les événements ; les quantiles non atteints sont retournés comme `NA`.
+- Les fonctions utilisant une graine restaurent l'état aléatoire de l'appelant, et `n_sentences` est désormais transmis au prompt LLM.
+
 ### 🔒 Confidentialité
 - Suppression de la télémétrie, du suivi d'utilisation, de l'identifiant de session et des journaux locaux automatiques.
 - Suppression de la configuration du webhook et des fonctions publiques de contrôle de télémétrie.

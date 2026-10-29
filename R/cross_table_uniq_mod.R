@@ -103,7 +103,14 @@ tbl_cross_unique <- function(data, target, ...,
     }
 
     if (use_fisher_global) {
-      res_global <- tryCatch(suppressWarnings(fisher.test(tab_full, simulate.p.value = (nrow(tab_full) > 2 || ncol(tab_full) > 2))), error = function(e) list(p.value = NA))
+      res_global <- tryCatch(
+        suppressWarnings(stats::fisher.test(tab_full)),
+        error = function(e) {
+          warning("Le test exact de Fisher n'a pas pu être calculé : ",
+                  conditionMessage(e), call. = FALSE)
+          list(p.value = NA_real_)
+        }
+      )
     } else {
       res_global <- tryCatch(suppressWarnings(chisq.test(tab_full, correct = FALSE)), error = function(e) list(p.value = NA))
     }

@@ -90,6 +90,7 @@ NULL
     "5. STYLE ET FORMATAGE :\n",
     "   - Quantitatif : Moyenne ± écart-type [unité], min/max si disponibles.\n",
     "   - Qualitatif : Modalités présentées de façon neutre avec effectifs et pourcentages, sans causalité.\n",
+    "   - Produire exactement ", n_sentences, " phrase(s), sauf si la structure du tableau impose moins de texte.\n",
     "   - Pour les tableaux avec 3 modalités ou plus (≥ 3) :\n",
     "     Respecter strictement la STRUCTURE EN 3 LIGNES :\n",
     "     Ligne 1 : Phrase scientifique rédigée au passé présentant 2 ou 3 résultats marquants de manière académique et neutre avec les valeurs numériques exactes (strictement descriptif, sans comparaison ni hiérarchisation ni mise en évidence de prédominance).\n",

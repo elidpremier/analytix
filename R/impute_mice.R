@@ -61,6 +61,18 @@ prep_impute_mice <- function(data,
 
   stopifnot(is.data.frame(data), nrow(data) >= 1, ncol(data) >= 1)
 
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) {
+    old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  }
+  on.exit({
+    if (had_seed) {
+      assign(".Random.seed", old_seed, envir = .GlobalEnv)
+    } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  }, add = TRUE)
+
   # -----------------------------------------------------------------
   # 1. Nettoyage des classes spéciales incompatibles avec mice
   #    (labelled, haven_labelled, vctrs_vctr, etc.)

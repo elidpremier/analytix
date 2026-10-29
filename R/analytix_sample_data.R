@@ -22,6 +22,17 @@ analytix_sample_data <- function(n = 200, seed = 42) {
     stop("`seed` doit être une valeur numérique unique.", call. = FALSE)
   }
 
+  had_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  if (had_seed) {
+    old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  }
+  on.exit({
+    if (had_seed) {
+      assign(".Random.seed", old_seed, envir = .GlobalEnv)
+    } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  }, add = TRUE)
   set.seed(seed)
 
   age <- round(stats::rnorm(n, mean = 65, sd = 12))

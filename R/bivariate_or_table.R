@@ -34,6 +34,10 @@ tbl_bivariate_or <- function(data, outcome, exposures,
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   if (!requireNamespace("stats", quietly = TRUE)) stop("stats requis")
   if (!requireNamespace("rlang", quietly = TRUE)) stop("rlang requis")
+  if (length(conf_level) != 1L || !is.numeric(conf_level) ||
+      is.na(conf_level) || conf_level <= 0 || conf_level >= 1) {
+    stop("`conf_level` doit être strictement compris entre 0 et 1.", call. = FALSE)
+  }
 
   outcome_enq <- rlang::enquo(outcome)
   outcome_nm <- if (is.character(outcome)) outcome else rlang::as_name(outcome_enq)
@@ -64,6 +68,10 @@ tbl_bivariate_or <- function(data, outcome, exposures,
 
   out_vec <- data[[outcome_nm]]
   out_clean <- out_vec[!is.na(out_vec)]
+  if (length(unique(out_clean)) != 2L) {
+    stop("La variable outcome doit comporter exactement deux modalités non manquantes.",
+         call. = FALSE)
+  }
 
   if (is.null(outcome_positive_val)) {
     if (is.logical(out_clean)) {
@@ -74,6 +82,12 @@ tbl_bivariate_or <- function(data, outcome, exposures,
       possibles <- c("Oui", "oui", "1", "Reussite", "Positive", "BLSE", "+", "TRUE")
       match_val <- intersect(unique(out_clean), possibles)
       outcome_positive_val <- if (length(match_val) > 0) match_val[1] else unique(out_clean)[1]
+    }
+    if (length(outcome_positive_val) != 1L ||
+        is.na(outcome_positive_val) ||
+        !any(out_clean == outcome_positive_val)) {
+      stop("`outcome_positive_val` doit correspondre à une modalité de `outcome`.",
+           call. = FALSE)
     }
   }
 
@@ -94,10 +108,7 @@ tbl_bivariate_or <- function(data, outcome, exposures,
     }
 
     exp_vec <- data_mod[[exp_var]]
-    if (is.numeric(exp_vec)) {
-      exp_vec <- factor(exp_vec)
-      data_mod[[exp_var]] <- exp_vec
-    }
+    is_continuous <- is.numeric(exp_vec) && length(unique(exp_vec[!is.na(exp_vec)])) > 2L
 
     formula_obj <- stats::as.formula(paste("outcome_bin ~", exp_var))
     fit <- tryCatch(
@@ -109,6 +120,43 @@ tbl_bivariate_or <- function(data, outcome, exposures,
 
     co <- summary(fit)$coefficients
     ci <- tryCatch(suppressMessages(stats::confint(fit, level = conf_level)), error = function(e) NULL)
+
+    if (is_continuous) {
+      estimate_name <- setdiff(names(stats::coef(fit)), "(Intercept)")
+      if (length(estimate_name) != 1L) next
+      coef_row <- summary(fit)$coefficients[estimate_name, , drop = FALSE]
+      or_val <- exp(coef_row[1, "Estimate"])
+      if (!is.finite(or_val) || abs(coef_row[1, "Estimate"]) > 30) {
+        warning("Séparation parfaite ou estimation instable détectée pour '", exp_var,
+                "' ; OR non publié.", call. = FALSE)
+        or_str <- "NA"
+        p_str <- "NA"
+      } else {
+        ci <- tryCatch(suppressMessages(stats::confint(fit, level = conf_level)),
+                       error = function(e) NULL)
+        if (!is.null(ci) && estimate_name %in% rownames(ci)) {
+          ci_low <- exp(ci[estimate_name, 1])
+          ci_high <- exp(ci[estimate_name, 2])
+        } else {
+          z <- stats::qnorm(1 - (1 - conf_level) / 2)
+          ci_low <- exp(coef_row[1, "Estimate"] - z * coef_row[1, "Std. Error"])
+          ci_high <- exp(coef_row[1, "Estimate"] + z * coef_row[1, "Std. Error"])
+        }
+        or_str <- paste0(.fmt_decimal(or_val, digits), " [",
+                         .fmt_decimal(ci_low, digits), " - ",
+                         .fmt_decimal(ci_high, digits), "]")
+        p_str <- .fmt_pvalue(coef_row[1, "Pr(>|z|)"], 3)
+      }
+      rows_list[[length(rows_list) + 1]] <- data.frame(
+        Variable = var_lab,
+        Modalite = "Par unité",
+        Effectif_Pct = paste0(sum(!is.na(exp_vec))),
+        OR_IC95 = or_str,
+        P_value = p_str,
+        stringsAsFactors = FALSE
+      )
+      next
+    }
 
     levels_val <- levels(factor(exp_vec[!is.na(exp_vec)]))
 
