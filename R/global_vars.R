@@ -1,1 +1,1 @@
-utils::globalVariables(c(".data", "Modalité", "x", "y"))
+utils::globalVariables(c(".data", "Modalit\u00e9", "x", "y"))

@@ -50,8 +50,8 @@ data_clean <- data_raw %>%
 # 2. Imputation des valeurs manquantes
 data_clean <- data_clean %>%
   dplyr::mutate(
-    groupe = impute_mode(groupe),
-    age = impute_mean(age, type = "median")
+    groupe = prep_impute_mode(groupe),
+    age = prep_impute_mean(age, type = "median")
   )
 ```
 
@@ -148,7 +148,11 @@ Tous les tableaux générés avec `analytix` peuvent être formatés aux normes 
 
 ```r
 # Formatage personnalisé d'un flextable
-ft_formatted <- fmt_flextable(ft_or, max_width = 6.5, font_family = "Times New Roman")
+ft_formatted <- theme_analytique(
+  ft_or,
+  page_width = 6.5 * 2.54,
+  font_family = "Times New Roman"
+)
 
 # Exportation de plusieurs tableaux vers un rapport Word
 export_word(
@@ -156,6 +160,6 @@ export_word(
     "Tableau 1 : Description par groupe" = ft_by_group,
     "Tableau 2 : Odds Ratios bivariés" = ft_formatted
   ),
-  file = "Rapport_Analytique.docx"
+  path = "Rapport_Analytique.docx"
 )
 ```
