@@ -81,10 +81,27 @@ tbl_cross_unique <- function(data, target, ...,
     if (!v_name %in% names(data)) next
     v_label  <- .get_label(data, v_name, v_name)
     x_full   <- data[[v_name]]
+    excluded <- is.na(x_full) | is.na(y_full)
+    if (!include_na && any(excluded)) {
+      warning(
+        sum(excluded),
+        " observation(s) exclue(s) pour '", v_name,
+        "' car une variable est manquante.",
+        call. = FALSE
+      )
+    }
 
     # Inclure ou non les NA
-    use_na_arg <- if (include_na) "ifany" else "no"
-    tab_full <- table(x_full, y_full, useNA = use_na_arg)
+    if (include_na) {
+      x_factor <- addNA(factor(x_full))
+      y_factor <- addNA(factor(y_full))
+      tab_full <- table(x_factor, y_factor, useNA = "ifany")
+      dimnames(tab_full)[[1]][is.na(dimnames(tab_full)[[1]])] <- "<NA>"
+      dimnames(tab_full)[[2]][is.na(dimnames(tab_full)[[2]])] <- "<NA>"
+    } else {
+      keep <- !is.na(x_full) & !is.na(y_full)
+      tab_full <- table(x_full[keep], y_full[keep], useNA = "no")
+    }
 
     if (!outcome_of_interest %in% colnames(tab_full)) {
       stop("La modalité '", outcome_of_interest, "' n'est pas dans les colonnes du tableau pour '", v_name, "'.")

@@ -99,7 +99,7 @@ plot_bar <- function(data, x = NULL, title = NULL, subtitle = NULL,
                          digits = 1, file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
   
-  if (is.vector(data) || is.table(data)) {
+  if (is.vector(data) || is.factor(data) || is.table(data)) {
     t_val <- if (is.table(data)) data else table(data, useNA = "no")
     df_plot <- data.frame(
       modalite = names(t_val),
@@ -179,7 +179,7 @@ plot_pie <- function(data, x = NULL, title = NULL, palette = NULL,
                            file = NULL, width = 8, height = 6) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 requis")
   
-  if (is.vector(data) || is.table(data)) {
+  if (is.vector(data) || is.factor(data) || is.table(data)) {
     t_val <- if (is.table(data)) data else table(data, useNA = "no")
     df_plot <- data.frame(modalite = names(t_val), effectif = as.numeric(t_val), stringsAsFactors = FALSE)
   } else if (is.data.frame(data)) {
@@ -223,7 +223,10 @@ plot_pie <- function(data, x = NULL, title = NULL, palette = NULL,
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_manual(values = palette)
   } else {
-    p <- p + ggplot2::scale_fill_manual(values = .analytix_accessible_palette)
+    n_levels <- length(unique(df_plot$modalite))
+    pal <- rep(.analytix_accessible_palette,
+               length.out = max(n_levels, length(.analytix_accessible_palette)))
+    p <- p + ggplot2::scale_fill_manual(values = pal)
   }
   
   if (!is.null(file)) {

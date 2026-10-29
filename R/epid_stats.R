@@ -283,11 +283,29 @@ tbl_correlation <- function(data, cols = NULL, method = c("pearson", "spearman")
                                digits = 2, sig_level = 0.05, color = "transparent") {
   if (!requireNamespace("flextable", quietly = TRUE)) stop("flextable requis")
   method <- match.arg(method)
+  if (!is.data.frame(data)) stop("`data` doit être un data.frame.", call. = FALSE)
 
   if (is.null(cols)) {
     cols <- names(data)[sapply(data, is.numeric)]
+  } else {
+    missing_cols <- setdiff(cols, names(data))
+    if (length(missing_cols)) {
+      stop("Colonnes absentes : ", paste(missing_cols, collapse = ", "), call. = FALSE)
+    }
   }
   mat_data <- data[, cols, drop = FALSE]
+  non_numeric <- names(mat_data)[!sapply(mat_data, is.numeric)]
+  if (length(non_numeric) == length(cols)) {
+    stop("Aucune colonne numérique disponible pour calculer les corrélations.",
+         call. = FALSE)
+  }
+  if (length(non_numeric)) {
+    warning(
+      "Colonnes non numériques ignorées : ",
+      paste(non_numeric, collapse = ", "),
+      call. = FALSE
+    )
+  }
   mat_data <- mat_data[, sapply(mat_data, is.numeric), drop = FALSE]
   cols <- names(mat_data)
 

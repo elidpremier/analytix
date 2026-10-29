@@ -98,11 +98,30 @@ prep_recode_odk <- function(x, yes_label = "Oui", no_label = "Non") {
 clean_numeric <- function(x) {
   if (is.factor(x)) x <- as.character(x)
   if (is.character(x)) {
+    original <- x
     x <- clean_text(x)
-    x <- gsub(",", ".", x, fixed = TRUE)
+    x <- gsub("\u00a0|\u202f", "", x, perl = TRUE)
     x <- gsub(" ", "", x, fixed = TRUE)
+    x <- sub("%$", "", x)
+    x <- gsub(",", ".", x, fixed = TRUE)
+    parsed <- suppressWarnings(as.numeric(x))
+    invalid <- !is.na(original) & !is.na(x) & nchar(x) > 0 & is.na(parsed)
+    if (any(invalid)) {
+      warning(
+        sum(invalid),
+        " valeur(s) n'ont pas pu être convertie(s) en nombre et deviennent NA.",
+        call. = FALSE
+      )
+    }
+    return(parsed)
   }
-  suppressWarnings(as.numeric(x))
+  parsed <- suppressWarnings(as.numeric(x))
+  if (any(!is.na(x) & is.na(parsed))) {
+    warning(sum(!is.na(x) & is.na(parsed)),
+            " valeur(s) n'ont pas pu être convertie(s) en nombre et deviennent NA.",
+            call. = FALSE)
+  }
+  parsed
 }
 
 #' @rdname clean_utils

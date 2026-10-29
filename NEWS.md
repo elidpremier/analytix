@@ -16,6 +16,12 @@
 - Les analyses Kaplan-Meier valident les temps et les événements ; les quantiles non atteints sont retournés comme `NA`.
 - Les fonctions utilisant une graine restaurent l'état aléatoire de l'appelant, et `n_sentences` est désormais transmis au prompt LLM.
 
+### 🧰 Robustesse des entrées et graphiques
+- `clean_numeric()` reconnaît les espaces insécables, les pourcentages et signale les conversions invalides.
+- `tbl_correlation()` valide les colonnes demandées, signale les colonnes non numériques et refuse une sélection vide.
+- `tbl_cross_unique(include_na = TRUE)` représente explicitement les modalités manquantes et signale les exclusions sinon.
+- `plot_pie()` génère une palette dynamique pour les jeux comportant plus de sept modalités.
+
 ### 🔒 Confidentialité
 - Suppression de la télémétrie, du suivi d'utilisation, de l'identifiant de session et des journaux locaux automatiques.
 - Suppression de la configuration du webhook et des fonctions publiques de contrôle de télémétrie.
