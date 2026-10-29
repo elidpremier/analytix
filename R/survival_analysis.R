@@ -1,8 +1,8 @@
 #' @title Tableaux et courbes de survie Kaplan-Meier
 #' @name survival_analysis
 #' @description Fonctions pour réaliser une analyse de survie (méthode de Kaplan-Meier).
-#' \code{km_table} retourne un tableau formaté des médianes de survie et du test du Log-Rank.
-#' \code{km_plot} génère la courbe de survie.
+#' \code{tbl_km} retourne un objet `analytix_table` contenant les médianes de survie
+#' et le test du Log-Rank. \code{plot_km} génère la courbe de survie.
 #'
 #' @param data data.frame.
 #' @param time_var Nom de la variable de temps de suivi (numérique).
@@ -12,14 +12,14 @@
 #' @param digits Nombre de décimales.
 #'
 #' @return
-#' \code{km_table} retourne un \code{flextable}.
-#' \code{km_plot} retourne un objet \code{ggplot} (via survminer).
+#' \code{tbl_km} retourne un objet de classe `analytix_table` avec les champs
+#' \code{data} et \code{flextable}. \code{plot_km} retourne un objet \code{ggplot}.
 #'
 #' @examples
 #' \dontrun{
 #' df <- analytix_sample_data(n = 200)
-#' km_table(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
-#' km_plot(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
+#' tbl_km(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
+#' plot_km(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
 #' }
 NULL
 

@@ -1,6 +1,9 @@
 #' @title Constructeur pour les objets de résultats de tableaux analytix
 #' @description Encapsule un jeu de données tidy ($data) et son objet flextable ($flextable)
 #' dans une structure standardisée de classe `analytix_table`.
+#' Les résultats tabulaires du package suivent ce contrat : les données
+#' exploitables sont dans `$data`, la présentation dans `$flextable` et les
+#' champs supplémentaires contiennent les métadonnées propres à l'analyse.
 #'
 #' @param data data.frame des résultats.
 #' @param flextable objet flextable associé.

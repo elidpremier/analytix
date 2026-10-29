@@ -115,7 +115,7 @@ library(analytix)
 | `clean_text()` | Nettoyage d'une variable textuelle |
 | `clean_binary()` | Standardisation d'une variable binaire (Oui/Non, 0/1) |
 | `clean_numeric()` | Nettoyage d'une variable numérique (virgules, espaces) |
-| `prep_recode_odk()` | Recodage binaire spécifique ODK/KoboToolbox/REDCap (NA/vide → "Non") |
+| `prep_recode_odk()` | Recodage binaire strict ODK/KoboToolbox/REDCap (`NA` conservé, valeurs inconnues signalées) |
 | `prep_labels()` | Attacher des libellés à plusieurs variables en une seule opération |
 | `prep_outliers()` | Détection des valeurs aberrantes (IQR, Z-score) avec rapport |
 | `prep_quick_code()` | Recodage rapide d'une variable catégorielle |
@@ -375,9 +375,49 @@ export_all_tables(
 | Document | Contenu |
 |---|---|
 | **[Getting Started](GETTING_STARTED.md)** | Guide d'installation et démarrage en 5 minutes |
+| **[Vignette workflow](vignettes/workflow_analytix.Rmd)** | Workflow complet : import, nettoyage, analyses et export Word |
+| **[Vignette régression logistique](vignettes/logistic_regression.qmd)** | Modélisation logistique et interprétation des OR ajustés |
+| **[Contrat API](man/analytix.Rd)** | Organisation des familles de fonctions et conventions générales |
 | **[News & Changelog](NEWS.md)** | Historique des versions et nouveautés |
 | **[Contributing Guide](CONTRIBUTING.md)** | Comment contribuer au projet |
 | **[Code of Conduct](CODE_OF_CONDUCT.md)** | Normes communautaires |
+
+### Contrat des résultats tabulaires
+
+Les fonctions modernes qui retournent un objet de classe `analytix_table`
+(`tbl_roc()`, `tbl_km()`, `tbl_bivariate_or()`, `tbl_cross_unique()` et
+plusieurs fonctions `desc_*`) suivent une structure standardisée :
+
+- `$data` contient les données tidy, destinées à l'analyse ou à l'export personnalisé ;
+- `$flextable` contient la présentation prête à afficher ou à exporter dans Word ;
+- des champs supplémentaires peuvent fournir des métadonnées propres à l'analyse
+  (par exemple `$auc`, `$plot` ou `$roc_object` pour `tbl_roc()`).
+
+```r
+res <- tbl_bivariate_or(
+  data = data.frame(outcome = c(0, 1, 0, 1), exposure = c(0, 1, 1, 1)),
+  outcome = "outcome",
+  exposures = "exposure"
+)
+res$data
+res$flextable
+```
+
+Les fonctions plus anciennes qui retournent directement un `flextable`, comme
+`tbl_correlation()`, conservent ce comportement pour la compatibilité.
+
+Les anciennes fonctions sans préfixe (`descr_*`, `*_table`, `export_to_word()`,
+etc.) sont conservées pour compatibilité. Pour tout nouveau code, privilégiez
+les fonctions canoniques `clean_*`, `prep_*`, `desc_*`, `tbl_*`, `plot_*`,
+`report_*` et `export_*`.
+
+### Confidentialité et fonctions LLM
+
+Les fonctions LLM (`llm_summarize_table()`, `llm_summarize_report()`) n'envoient
+des données à un fournisseur externe que lorsqu'elles sont appelées avec une clé
+API configurée. Utilisez de préférence des tableaux agrégés et non sensibles.
+`setup_api_keys()` écrit les clés dans un fichier local avec des permissions
+restreintes ; ne versionnez jamais ce fichier.
 
 **Aide intégrée R :**
 ```r

@@ -34,8 +34,9 @@ Si NULL, un modèle logistique est ajusté sur toutes les variables numériques.
 \item{return_plot}{Retourner également le graphique ggplot2 (défaut: TRUE).}
 }
 \value{
-Une liste avec :
+Un objet de classe \code{analytix_table} contenant :
 \describe{
+\item{data}{Données tidy des indicateurs ROC (AUC, IC95\%, seuil optimal, Se, Sp)}
 \item{flextable}{Tableau des indicateurs ROC (AUC, IC95\%, seuil optimal, Se, Sp)}
 \item{plot}{Objet ggplot2 de la courbe ROC (si return_plot = TRUE)}
 \item{roc_object}{Objet pROC::roc pour usage ultérieur}
@@ -45,7 +46,7 @@ Une liste avec :
 \description{
 Calcule la courbe ROC, l'AUC (avec IC95\% DeLong) et le seuil optimal
 (index de Youden) pour un prédicteur numérique ou un score de probabilité vs un outcome binaire.
-Retourne un tableau flextable et optionnellement le graphique ggplot2.
+Retourne un objet \code{analytix_table} et, si demandé, le graphique ggplot2.
 }
 \examples{
 \dontrun{

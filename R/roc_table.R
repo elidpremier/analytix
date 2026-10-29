@@ -1,7 +1,7 @@
 #' @title Courbe ROC et tableau AUC
 #' @description Calcule la courbe ROC, l'AUC (avec IC95% DeLong) et le seuil optimal
 #' (index de Youden) pour un prédicteur numérique ou un score de probabilité vs un outcome binaire.
-#' Retourne un tableau flextable et optionnellement le graphique ggplot2.
+#' Retourne un objet `analytix_table` et, si demandé, le graphique ggplot2.
 #'
 #' @param data data.frame.
 #' @param outcome Nom (character) de la variable binaire (0/1 ou deux modalités).
@@ -13,8 +13,9 @@
 #' @param color Couleur d'en-tête (défaut: "transparent").
 #' @param return_plot Retourner également le graphique ggplot2 (défaut: TRUE).
 #'
-#' @return Une liste avec :
+#' @return Un objet de classe `analytix_table` contenant :
 #'   \describe{
+#'     \item{data}{Données tidy des indicateurs ROC (AUC, IC95%, seuil optimal, Se, Sp)}
 #'     \item{flextable}{Tableau des indicateurs ROC (AUC, IC95%, seuil optimal, Se, Sp)}
 #'     \item{plot}{Objet ggplot2 de la courbe ROC (si return_plot = TRUE)}
 #'     \item{roc_object}{Objet pROC::roc pour usage ultérieur}

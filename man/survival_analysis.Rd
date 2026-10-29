@@ -31,18 +31,18 @@ plot_km(data, time_var, event_var, group_var = NULL)
 \item{digits}{Nombre de décimales.}
 }
 \value{
-\code{km_table} retourne un \code{flextable}.
-\code{km_plot} retourne un objet \code{ggplot} (via survminer).
+\code{tbl_km} retourne un objet de classe \code{analytix_table} avec les champs
+\code{data} et \code{flextable}. \code{plot_km} retourne un objet \code{ggplot}.
 }
 \description{
 Fonctions pour réaliser une analyse de survie (méthode de Kaplan-Meier).
-\code{km_table} retourne un tableau formaté des médianes de survie et du test du Log-Rank.
-\code{km_plot} génère la courbe de survie.
+\code{tbl_km} retourne un objet \code{analytix_table} contenant les médianes de survie
+et le test du Log-Rank. \code{plot_km} génère la courbe de survie.
 }
 \examples{
 \dontrun{
 df <- analytix_sample_data(n = 200)
-km_table(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
-km_plot(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
+tbl_km(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
+plot_km(df, time_var = "suivi_mois", event_var = "deces", group_var = "traitement")
 }
 }

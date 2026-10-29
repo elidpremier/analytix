@@ -19,4 +19,7 @@ Un objet de classe \code{analytix_table}.
 \description{
 Encapsule un jeu de données tidy ($data) et son objet flextable ($flextable)
 dans une structure standardisée de classe \code{analytix_table}.
+Les résultats tabulaires du package suivent ce contrat : les données
+exploitables sont dans \verb{$data}, la présentation dans \verb{$flextable} et les
+champs supplémentaires contiennent les métadonnées propres à l'analyse.
 }
